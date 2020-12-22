@@ -139,8 +139,8 @@ function install_python3_and_deps() {
 	CURR_PYTHON_VER="${1:-Unknown}"
 	CURR_PYAML_VER="${2:-Unknown}"
 	if (whiptail --title "Python 3 and Dependencies" --yesno "Python 3.6.9 or later (Current = $CURR_PYTHON_VER), ruamel.yaml 0.16.12 or later (Current = $CURR_PYAML_VER), blessed and pip3 are required for IOTstack to function correctly. Install these now?" 20 78); then
-		sudo apt update
-		sudo apt install -y python3-pip python3-dev
+		sudo -E apt update
+		sudo -E apt install -y python3-pip python3-dev
 		if [ $? -eq 0 ]; then
 			PYTHON_VERSION_GOOD="true"
 		else
@@ -159,11 +159,11 @@ function install_python3_and_deps() {
 }
 
 function install_docker() {
-	sudo bash ./scripts/install_docker.sh install
+	sudo -E bash ./scripts/install_docker.sh install
 }
 
 function update_docker() {
-	sudo bash ./scripts/install_docker.sh upgrade
+	sudo -E bash ./scripts/install_docker.sh upgrade
 }
 
 function update_project() {
@@ -241,14 +241,14 @@ function do_env_setup() {
     echo "User is NOT in 'bluetooth' group. Adding:" >&2
     echo "sudo usermod -G bluetooth -a $USER" >&2
 		echo "You will need to restart your system before the changes take effect."
-		sudo usermod -G "bluetooth" -a $USER
+		sudo -E usermod -G "bluetooth" -a $USER
 	fi
 
 	if [ ! "$(user_in_group docker)" == "true" ]; then
     echo "User is NOT in 'docker' group. Adding:" >&2
     echo "sudo usermod -G docker -a $USER" >&2
 		echo "You will need to restart your system before the changes take effect."
-		sudo usermod -G "docker" -a $USER
+		sudo -E usermod -G "docker" -a $USER
 	fi
 }
 
@@ -304,14 +304,14 @@ function do_docker_checks() {
 						echo "User is NOT in 'bluetooth' group. Adding:" >&2
 						echo "sudo usermod -G bluetooth -a $USER" >&2
 						echo "You will need to restart your system before the changes take effect."
-						sudo usermod -G "bluetooth" -a $USER
+						sudo -E usermod -G "bluetooth" -a $USER
 					fi
 
 					if [ ! "$(user_in_group docker)" == "true" ]; then
 						echo "User is NOT in 'docker' group. Adding:" >&2
 						echo "sudo usermod -G docker -a $USER" >&2
 						echo "You will need to restart your system before the changes take effect."
-						sudo usermod -G "docker" -a $USER
+						sudo -E usermod -G "docker" -a $USER
 					fi
 					install_docker
 				else
@@ -368,7 +368,7 @@ else
 	do_project_checks
 	do_env_checks
 	do_python3_checks
-	sudo echo "Please enter sudo pasword if prompted"
+	echo "Please enter sudo pasword if prompted"
 	do_docker_checks
 
 	if [[ "$DOCKER_VERSION_GOOD" == "true" ]] && \
@@ -392,20 +392,20 @@ do
 			;;
 		--no-check) echo ""
 			;;
-		--run-env-setup) # Sudo cannot be run from inside functions.
+		--run-env-setup) # Sudo cannot be run from inside functions without -E flag.
 				echo "Setting up environment:"
 				if [[ ! "$(user_in_group bluetooth)" == "notgroup" ]] && [[ ! "$(user_in_group bluetooth)" == "true" ]]; then
 					echo "User is NOT in 'bluetooth' group. Adding:" >&2
-					echo "sudo usermod -G bluetooth -a $USER" >&2
+					echo "sudo -E usermod -G bluetooth -a $USER" >&2
 					echo "You will need to restart your system before the changes take effect."
-					sudo usermod -G "bluetooth" -a $USER
+					sudo -E usermod -G "bluetooth" -a $USER
 				fi
 
 				if [ ! "$(user_in_group docker)" == "true" ]; then
 					echo "User is NOT in 'docker' group. Adding:" >&2
-					echo "sudo usermod -G docker -a $USER" >&2
+					echo "sudo -E usermod -G docker -a $USER" >&2
 					echo "You will need to restart your system before the changes take effect."
-					sudo usermod -G "docker" -a $USER
+					sudo -E usermod -G "docker" -a $USER
 				fi
 			;;
 		--encoding) ENCODING_TYPE=$2
