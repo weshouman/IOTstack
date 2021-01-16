@@ -1,0 +1,3 @@
+ruamel.yaml ~= 0.16.12
+blessed ~= 1.17.5
+pyyaml ~= 5.3.1

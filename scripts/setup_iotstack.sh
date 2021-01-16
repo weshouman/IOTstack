@@ -7,25 +7,6 @@ REQ_DOCKER_VERSION=18.2.0
 AUTH_KEYS_FILE=~/.ssh/authorized_keys
 CONTAINER_KEYS_FILE=./.internal/.ssh/id_rsa
 
-sys_arch=$(uname -m)
-
-while test $# -gt 0
-do
-    case "$1" in
-        --no-ask) NOASKCONFIRM="true"
-            ;;
-        --*) echo "bad option $1"
-            ;;
-    esac
-    shift
-done
-
-echo "IOTstack Installation"
-if [ "$EUID" -eq "0" ]; then
-  echo "Please do not run as root"
-  exit
-fi
-
 function command_exists() {
 	command -v "$@" > /dev/null 2>&1
 }
@@ -88,7 +69,8 @@ function minimum_version_check() {
 	echo "$VERSION_GOOD"
 }
 
-function user_in_group() {
+function user_in_group()
+{
 	if grep -q $1 /etc/group ; then
 		if id -nGz "$USER" | grep -qzxF "$1";	then
 				echo "true"
@@ -120,7 +102,22 @@ function install_docker() {
 	echo "You should now restart your system" >&2
 }
 
-function do_group_setup() {
+function docker_installed_check() {
+	DOCKER_GOOD="pass"
+  if ! command_exists docker; then
+		DOCKER_GOOD="fail"
+    echo "Docker is installed" >&2
+  fi
+
+  if ! command_exists docker-compose; then
+		DOCKER_GOOD="fail"
+    echo "docker-compose is installed" >&2
+  fi
+
+	echo $DOCKER_GOOD
+}
+
+function group_setup() {
 	echo "Setting up groups:"
 	if [[ ! "$(user_in_group bluetooth)" == "notgroup" ]] && [[ ! "$(user_in_group bluetooth)" == "true" ]]; then
     echo "User is NOT in 'bluetooth' group. Adding:" >&2
@@ -138,20 +135,24 @@ function do_group_setup() {
 	echo "Rebooting or logging off is advised." >&2
 }
 
-function do_env_setup() {
-	sudo -E apt-get install git wget unzip -y
+function group_check() {
+	echo "Setting up groups:"
+	NEED_GROUP_SETUP="false"
+	if [[ ! "$(user_in_group bluetooth)" == "notgroup" ]] && [[ ! "$(user_in_group bluetooth)" == "true" ]]; then
+		NEED_GROUP_SETUP="fail"
+    echo "User is NOT in 'bluetooth' group." >&2
+	fi
+
+	if [ ! "$(user_in_group docker)" == "true" ]; then
+		NEED_GROUP_SETUP="fail"
+    echo "User is NOT in 'docker' group." >&2
+	fi
+	
+	echo $NEED_GROUP_SETUP
 }
 
-function do_iotstack_setup() {
-	git clone https://github.com/SensorsIot/IOTstack.git
-	cd IOTstack
-
-	if [ $? -eq 0 ]; then
-		echo "IOTstack cloned"
-	else
-		echo "Could not find IOTstack directory"
-		exit 5
-	fi
+function do_env_setup() {
+	sudo -E apt-get install git wget unzip -y
 }
 
 function generate_container_ssh() {
@@ -170,9 +171,14 @@ function install_ssh_keys() {
 	fi
 }
 
-do_env_setup
-do_iotstack_setup
-generate_container_ssh
-install_ssh_keys
-install_docker
-do_group_setup
+function do_iotstack_setup() {
+	git clone https://github.com/SensorsIot/IOTstack.git
+	cd IOTstack
+
+	if [ $? -eq 0 ]; then
+		echo "IOTstack cloned"
+	else
+		echo "Could not find IOTstack directory"
+		exit 5
+	fi
+}
