@@ -102,15 +102,30 @@ function install_docker() {
 	echo "You should now restart your system" >&2
 }
 
-function docker_installed_check() {
-	DOCKER_GOOD="pass"
-  if ! command_exists docker; then
-		DOCKER_GOOD="fail"
+function docker_check() {
+	DOCKER_GOOD="fail"
+
+  if command_exists docker; then
     echo "Docker is installed" >&2
+		if [ "$(minimum_version_check $REQ_DOCKER_VERSION $DOCKER_VERSION_MAJOR $DOCKER_VERSION_MINOR $DOCKER_VERSION_BUILD )" == "true" ]; then
+				[ -f .ignore_docker_outofdate ] && rm .ignore_docker_outofdate
+				DOCKER_GOOD="true"
+				echo "Docker version $DOCKER_VERSION >= $REQ_DOCKER_VERSION. Docker is good to go." >&2
+			else
+				DOCKER_GOOD="outdated"
+				if [ ! -f .ignore_docker_outofdate ]; then
+					if (whiptail --title "Docker and Docker-Compose Version Issue" --yesno "Docker version is currently $DOCKER_VERSION which is less than $REQ_DOCKER_VERSION consider upgrading or you may experience issues. You will not be prompted again. You can manually upgrade by typing:\n  sudo apt upgrade docker docker-compose\n\nAttempt to upgrade now?" 20 78); then
+						update_docker
+					else
+						touch .ignore_docker_outofdate
+					fi
+				fi
+			fi
+		fi
   fi
 
   if ! command_exists docker-compose; then
-		DOCKER_GOOD="fail"
+		COMPOSE_GOOD="pass"
     echo "docker-compose is installed" >&2
   fi
 
@@ -160,13 +175,14 @@ function generate_container_ssh() {
 }
 
 function install_ssh_keys() {
+	touch $AUTH_KEYS_FILE
 	if [ -f "$CONTAINER_KEYS_FILE" ]; then
 		NEW_KEY="$(cat $CONTAINER_KEYS_FILE.pub)"
 		if grep -Fxq "$NEW_KEY" $AUTH_KEYS_FILE ; then
-			echo "Key already exists in '$AUTH_KEYS_FILE' Skipping..."
+			echo "Key already exists in '$AUTH_KEYS_FILE' Skipping..." >&2
 		else
-			echo "$NEW_KEY" >> $AUTH_KEYS_FILE
-			echo "Key added."
+			echo "$NEW_KEY" >> $AUTH_KEYS_FILE >&2
+			echo "Key added." >&2
 		fi
 	fi
 }

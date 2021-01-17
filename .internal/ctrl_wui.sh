@@ -1,14 +1,19 @@
 #!/bin/bash
 
-VERSION=v0.0.1
+source ./.internal/meta.sh
 DNAME=iostack_wui
 FULL_NAME="$DNAME:$VERSION"
 
 if [[ $IOTENV == "development" ]]; then
   docker stop $(docker ps -q --filter ancestor=$FULL_NAME) || docker rmi $FULL_NAME --force
-  docker build --no-cache -t $FULL_NAME -f wui.Dockerfile .
+  docker build --no-cache -t $FULL_NAME -f ./.internal/wui.Dockerfile .
 else
-  docker build -t $FULL_NAME -f wui.Dockerfile .
+  if [[ "$(docker images -q $FULL_NAME 2> /dev/null)" == "" ]]; then
+    echo "Building '$FULL_NAME'"
+    docker build --quiet -t $FULL_NAME -f ./.internal/wui.Dockerfile .
+  else
+    echo "Build for '$FULL_NAME' already exists. Skipping..."
+  fi
 fi
 
 if [ "$1" = "stop" ]; then

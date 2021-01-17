@@ -6,25 +6,34 @@ REQ_DOCKER_VERSION=18.2.0
 # Required to generate and install a ssh key so menu containers can securely execute commands on host
 AUTH_KEYS_FILE=~/.ssh/authorized_keys
 CONTAINER_KEYS_FILE=./.internal/.ssh/id_rsa
+REBOOT_REQ="false"
 
 sys_arch=$(uname -m)
 
 while test $# -gt 0
 do
-    case "$1" in
-        --no-ask) NOASKCONFIRM="true"
-            ;;
-        --*) echo "bad option $1"
-            ;;
-    esac
-    shift
+	case "$1" in
+			--no-ask) NOASKCONFIRM="true"
+					;;
+			--*) echo "bad option $1"
+					;;
+	esac
+	shift
 done
 
 echo "IOTstack Installation"
+echo "Running as '$(whoami)' in '$(pwd)'"
 if [ "$EUID" -eq "0" ]; then
   echo "Please do not run as root"
   exit
 fi
+
+if [ -f "./menu.sh" ]; then
+	echo "'./menu.sh' file detected, will not reclone. Is IOTstack already installed in this directory?"
+fi
+
+echo "Please enter sudo password if prompted to do so."
+echo ""
 
 function command_exists() {
 	command -v "$@" > /dev/null 2>&1
@@ -101,12 +110,14 @@ function user_in_group() {
 }
 
 function install_docker() {
+	DOCKERREBOOT="false"
   if command_exists docker; then
     echo "Docker already installed" >&2
   else
     echo "Install Docker" >&2
     curl -fsSL https://get.docker.com | sh
     sudo -E usermod -aG docker $USER
+		DOCKERREBOOT="true"
   fi
 
   if command_exists docker-compose; then
@@ -114,43 +125,67 @@ function install_docker() {
   else
     echo "Install docker-compose" >&2
     sudo -E apt install -y docker-compose
+		DOCKERREBOOT="true"
   fi
 
-	echo "" >&2
-	echo "You should now restart your system" >&2
+	if [[ "$DOCKERREBOOT" == "true" ]]; then
+		REBOOT_REQ="true"
+		echo "" >&2
+		echo "You should restart your system after IOTstack is installed" >&2
+	fi
 }
 
 function do_group_setup() {
-	echo "Setting up groups:"
+	echo "Setting up groups..."
+	GROUPCHANGE="false"
 	if [[ ! "$(user_in_group bluetooth)" == "notgroup" ]] && [[ ! "$(user_in_group bluetooth)" == "true" ]]; then
     echo "User is NOT in 'bluetooth' group. Adding:" >&2
     echo "sudo usermod -G bluetooth -a $USER" >&2
 		sudo -E usermod -G "bluetooth" -a $USER
+		GROUPCHANGE="true"
+	else
+    echo "User already in bluetooth group" >&2
 	fi
 
 	if [ ! "$(user_in_group docker)" == "true" ]; then
     echo "User is NOT in 'docker' group. Adding:" >&2
     echo "sudo usermod -G docker -a $USER" >&2
 		sudo -E usermod -G "docker" -a $USER
+		GROUPCHANGE="true"
+	else
+    echo "User already in docker group" >&2
 	fi
 
-	echo "" >&2
-	echo "Rebooting or logging off is advised." >&2
+	if [[ "$GROUPCHANGE" == "true" ]]; then
+		REBOOT_REQ="true"
+		echo "" >&2
+		echo "Rebooting or logging off is advised." >&2
+	fi
 }
 
 function do_env_setup() {
 	sudo -E apt-get install git wget unzip -y
+	if [ ! $? -eq 0 ]; then
+		echo "" >&2
+		echo "Dependency install failed. Aborting installation" >&2
+		exit 1
+	fi
 }
 
 function do_iotstack_setup() {
-	git clone https://github.com/SensorsIot/IOTstack.git
-	cd IOTstack
-
-	if [ $? -eq 0 ]; then
-		echo "IOTstack cloned"
+	if [ -f "./menu.sh" ]; then
+		echo "'./menu.sh' file detected, will not reclone." >&2
 	else
-		echo "Could not find IOTstack directory"
-		exit 5
+		echo "IOTstack will be cloned into $(pwd)/IOTstack" >&2
+		git clone https://github.com/SensorsIot/IOTstack.git
+		cd IOTstack
+
+		if [ $? -eq 0 ]; then
+			echo "IOTstack cloned" >&2
+		else
+			echo "Could not find IOTstack directory" >&2
+			exit 5
+		fi
 	fi
 }
 
@@ -159,20 +194,42 @@ function generate_container_ssh() {
 }
 
 function install_ssh_keys() {
+	touch $AUTH_KEYS_FILE
 	if [ -f "$CONTAINER_KEYS_FILE" ]; then
 		NEW_KEY="$(cat $CONTAINER_KEYS_FILE.pub)"
 		if grep -Fxq "$NEW_KEY" $AUTH_KEYS_FILE ; then
-			echo "Key already exists in '$AUTH_KEYS_FILE' Skipping..."
+			echo "Key already exists in '$AUTH_KEYS_FILE' Skipping..." >&2
 		else
-			echo "$NEW_KEY" >> $AUTH_KEYS_FILE
-			echo "Key added."
+			echo "$NEW_KEY" >> $AUTH_KEYS_FILE >&2
+			echo "Key added." >&2
 		fi
 	fi
 }
 
+# Entry point
 do_env_setup
 do_iotstack_setup
 generate_container_ssh
 install_ssh_keys
 install_docker
 do_group_setup
+
+echo "IOTstack setup completed"
+if [[ "$REBOOT_REQ" == "true" ]]; then
+	if [[ "$NOASKCONFIRM" == "true" ]]; then
+		echo "Rebooting..."
+		sudo reboot
+	else
+		echo ""
+		echo "You need to reboot your system to ensure IOTstack runs correctly."
+		if (whiptail --title "Reboot Required" --yesno "A restart is required to ensure IOTstack runs correctly.\n\nAfter reboot start IOTstack by running:\n  ./menu.sh\n\nFrom the IOTstack directory:\n  $(pwd)\n\nReboot now?" 20 78); then
+			echo "Rebooting..."
+			sleep 1
+			sudo reboot
+		fi
+	fi
+fi
+
+echo ""
+echo "Start IOTstack by running:"
+echo "  ./menu.sh"

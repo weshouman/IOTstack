@@ -4,13 +4,6 @@ CURRENT_BRANCH=$(git name-rev --name-only HEAD)
 
 # Minimum Software Versions
 REQ_DOCKER_VERSION=18.2.0
-REQ_PYTHON_VERSION=3.6.9
-REQ_PIP_VERSION=3.6.9
-REQ_PYAML_VERSION=0.16.12
-REQ_BLESSED_VERSION=1.17.5
-
-PYTHON_CMD=python3
-VGET_CMD="$PYTHON_CMD ./scripts/python_deps_check.py"
 
 sys_arch=$(uname -m)
 
@@ -18,6 +11,7 @@ sys_arch=$(uname -m)
 # Helper functions
 # ----------------------------------------------
 source ./scripts/setup_iotstack.sh
+source ./.internal/meta.sh
 
 function check_git_updates() {
 	UPSTREAM=${1:-'@{u}'}
@@ -71,25 +65,20 @@ else
 	project_checks
 
 	if [[ "$(docker_checks)" == "fail" ]]; then
-		echo "Docker is not setup."
-		if (whiptail --title "Install Docker" --yesno "Docker or docker-compose doesn't seem to be installed. After installation the system will need to be rebooted.\r\n\r\nInstall Docker and docker-compose now?" 14 78); then
-			docker_installed_check
-		fi
+		echo "Docker is not setup. Cannot continue"
+		exit 2
+	fi
+
+	if [[ "$(docker_checks)" == "outdated" ]]; then
+		echo ""
+		echo "Docker is outdated. You should consider updating. To be reprompted, type:"
+		echo "  rm .ignore_docker_outofdate"
+		echo ""
 	fi
 
 	if [[ "$(group_check)" == "fail" ]]; then
 		echo "User not in correct groups. Run:"
 		echo "bash ./menu.sh --run-env-setup"
-	fi
-
-	if [[ "$DOCKER_VERSION_GOOD" == "true" ]]; then
-		echo "Project dependencies up to date"
-		echo ""
-	else
-		echo "Project dependencies not up to date. Menu may crash."
-		echo "To be prompted to update again, run command:"
-		echo "  rm .docker_notinstalled || rm .docker_outofdate || rm .project_outofdate"
-		echo ""
 	fi
 fi
 
@@ -125,6 +114,53 @@ do
 	esac
 	shift
 done
+
+PREBUILT_IMAGES="true"
+if [[ "$(docker images -q iostack_api:$VERSION 2> /dev/null)" == "" ]]; then
+	PREBUILT_IMAGES="false"
+fi
+
+if [[ "$(docker images -q iostack_pycli:$VERSION 2> /dev/null)" == "" ]]; then
+	PREBUILT_IMAGES="false"
+fi
+
+if [[ "$(docker images -q iostack_wui:$VERSION 2> /dev/null)" == "" ]]; then
+	PREBUILT_IMAGES="false"
+fi
+
+if [[ "$PREBUILT_IMAGES" == "" ]]; then
+	echo "You either recently installed or upgraded IOTstack. The menu docker images need to be rebuilt in order for the menu to run correctly. This will take a few minutes."
+
+	# Build all asynchronously, so it's faster. Give PyCLI a slight headstart to keep the user waiting the shortest time.
+	docker build --quiet -t iostack_pycli:$VERSION -f ./.internal/pycli.Dockerfile . &
+	sleep 1
+	docker build --quiet -t iostack_api:$VERSION -f ./.internal/api.Dockerfile . &
+	sleep 2
+	docker build --quiet -t iostack_wui:$VERSION -f ./.internal/wui.Dockerfile . &
+
+	SLEEP_COUNTER=0
+	API_REBUILD_DONE="false"
+	PYCLI_REBUILD_DONE="false"
+
+	until [[ $SLEEP_COUNTER -gt 60 || ("$API_REBUILD_DONE" == "true" && "$PYCLI_REBUILD_DONE" == "true") ]];	do
+		if [[ ! "$(docker images -q iostack_api:$VERSION 2> /dev/null)" == "" ]]; then
+			API_REBUILD_DONE="true"
+		fi
+
+		if [[ ! "$(docker images -q iostack_pycli:$VERSION 2> /dev/null)" == "" ]]; then
+			PYCLI_REBUILD_DONE="false"
+		fi
+
+		printf(".")
+		sleep 1
+
+		((SLEEP_COUNTER++))
+	done
+fi
+
+if [[ $SLEEP_COUNTER -gt 60 ]]; then
+	echo "Something seems to have gone wrong when rebuilding the menu docker images."
+fi
 
 # Hand control to new menu
 echo "Started!"

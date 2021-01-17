@@ -1,0 +1,5 @@
+VERSION="v0.0.1"
+IOTSTACKPWD="$(pwd)"
+HOSTUSER="$(whoami)"
+HOSTSSH_IP="host.docker.internal"
+HOSTSSH_PORT="22"
