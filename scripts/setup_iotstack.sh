@@ -187,6 +187,15 @@ function install_ssh_keys() {
 	fi
 }
 
+function check_container_ssh() {
+	KEYS_EXIST="false"
+	if [[ -f "$CONTAINER_KEYS_FILE" && -f "$CONTAINER_KEYS_FILE.pub" ]]; then
+		KEYS_EXIST="true"
+	fi
+
+	echo $KEYS_EXIST
+}
+
 function do_iotstack_setup() {
 	git clone https://github.com/SensorsIot/IOTstack.git
 	cd IOTstack
