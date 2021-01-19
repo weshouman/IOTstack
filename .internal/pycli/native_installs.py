@@ -4,10 +4,10 @@ import signal
 def main():
   from blessed import Terminal
   from deps.chars import specialChars, commonTopBorder, commonBottomBorder, commonEmptyLine
-  global renderMode
+  from deps.host_exec import execInteractive
   import time
-  import subprocess
 
+  global renderMode
   global signal
   global dockerCommandsSelectionInProgress
   global mainMenuList
@@ -33,8 +33,8 @@ def main():
   def installHassIo():
     print(term.clear())
     print("Install Home Assistant Supervisor")
-    print("./.native/hassio_supervisor.sh")
-    res = subprocess.call("./.native/hassio_supervisor.sh", shell=True)
+    print("bash ./scripts/host_installers/hassio_supervisor.sh")
+    res = execInteractive('bash ./scripts/host_installers/hassio_supervisor.sh')
     print("")
     if res == 0:
       print("Preinstallation complete. Your system may run slow for a few hours as Hass.io installs its services.")
@@ -48,8 +48,8 @@ def main():
   def installRtl433():
     print(term.clear())
     print("Install RTL_433")
-    print("bash ./.native/rtl_433.sh")
-    subprocess.call("bash ./.native/rtl_433.sh", shell=True)
+    print("bash ./scripts/host_installers/rtl_433.sh")
+    execInteractive('bash ./scripts/host_installers/rtl_433.sh')
     print("")
     input("Process terminated. Press [Enter] to show menu and continue.")
     return True
@@ -57,8 +57,8 @@ def main():
   def installRpiEasy():
     print(term.clear())
     print("Install RPIEasy")
-    print("bash ./.native/rpieasy.sh")
-    subprocess.call("bash ./.native/rpieasy.sh", shell=True)
+    print("bash ./scripts/host_installers/rpieasy.sh")
+    execInteractive('bash ./scripts/host_installers/rpieasy.sh')
     print("")
     input("Process terminated. Press [Enter] to show menu and continue.")
     return True
@@ -67,8 +67,8 @@ def main():
     print(term.clear())
     print("Install docker")
     print("Install docker-compose")
-    print("bash ./scripts/install_docker.sh install")
-    subprocess.call("bash ./scripts/install_docker.sh install", shell=True)
+    print("bash ./scripts/host_installers/install_docker.sh install")
+    execInteractive('bash ./scripts/host_installers/install_docker.sh install')
     print("")
     input("Process terminated. Press [Enter] to show menu and continue.")
     return True
@@ -77,8 +77,8 @@ def main():
     print(term.clear())
     print("Install docker")
     print("Install docker-compose")
-    print("bash ./scripts/install_docker.sh upgrade")
-    subprocess.call("bash ./scripts/install_docker.sh upgrade", shell=True)
+    print("bash ./scripts/host_installers/install_docker.sh upgrade")
+    execInteractive('bash ./scripts/host_installers/install_docker.sh upgrade')
     print("")
     input("Process terminated. Press [Enter] to show menu and continue.")
     return True

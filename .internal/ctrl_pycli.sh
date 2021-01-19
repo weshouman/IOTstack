@@ -8,11 +8,19 @@ if [ "$1" = "stop" ]; then
   docker stop $(docker ps -q --filter ancestor=$FULL_NAME ) 2> /dev/null
 else
   if [[ $IOTENV == "development" ]]; then
+    echo "[Development] Stopping container:"
+    echo "docker stop $(docker ps -q --filter ancestor=$FULL_NAME) || docker rmi $FULL_NAME --force"
     docker stop $(docker ps -q --filter ancestor=$FULL_NAME) || docker rmi $FULL_NAME --force
+    echo ""
+    echo "Rebuilding container:"
+    echo "docker build --no-cache -t $FULL_NAME -f ./.internal/pycli.Dockerfile ."
+    docker pull python:3 # Docker occasionally fails to pull image when building when it is not cached.
     docker build --no-cache -t $FULL_NAME -f ./.internal/pycli.Dockerfile .
+    echo ""
   else
     if [[ "$(docker images -q $FULL_NAME 2> /dev/null)" == "" ]]; then
       echo "Building '$FULL_NAME'"
+      docker pull python:3 # Docker occasionally fails to pull image when building when it is not cached.
       docker build --quiet -t $FULL_NAME -f ./.internal/pycli.Dockerfile .
     else
       echo "Build for '$FULL_NAME' already exists. Skipping..."
@@ -27,6 +35,8 @@ else
       --mount type=bind,source="$IOTSTACKPWD"/.internal/.ssh,target=/root/.ssh,readonly \
       -e HOSTUSER="$HOSTUSER" \
       -e IOTSTACKPWD="$IOTSTACKPWD" \
+      -e HOSTSSH_ADDR="$HOSTSSH_ADDR" \
+      -e HOSTSSH_PORT="$HOSTSSH_PORT" \
       --restart no \
        -it $FULL_NAME
 

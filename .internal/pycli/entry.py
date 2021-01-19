@@ -3,37 +3,54 @@
 import blessed
 import yaml
 import ruamel.yaml
+from deps.host_exec import execSilent
 import subprocess
 import os
+import sys
+import traceback
 
 hostUser = os.getenv('HOSTUSER')
+iotstackPwd = os.getenv('IOTSTACKPWD')
+hostAddress = os.getenv('HOSTSSH_ADDR')
+hostPort = os.getenv('HOSTSSH_PORT')
 
 print('blessed Version:', blessed.__version__)
 print('ruamel.yaml Version:', ruamel.yaml.__version__)
 print('PyYAML Version:', yaml.__version__)
 print('')
 print('hostUser: ', hostUser)
+print('iotstackPwd: ', iotstackPwd)
+print('SSH hostAddress: ', hostAddress)
+print('SSH hostPort: ', hostPort)
 
 print('')
-testInput = print('Remote test: ')
-res1 = subprocess.check_output("""
-ssh -t -o StrictHostKeychecking=no {hostUser}@host.docker.internal 'touch ~/tat.file'
-""".format(hostUser=hostUser), stderr=subprocess.PIPE, shell=True)
+try:
+  print('Checking connectivity to host...') 
+  touchRes = execSilent('touch ./.tmp/rtest.file')
+  touchRes = execSilent('echo "exec success" >> ./.tmp/rtest.file')
+  readRes = execSilent('cat ./.tmp/rtest.file')
+  rmRes = execSilent('rm ./.tmp/rtest.file')
 
-res2 = subprocess.check_output("""
-ssh -t -o StrictHostKeychecking=no {hostUser}@host.docker.internal 'echo "hi" >> ~/tat.file'
-""".format(hostUser=hostUser), stderr=subprocess.PIPE, shell=True)
+  if readRes != 'exec success':
+    print('Error attempting to execute commands on the host. You may need to regenerate SSH keys by running:')
+    print('  ./menu.sh --run-env-setup')
+    print('')
+    print('Or configure SSH to use correct ports.')
+    input("Press Enter to continue to menu...")
 
-res3 = subprocess.check_output("""
-ssh -t -o StrictHostKeychecking=no {hostUser}@host.docker.internal 'cat ~/tat.file'
-""".format(hostUser=hostUser), stderr=subprocess.PIPE, shell=True)
+except Exception:
+  print('Error attempting to execute commands on the host. You may need to regenerate SSH keys by running:')
+  print('  ./menu.sh --run-env-setup')
+  print('')
+  print('Or configure SSH to use correct ports.')
+  print('')
+  print('Error reported:')
+  print(sys.exc_info())
+  traceback.print_exc()
+  print('')
+  input("Press Enter to continue to menu...")
 
-res4 = subprocess.check_output("""
-ssh -t -o StrictHostKeychecking=no {hostUser}@host.docker.internal 'rm ~/tat.file'
-""".format(hostUser=hostUser), stderr=subprocess.PIPE, shell=True)
+os.system('python menu_main.py')
 
-testInput = print(res3.decode('ascii'))
-print('')
-
-testInput = input('Enter input: ')
-print('Input you entered', testInput)
+# testInput = input('Enter input: ')
+# print('Input you entered', testInput)

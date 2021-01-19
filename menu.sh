@@ -64,32 +64,46 @@ else
 
 	project_checks
 
+	echo ""
+	printf "Checking Container keys...  "
 	if [[ "$(check_container_ssh)" == "false" ]]; then
 		echo "SSH keys for containers do not exist. the menu containers will not be able to execute commands on your host."
 		echo "To regenerate these keys, run:"
 		echo "  bash ./menu.sh --run-env-setup"
+	else
+		echo "Keys found."
 	fi
 
-	if [[ "$(docker_checks)" == "fail" ]]; then
+	echo ""
+	printf "Checking Docker state...  "
+	DOCKER_CHECK_RESULT="$(docker_check)"
+	if [[ "$DOCKER_CHECK_RESULT" == "fail" ]]; then
 		echo "Docker is not setup. Cannot continue"
 		exit 2
 	fi
 
-	if [[ "$(docker_checks)" == "outdated" ]]; then
+	if [[ "$DOCKER_CHECK_RESULT" == "outdated" ]]; then
 		echo ""
 		echo "Docker is outdated. You should consider updating. To be reprompted, type:"
 		echo "  rm .ignore_docker_outofdate"
 		echo ""
 	fi
 
+	echo ""
+	printf "Checking User group...  "
 	if [[ "$(group_check)" == "fail" ]]; then
 		echo "User not in correct groups. Run:"
 		echo "  bash ./menu.sh --run-env-setup"
+	else
+		echo "User in required groups."
 	fi
 	
 	# ----------------------------------------------
 	# Check state of running menu instances
 	# ----------------------------------------------
+	echo ""
+	printf "Checking menu container state... "
+
 	PREBUILT_IMAGES="true"
 	if [[ "$(docker images -q iostack_api:$VERSION 2> /dev/null)" == "" ]]; then
 		PREBUILT_IMAGES="false"
@@ -104,7 +118,7 @@ else
 	fi
 
 	if [[ "$PREBUILT_IMAGES" == "false" ]]; then
-		echo "You either recently installed or upgraded IOTstack. The menu docker images need to be rebuilt in order for the menu to run correctly. This will take about a minute."
+		echo "You either recently installed or upgraded IOTstack. The menu docker images need to be rebuilt in order for the menu to run correctly. This will take about a minute and is completely automatic."
 		bash ./.internal/docker_menu.sh stop > /dev/null &
 
 		sleep 1
@@ -121,15 +135,15 @@ else
 		PYCLI_REBUILD_DONE="not completed"
 
 		until [[ $SLEEP_COUNTER -gt 300 || ("$API_REBUILD_DONE" == "completed" && "$PYCLI_REBUILD_DONE" == "completed") ]];	do
-			if [[ ! "$(docker images -q iostack_api:$VERSION 2> /dev/null)" == "" ]]; then
+			if [[ ! "$(docker images -q iostack_api:$VERSION)" == "" ]]; then
 				API_REBUILD_DONE="completed"
 			fi
 
-			if [[ ! "$(docker images -q iostack_pycli:$VERSION 2> /dev/null)" == "" ]]; then
+			if [[ ! "$(docker images -q iostack_pycli:$VERSION)" == "" ]]; then
 				PYCLI_REBUILD_DONE="completed"
 			fi
 
-			printf(".")
+			printf .
 			sleep 1
 
 			((SLEEP_COUNTER++))
@@ -144,6 +158,8 @@ else
 		echo ""
 	fi
 fi
+echo " Menu check completed."
+echo ""
 
 while test $# -gt 0
 do
@@ -151,6 +167,8 @@ do
 		--branch) CURRENT_BRANCH=${2:-$(git name-rev --name-only HEAD)}
 			;;
 		--no-check) echo ""
+			;;
+		--stop) echo "Stopping all menu containers" && bash ./.internal/docker_menu.sh stop
 			;;
 		--run-env-setup)
 				echo "Setting up environment:"
@@ -178,7 +196,8 @@ do
 	shift
 done
 
-# If PyCLI is already running reattach
+echo "Spinning up menu containers... "
+# If PyCLI is already running then reattach
 PYCLI_ID="$(docker ps --format '{{.ID}} {{.Image}}' | grep -w iostack_pycli:$VERSION | cut -d ' ' -f1 | head -n 1)"
 if [[ "$PYCLI_ID" == "" ]]; then
 	bash ./.internal/docker_menu.sh

@@ -107,24 +107,47 @@ function docker_check() {
 
   if command_exists docker; then
     echo "Docker is installed" >&2
-		if [ "$(minimum_version_check $REQ_DOCKER_VERSION $DOCKER_VERSION_MAJOR $DOCKER_VERSION_MINOR $DOCKER_VERSION_BUILD )" == "true" ]; then
-				[ -f .ignore_docker_outofdate ] && rm .ignore_docker_outofdate
-				DOCKER_GOOD="true"
-				echo "Docker version $DOCKER_VERSION >= $REQ_DOCKER_VERSION. Docker is good to go." >&2
-			else
-				DOCKER_GOOD="outdated"
-				if [ ! -f .ignore_docker_outofdate ]; then
-					if (whiptail --title "Docker and Docker-Compose Version Issue" --yesno "Docker version is currently $DOCKER_VERSION which is less than $REQ_DOCKER_VERSION consider upgrading or you may experience issues. You will not be prompted again. You can manually upgrade by typing:\n  sudo apt upgrade docker docker-compose\n\nAttempt to upgrade now?" 20 78); then
-						update_docker
-					else
-						touch .ignore_docker_outofdate
-					fi
+		DOCKER_VERSION=$(docker version -f "{{.Server.Version}}" 2>&1)
+
+		if [[ "$DOCKER_VERSION" == *"Cannot connect to the Docker daemon"* ]]; then
+			echo "Error getting docker version. Error when connecting to docker daemon. Check that docker is running." >&2
+			if (whiptail --title "Docker and Docker-Compose" --yesno "Error getting docker version. Error when connecting to docker daemon. Check that docker is running.\n\nCommand: docker version -f \"{{.Server.Version}}\"\n\nExit?" 20 78 >&2); then
+				exit 1
+			fi
+		elif [[ "$DOCKER_VERSION" == *" permission denied"* ]]; then
+			echo "Error getting docker version. Received permission denied error. Try running with: ./menu.sh --run-env-setup" >&2
+			if (whiptail --title "Docker and Docker-Compose" --yesno "Error getting docker version. Received permission denied error.\n\nTry rerunning the menu with: ./menu.sh --run-env-setup\n\nExit?" 20 78 >&2); then
+				exit 1
+			fi
+		fi
+
+		if [[ -z "$DOCKER_VERSION" ]]; then
+			echo "Error getting docker version. Error when running docker command. Check that docker is installed correctly." >&2
+		fi
+		
+		DOCKER_VERSION_MAJOR=$(echo "$DOCKER_VERSION"| cut -d'.' -f 1)
+		DOCKER_VERSION_MINOR=$(echo "$DOCKER_VERSION"| cut -d'.' -f 2)
+
+		DOCKER_VERSION_BUILD=$(echo "$DOCKER_VERSION"| cut -d'.' -f 3)
+		DOCKER_VERSION_BUILD=$(echo "$DOCKER_VERSION_BUILD"| cut -f1 -d"-")
+
+		if [[ "$(minimum_version_check $REQ_DOCKER_VERSION $DOCKER_VERSION_MAJOR $DOCKER_VERSION_MINOR $DOCKER_VERSION_BUILD )" == "true" ]]; then
+			[ -f .ignore_docker_outofdate ] && rm .ignore_docker_outofdate
+			DOCKER_GOOD="true"
+			echo "Docker version $DOCKER_VERSION >= $REQ_DOCKER_VERSION. Docker is good to go." >&2
+		else
+			DOCKER_GOOD="outdated"
+			if [ ! -f .ignore_docker_outofdate ]; then
+				if (whiptail --title "Docker and Docker-Compose Version Issue" --yesno "Docker version is currently $DOCKER_VERSION which is less than $REQ_DOCKER_VERSION consider upgrading or you may experience issues. You will not be prompted again. You can manually upgrade by typing:\n  sudo apt upgrade docker docker-compose\n\nAttempt to upgrade now?" 20 78 >&2); then
+					update_docker
+				else
+					touch .ignore_docker_outofdate
 				fi
 			fi
 		fi
   fi
 
-  if ! command_exists docker-compose; then
+  if command_exists docker-compose; then
 		COMPOSE_GOOD="pass"
     echo "docker-compose is installed" >&2
   fi

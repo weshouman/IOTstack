@@ -8,7 +8,6 @@ import time
 import types
 import signal
 from deps.chars import specialChars
-from deps.version_check import checkVersion
 
 term = Terminal()
 
@@ -99,7 +98,7 @@ def buildStack():
   global screenActive
   
   buildComplete = None
-  buildstackFilePath = "./scripts/buildstack_menu.py"
+  buildstackFilePath = "./buildstack_menu.py"
   with open(buildstackFilePath, "rb") as pythonDynamicImportFile:
     code = compile(pythonDynamicImportFile.read(), buildstackFilePath, "exec")
   execGlobals = {
@@ -132,7 +131,7 @@ def runExampleMenu():
 
 def dockerCommands():
   global needsRender
-  dockerCommandsFilePath = "./scripts/docker_commands.py"
+  dockerCommandsFilePath = "./docker_commands.py"
   with open(dockerCommandsFilePath, "rb") as pythonDynamicImportFile:
     code = compile(pythonDynamicImportFile.read(), dockerCommandsFilePath, "exec")
   # execGlobals = globals()
@@ -149,7 +148,7 @@ def dockerCommands():
 
 def miscCommands():
   global needsRender
-  dockerCommandsFilePath = "./scripts/misc_commands.py"
+  dockerCommandsFilePath = "./misc_commands.py"
   with open(dockerCommandsFilePath, "rb") as pythonDynamicImportFile:
     code = compile(pythonDynamicImportFile.read(), dockerCommandsFilePath, "exec")
   # execGlobals = globals()
@@ -167,7 +166,7 @@ def miscCommands():
 def nativeInstalls():
   global needsRender
   global screenActive
-  dockerCommandsFilePath = "./scripts/native_installs.py"
+  dockerCommandsFilePath = "./native_installs.py"
   with open(dockerCommandsFilePath, "rb") as pythonDynamicImportFile:
     code = compile(pythonDynamicImportFile.read(), dockerCommandsFilePath, "exec")
   # currGlobals = globals()
@@ -185,7 +184,7 @@ def nativeInstalls():
 def backupAndRestore():
   global needsRender
   global screenActive
-  dockerCommandsFilePath = "./scripts/backup_restore.py"
+  dockerCommandsFilePath = "./backup_restore.py"
   with open(dockerCommandsFilePath, "rb") as pythonDynamicImportFile:
     code = compile(pythonDynamicImportFile.read(), dockerCommandsFilePath, "exec")
   # currGlobals = globals()
@@ -291,17 +290,6 @@ potentialMenu = {
   }
 }
 
-def checkDockerVersion():
-  try:
-    getDockerVersion = subprocess.Popen(['docker', 'version', '-f', '"{{.Server.Version}}"'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    getDockerVersion.wait()
-    currentDockerVersion, stdError = getDockerVersion.communicate()
-    currentDockerVersion = currentDockerVersion.decode("utf-8").rstrip().replace('"', '')
-  except Exception as err:
-    print("Error attempting to run docker command:", err)
-
-  return checkVersion(requiredDockerVersion, currentDockerVersion)
-
 def checkProjectUpdates():
   getCurrentBranch = subprocess.Popen(["git", "name-rev", "--name-only", "HEAD"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
   getCurrentBranch.wait()
@@ -334,7 +322,7 @@ def removeMenuItemByLabel(potentialItemKey):
       potentialMenu[potentialItemKey]["added"] = False
       mainMenuList.pop(i)
 
-def doPotentialMenuCheck(projectStatus, dockerVersion=True, promptFiles=False):
+def doPotentialMenuCheck(projectStatus, promptFiles=False):
   global needsRender
 
   if (promptFiles == True):
@@ -360,11 +348,6 @@ def doPotentialMenuCheck(projectStatus, dockerVersion=True, promptFiles=False):
   #   projectStatusPollRateRefresh = None
   #   if (added):
   #     needsRender = 1
-
-  if (dockerVersion == False):
-    added = addPotentialMenuItem("dockerNotUpdated")
-    if (added):
-      needsRender = 1
 
 def checkIfPromptFilesExist():
   if os.path.exists(".project_outofdate"):
@@ -423,7 +406,6 @@ def isMenuItemSelectable(menu, index):
 # Entrypoint
 if __name__ == '__main__':
   projectStatus = checkProjectUpdates() # Async
-  dockerVersion, reason, data = checkDockerVersion()
   promptFiles = checkIfPromptFilesExist()
   term = Terminal()
   
@@ -442,7 +424,7 @@ if __name__ == '__main__':
           mainRender(needsRender, mainMenuList, currentMenuItemIndex)
           needsRender = 0
 
-        doPotentialMenuCheck(projectStatus=projectStatus, dockerVersion=dockerVersion, promptFiles=promptFiles)
+        doPotentialMenuCheck(projectStatus=projectStatus, promptFiles=promptFiles)
         
         key = term.inkey(timeout=projectStatusPollRateRefresh)
         if key.is_sequence:

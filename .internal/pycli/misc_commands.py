@@ -5,11 +5,11 @@ import signal
 def main():
   from blessed import Terminal
   from deps.chars import specialChars, commonTopBorder, commonBottomBorder, commonEmptyLine
-  global renderMode
   import time
-  import subprocess
+  from deps.host_exec import execInteractive
   global signal
 
+  global renderMode
   global dockerCommandsSelectionInProgress
   global mainMenuList
   global currentMenuItemIndex
@@ -25,7 +25,8 @@ def main():
   def setSwapinessTo0():
     print(term.clear())
     print("Set swapiness to 0:")
-    subprocess.call("./scripts/disable_swap.sh disableswap", shell=True)
+    print("bash ./scripts/disable_swap.sh disableswap")
+    execInteractive('bash ./scripts/disable_swap.sh disableswap')
     print("")
     input("Process terminated. Press [Enter] to show menu and continue.")
     return True
@@ -35,7 +36,8 @@ def main():
     print("Disabling swap...")
     setSwapinessTo0()
     print("Uninstall Swapfile:")
-    subprocess.call("./scripts/disable_swap.sh uninstallswap", shell=True)
+    print("bash ./scripts/disable_swap.sh uninstallswap")
+    execInteractive('bash ./scripts/disable_swap.sh uninstallswap')
     print("")
     input("Process terminated. Press [Enter] to show menu and continue.")
     return True
@@ -43,7 +45,8 @@ def main():
   def installLog2Ram():
     print(term.clear())
     print("Install log2ram:")
-    subprocess.call("./scripts/install_log2ram.sh", shell=True)
+    print("bash ./scripts/install_log2ram.sh")
+    execInteractive('bash ./scripts/install_log2ram.sh')
     print("")
     input("Process terminated. Press [Enter] to show menu and continue.")
     return True
@@ -52,7 +55,7 @@ def main():
     print(term.clear())
     print("Install Github SSH Keys:")
     print("bash ./scripts/install_ssh_keys.sh")
-    subprocess.call("bash ./scripts/install_ssh_keys.sh", shell=True)
+    execInteractive('bash ./scripts/host_installers/install_ssh_keys.sh')
     print("")
     input("Process terminated. Press [Enter] to show menu and continue.")
     return True
