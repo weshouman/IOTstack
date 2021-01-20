@@ -13,6 +13,8 @@ sys_arch=$(uname -m)
 source ./scripts/setup_iotstack.sh
 source ./.internal/meta.sh
 
+SKIPCHECKS="false"
+
 function check_git_updates() {
 	UPSTREAM=${1:-'@{u}'}
 	LOCAL=$(git rev-parse @)
@@ -59,6 +61,7 @@ function project_checks() {
 # ----------------------------------------------
 if [[ "$*" == *"--no-check"* ]]; then
 	echo "Skipping preflight checks."
+	SKIPCHECKS="true"
 else
 	echo "Please enter sudo pasword if prompted"
 
@@ -118,6 +121,7 @@ else
 	fi
 
 	if [[ "$PREBUILT_IMAGES" == "false" ]]; then
+		echo " Rebuild requied"
 		echo "You either recently installed or upgraded IOTstack. The menu docker images need to be rebuilt in order for the menu to run correctly. This will take about a minute and is completely automatic."
 		bash ./.internal/docker_menu.sh stop > /dev/null &
 
@@ -148,6 +152,8 @@ else
 
 			((SLEEP_COUNTER++))
 		done
+
+		echo ""
 	fi
 
 	if [[ $SLEEP_COUNTER -gt 300 ]]; then
@@ -197,6 +203,17 @@ do
 done
 
 echo "Spinning up menu containers... "
+
+if [[ "$SKIPCHECKS" == "false" ]]; then
+	if nc -w 1 localhost 32777 ; then
+		echo "WUI detected on localhost:32777"
+	fi
+
+	if nc -w 1 localhost 32128 ; then
+		echo "API detected on localhost:32128"
+	fi
+fi
+
 # If PyCLI is already running then reattach
 PYCLI_ID="$(docker ps --format '{{.ID}} {{.Image}}' | grep -w iostack_pycli:$VERSION | cut -d ' ' -f1 | head -n 1)"
 if [[ "$PYCLI_ID" == "" ]]; then

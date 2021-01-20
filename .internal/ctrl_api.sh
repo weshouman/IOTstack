@@ -8,7 +8,7 @@ if [ "$1" = "stop" ]; then
   docker stop $(docker ps -q --filter ancestor=$FULL_NAME ) 2> /dev/null
 else
   if [[ $IOTENV == "development" ]]; then
-    docker stop $(docker ps -q --filter ancestor=$FULL_NAME) || docker rmi $FULL_NAME --force
+    docker stop $(docker ps -q --filter ancestor=$FULL_NAME) 2> /dev/null || docker rmi $FULL_NAME --force 2> /dev/null
     docker node:14 # Docker occasionally fails to pull image when building when it is not cached.
     docker build --no-cache -t $FULL_NAME -f ./.internal/api.Dockerfile .
   else

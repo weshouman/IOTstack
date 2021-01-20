@@ -31,7 +31,9 @@ try:
   readRes = execSilent('cat ./.tmp/rtest.file')
   rmRes = execSilent('rm ./.tmp/rtest.file')
 
-  if readRes != 'exec success':
+  if readRes == 'exec success':
+    print('Connection and remote command execution successful') 
+  else:
     print('Error attempting to execute commands on the host. You may need to regenerate SSH keys by running:')
     print('  ./menu.sh --run-env-setup')
     print('')
@@ -51,6 +53,3 @@ except Exception:
   input("Press Enter to continue to menu...")
 
 os.system('python menu_main.py')
-
-# testInput = input('Enter input: ')
-# print('Input you entered', testInput)

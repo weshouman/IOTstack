@@ -5,11 +5,11 @@ import signal
 def main():
   from blessed import Terminal
   from deps.chars import specialChars, commonTopBorder, commonBottomBorder, commonEmptyLine
-  global renderMode
   import time
-  import subprocess
+  from deps.host_exec import execInteractive
   global signal
 
+  global renderMode
   global backupRestoreSelectionInProgress
   global mainMenuList
   global currentMenuItemIndex
@@ -25,7 +25,8 @@ def main():
   def runBackup():
     global needsRender
     print("Execute Backup:")
-    subprocess.call("./scripts/backup.sh", shell=True)
+    print("bash ./scripts/backup.sh")
+    execInteractive('bash ./scripts/backup.sh')
     print("")
     print("Backup completed.")
     print("Press [Up] or [Down] arrow key to show the menu if it has scrolled too far.")
@@ -36,9 +37,13 @@ def main():
   def dropboxInstall():
     global needsRender
     print("Install Dropbox:")
-    subprocess.call("git clone https://github.com/andreafabrizi/Dropbox-Uploader.git ~/Dropbox-Uploader", shell=True)
-    subprocess.call("chmod +x ~/Dropbox-Uploader/dropbox_uploader.sh", shell=True)
-    subprocess.call("cd ~/Dropbox-Uploader && ./dropbox_uploader.sh", shell=True)
+    print("git clone https://github.com/andreafabrizi/Dropbox-Uploader.git ~/Dropbox-Uploader")
+    execInteractive('git clone https://github.com/andreafabrizi/Dropbox-Uploader.git ~/Dropbox-Uploader')
+    print("chmod +x ~/Dropbox-Uploader/dropbox_uploader.sh")
+    execInteractive('chmod +x ~/Dropbox-Uploader/dropbox_uploader.sh')
+    print("cd ~/Dropbox-Uploader && ./dropbox_uploader.sh")
+    execInteractive('cd ~/Dropbox-Uploader && ./dropbox_uploader.sh')
+    time.sleep(1) # Give time to see errors
     print("")
     print("Dropbox install finished")
     print("Press [Up] or [Down] arrow key to show the menu if it has scrolled too far.")
@@ -50,7 +55,7 @@ def main():
     global needsRender
     print("Install rClone:")
     print("sudo apt install -y rclone")
-    subprocess.call("sudo apt install -y rclone", shell=True)
+    execInteractive('sudo apt install -y rclone')
     print("")
     print("rClone install finished")
     print("Please run 'rclone config' to configure the rclone google drive backup")
@@ -61,7 +66,8 @@ def main():
   def rCloneSetup():
     global needsRender
     print("Setup rclone:")
-    subprocess.call("rclone config", shell=True)
+    print("rclone config")
+    execInteractive('rclone config')
     print("")
     print("rclone setup completed. Press [Up] or [Down] arrow key to show the menu if it has scrolled too far.")
     time.sleep(1)
@@ -71,7 +77,8 @@ def main():
   def runRestore():
     global needsRender
     print("Execute Restore:")
-    subprocess.call("./scripts/restore.sh", shell=True)
+    print('bash ./scripts/restore.sh')
+    execInteractive('bash ./scripts/restore.sh')
     print("")
     print("Restore completed.")
     print("Press [Up] or [Down] arrow key to show the menu if it has scrolled too far.")

@@ -6,7 +6,7 @@ def main():
   from deps.chars import specialChars, commonTopBorder, commonBottomBorder, commonEmptyLine
   import math
   import time
-  import subprocess
+  from deps.host_exec import execInteractive
 
   global dockerCommandsSelectionInProgress
   global renderMode
@@ -31,7 +31,7 @@ def main():
   def startStack():
     print("Start Stack:")
     print("docker-compose up -d --remove-orphans")
-    subprocess.call("docker-compose up -d", shell=True)
+    execInteractive('docker-compose up -d --remove-orphans')
     print("")
     print("Stack Started")
     input("Process terminated. Press [Enter] to show menu and continue.")
@@ -42,11 +42,12 @@ def main():
     print("Restarting Stack...")
     print("Stop Stack:")
     print("docker-compose down")
+    execInteractive('docker-compose down')
     subprocess.call("docker-compose down", shell=True)
     print("")
     print("Start Stack:")
     print("docker-compose up -d --remove-orphans")
-    subprocess.call("docker-compose up -d", shell=True)
+    execInteractive('docker-compose up -d --remove-orphans')
     # print("docker-compose restart")
     # subprocess.call("docker-compose restart", shell=True)
     print("")
@@ -58,7 +59,7 @@ def main():
   def stopStack():
     print("Stop Stack:")
     print("docker-compose down")
-    subprocess.call("docker-compose down", shell=True)
+    execInteractive('docker-compose down')
     print("")
     print("Stack Stopped")
     input("Process terminated. Press [Enter] to show menu and continue.")
@@ -66,18 +67,22 @@ def main():
     return True
 
   def stopAllStack():
+    print("Menu containers will shutdown")
+    time.sleep(0.5)
     print("Stop All Stack:")
+    time.sleep(0.2)
     print("docker container stop $(docker container ls -aq)")
-    subprocess.call("docker container stop $(docker container ls -aq)", shell=True)
+    time.sleep(0.2)
+    execInteractive('docker container stop $(docker container ls -aq)')
     print("")
     input("Process terminated. Press [Enter] to show menu and continue.")
     needsRender = 1
     return True
 
   def pruneVolumes():
-    print("Stop All Stack:")
-    print("docker container stop $(docker container ls -aq)")
-    subprocess.call("docker container stop $(docker container ls -aq)", shell=True)
+    print("Prune Volumes:")
+    print("docker system prune --volumes")
+    execInteractive('docker system prune --volumes')
     print("")
     input("Process terminated. Press [Enter] to show menu and continue.")
     needsRender = 1
@@ -86,16 +91,16 @@ def main():
   def updateAllContainers():
     print("Update All Containers:")
     print("docker-compose down")
-    subprocess.call("docker-compose down", shell=True)
+    execInteractive('docker-compose down')
     print("")
     print("docker-compose pull")
-    subprocess.call("docker-compose pull", shell=True)
+    execInteractive('docker-compose pull')
     print("")
     print("docker-compose build")
-    subprocess.call("docker-compose build", shell=True)
+    execInteractive('docker-compose build')
     print("")
     print("docker-compose up -d")
-    subprocess.call("docker-compose up -d", shell=True)
+    execInteractive('docker-compose up -d')
     print("")
     input("Process terminated. Press [Enter] to show menu and continue.")
     needsRender = 1
@@ -104,7 +109,7 @@ def main():
   def deleteAndPruneVolumes():
     print("Delete and prune volumes:")
     print("docker system prune --volumes")
-    subprocess.call("docker system prune --volumes", shell=True)
+    execInteractive('docker system prune --volumes')
     print("")
     input("Process terminated. Press [Enter] to show menu and continue.")
     needsRender = 1
@@ -113,7 +118,7 @@ def main():
   def deleteAndPruneImages():
     print("Delete and prune volumes:")
     print("docker image prune -a")
-    subprocess.call("docker image prune -a", shell=True)
+    execInteractive('docker image prune -a')
     print("")
     input("Process terminated. Press [Enter] to show menu and continue.")
     needsRender = 1
@@ -126,7 +131,7 @@ def main():
     print("")
     print("docker-compose logs -f")
     time.sleep(0.5)
-    subprocess.call("docker-compose logs -f", shell=True)
+    execInteractive('docker-compose logs -f')
     print("")
     time.sleep(0.5)
     input("Process terminated. Press [Enter] to show menu and continue.")
