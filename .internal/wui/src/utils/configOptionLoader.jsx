@@ -17,14 +17,21 @@ const getConfigComponents = (configOptions) => {
             } else {
               return null;
             }
-        
+
           case "logging":
             if (configOptions[configName] === true) { // Check if set to true
               return ServiceUiControls.Logging
             } else {
               return null;
             }
-              
+
+          case "volumes":
+            if (configOptions[configName] === true) { // Check if set to true
+              return ServiceUiControls.Volumes
+            } else {
+              return null;
+            }
+  
         default:
           if (configOptions[configName]) { // Check if set
             return () => (<Fragment><div>Unknown Option {configName}</div></Fragment>);

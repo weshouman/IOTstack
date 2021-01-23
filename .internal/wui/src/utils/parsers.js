@@ -44,10 +44,45 @@ const replaceExternalPort = (intExtStr, newExtPort) => {
   return intExtStr;
 };
 
+const getExternalVolume = (intExtStr) => {
+  if (typeof(intExtStr) === 'string') {
+    const splitted = intExtStr.split(':');
+    if (splitted.length === 2) {
+      return splitted[0];
+    }
+  }
+
+  return intExtStr;
+};
+
+const getInternalVolume = (intExtStr) => {
+  if (typeof(intExtStr) === 'string') {
+    const splitted = intExtStr.split(':');
+    if (splitted.length === 2) {
+      return splitted[1];
+    }
+  }
+
+  return intExtStr;
+};
+
+const replaceExternalVolume = (intExtStr, newExtVolume) => {
+  if (typeof(intExtStr) === 'string' && (typeof(newExtVolume) === 'string')) {
+    const intLoc = intExtStr.indexOf(':');
+    const VolumesWithoutExt = intExtStr.substring(intLoc, intExtStr.length);
+    return `${newExtVolume}${VolumesWithoutExt}`;
+  }
+
+  return intExtStr;
+};
+
 
 module.exports = {
   getExternalPort,
   getInternalPort,
   replaceExternalPort,
-  getPortProtocol
+  getPortProtocol,
+  getExternalVolume,
+  getInternalVolume,
+  replaceExternalVolume
 };

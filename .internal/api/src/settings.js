@@ -5,7 +5,7 @@ const Settings = ({ env, logger, version }) => {
 
   const retr = {
     cors: {
-      origins: ["localhost", "127.0.0.1", "localhost:32777", "127.0.0.1:32777"],
+      origins: ["localhost", "127.0.0.1", "localhost:32777", "127.0.0.1:32777", "localhost:3000"],
       headers: ["Content-Type" ,"Origin", "Accept"]
     },
     paths: {
