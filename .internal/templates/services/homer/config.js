@@ -34,7 +34,7 @@ const homer = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'Homer',
+      displayName: 'Homer (untested)',
       serviceTypeTags: ['wui', 'dashboard']
     };
   };

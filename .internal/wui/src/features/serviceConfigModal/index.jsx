@@ -6,8 +6,7 @@ import Button from "@material-ui/core/Button";
 import Box from '@material-ui/core/Box';
 import getConfigComponents from '../../utils/configOptionLoader';
 import {
-  deleteTemporaryBuildOptions,
-  saveTemporaryBuildOptions
+  deleteTemporaryBuildOptions
 } from '../../utils/buildOptionSync';
 
 const getModalStyle = () => {

@@ -40,7 +40,7 @@ const qbittorrent = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'Q Bittorrent',
+      displayName: 'Q Bittorrent (untested)',
       serviceTypeTags: ['bittorrent']
     };
   };

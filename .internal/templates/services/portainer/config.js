@@ -34,7 +34,7 @@ const portainer = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'Portainer',
+      displayName: 'Portainer (untested)',
       serviceTypeTags: ['container manager', 'wui', 'deprecated', 'dashboard']
     };
   };

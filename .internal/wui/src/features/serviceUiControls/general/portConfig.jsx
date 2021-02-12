@@ -13,15 +13,15 @@ const PortConfig = (props) => {
   const {
     serviceConfigOptions,
     serviceName,
-    setBuildOptions,
+    // setBuildOptions,
     getBuildOptions,
-    buildOptionsInit,
-    setServiceOptions,
-    setTemporaryBuildOptions,
+    // buildOptionsInit,
+    // setServiceOptions,
+    // setTemporaryBuildOptions,
     getTemporaryBuildOptions,
     setTemporaryServiceOptions,
-    setupTemporaryBuildOptions,
-    saveTemporaryBuildOptions,
+    // setupTemporaryBuildOptions,
+    // saveTemporaryBuildOptions,
     serviceTemplates,
     onChange
   } = props;

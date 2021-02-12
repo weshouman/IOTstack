@@ -6,33 +6,54 @@ const ServiceBuilder = ({
   const retr = {};
   const serviceName = 'adminer';
 
+  const {
+    setModifiedPorts,
+    setLoggingState,
+    setNetworkMode,
+    setNetworks
+  } = require('../../../src/utils/commonCompileLogic');
+
+  const {
+    checkPortConflicts
+  } = require('../../../src/utils/commonBuildChecks');
+
+  /*
+    Order:
+      1. compile() - merges build options into the final JSON output.
+      2. issues()  - runs checks on the compile()'ed JSON, and can also test for errors.
+      3. build()   - sets up scripts and files.
+  */
+
   retr.init = () => {
     logger.debug(`ServiceBuilder:init() - '${serviceName}'`);
   };
 
-  retr.build = ({
+  retr.compile = ({
     outputTemplateJson,
     buildOptions,
-    tmpPath,
-    zipList,
-    prebuildScripts,
-    postbuildScripts
   }) => {
     return new Promise((resolve, reject) => {
       try {
-        console.info(`ServiceBuilder:build() - '${serviceName}' started`);
-        // Code here
-        console.info(`ServiceBuilder:build() - '${serviceName}' completed`);
-        return resolve();
+        console.info(`ServiceBuilder:compile() - '${serviceName}' started`);
+
+        const compileResults = {
+          modifiedPorts: setModifiedPorts({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
+          modifiedLogging: setLoggingState({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
+          modifiedNetworkMode: setNetworkMode({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
+          modifiedNetworks: setNetworks({ buildTemplate: outputTemplateJson, buildOptions, serviceName })
+        };
+        console.info(`ServiceBuilder:compile() - '${serviceName}' Results:`, compileResults);
+
+        console.info(`ServiceBuilder:compile() - '${serviceName}' completed`);
+        return resolve({ type: 'service' });
       } catch (err) {
         console.error(err);
         console.trace();
         console.debug("\nParams:");
         console.debug({ outputTemplateJson });
         console.debug({ buildOptions });
-        console.debug({ tmpPath });
         return reject({
-          component: `ServiceBuilder::build() - '${serviceName}'`,
+          component: `ServiceBuilder::compile() - '${serviceName}'`,
           message: 'Unhandled error occured',
           error: JSON.parse(JSON.stringify(err, Object.getOwnPropertyNames(err)))
         });
@@ -48,9 +69,15 @@ const ServiceBuilder = ({
     return new Promise((resolve, reject) => {
       try {
         console.info(`ServiceBuilder:issues() - '${serviceName}' started`);
-        // Code here
+        let issues = [];
+
+        const portConflicts = checkPortConflicts({ buildTemplate: outputTemplateJson, buildOptions, serviceName });
+        issues = [...issues, ...portConflicts];
+
+        console.info(`ServiceBuilder:issues() - '${serviceName}' Issues found: ${issues.length}`);
+        checkPortConflicts({ buildTemplate: outputTemplateJson, serviceConfigurations: buildOptions })
         console.info(`ServiceBuilder:issues() - '${serviceName}' completed`);
-        return resolve([]);
+        return resolve(issues);
       } catch (err) {
         console.error(err);
         console.trace();
@@ -60,6 +87,36 @@ const ServiceBuilder = ({
         console.debug({ tmpPath });
         return reject({
           component: `ServiceBuilder::issues() - '${serviceName}'`,
+          message: 'Unhandled error occured',
+          error: JSON.parse(JSON.stringify(err, Object.getOwnPropertyNames(err)))
+        });
+      }
+    });
+  };
+
+  retr.build = ({
+    outputTemplateJson,
+    buildOptions,
+    tmpPath,
+    zipList,
+    prebuildScripts,
+    postbuildScripts
+  }) => {
+    return new Promise((resolve, reject) => {
+      try {
+        console.info(`ServiceBuilder:build() - '${serviceName}' started`);
+        // Code here
+        console.info(`ServiceBuilder:build() - '${serviceName}' completed`);
+        return resolve({ type: 'service' });
+      } catch (err) {
+        console.error(err);
+        console.trace();
+        console.debug("\nParams:");
+        console.debug({ outputTemplateJson });
+        console.debug({ buildOptions });
+        console.debug({ tmpPath });
+        return reject({
+          component: `ServiceBuilder::build() - '${serviceName}'`,
           message: 'Unhandled error occured',
           error: JSON.parse(JSON.stringify(err, Object.getOwnPropertyNames(err)))
         });

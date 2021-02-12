@@ -32,7 +32,7 @@ const portainer_agent = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'Portainer Agent',
+      displayName: 'Portainer Agent (untested)',
       serviceTypeTags: ['container manager', 'docker']
     };
   };

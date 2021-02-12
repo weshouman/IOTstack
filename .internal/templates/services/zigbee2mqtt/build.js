@@ -6,6 +6,13 @@ const ServiceBuilder = ({
   const retr = {};
   const serviceName = 'zigbee2mqtt';
 
+  /*
+    Order:
+      1. compile() - merges build options into the final JSON output.
+      2. issues()  - runs checks on the compile()'ed JSON, and can also test for errors.
+      3. build()   - sets up scripts and files.
+  */
+
   retr.init = () => {
     logger.debug(`ServiceBuilder:init() - '${serviceName}'`);
   };
@@ -23,6 +30,58 @@ if [[ ! -d ./volumes/zigbee2mqtt/data ]]; then
   sleep 2
 fi
 `;
+  };
+
+  retr.compile = ({
+    outputTemplateJson,
+    buildOptions,
+  }) => {
+    return new Promise((resolve, reject) => {
+      try {
+        console.info(`ServiceBuilder:compile() - '${serviceName}' started`);
+        // Code here
+        console.info(`ServiceBuilder:compile() - '${serviceName}' completed`);
+        return resolve({ type: 'service' });
+      } catch (err) {
+        console.error(err);
+        console.trace();
+        console.debug("\nParams:");
+        console.debug({ outputTemplateJson });
+        console.debug({ buildOptions });
+        return reject({
+          component: `ServiceBuilder::compile() - '${serviceName}'`,
+          message: 'Unhandled error occured',
+          error: JSON.parse(JSON.stringify(err, Object.getOwnPropertyNames(err)))
+        });
+      }
+    });
+  };
+
+  retr.issues = ({
+    outputTemplateJson,
+    buildOptions,
+    tmpPath
+  }) => {
+    return new Promise((resolve, reject) => {
+      try {
+        console.info(`ServiceBuilder:issues() - '${serviceName}' started`);
+        // Code here
+        console.info(`ServiceBuilder:issues() - '${serviceName}' completed`);
+        return resolve([]);
+      } catch (err) {
+        console.error(err);
+        console.trace();
+        console.debug("\nParams:");
+        console.debug({ outputTemplateJson });
+        console.debug({ buildOptions });
+        console.debug({ tmpPath });
+        return reject({
+          component: `ServiceBuilder::issues() - '${serviceName}'`,
+          message: 'Unhandled error occured',
+          error: JSON.parse(JSON.stringify(err, Object.getOwnPropertyNames(err)))
+        });
+      }
+    });
   };
 
   retr.build = ({
@@ -52,7 +111,7 @@ fi
         });
 
         console.info(`ServiceBuilder:build() - '${serviceName}' completed`);
-        return resolve();
+        return resolve({ type: 'service' });
       } catch (err) {
         console.error(err);
         console.trace();
@@ -62,33 +121,6 @@ fi
         console.debug({ tmpPath });
         return reject({
           component: `ServiceBuilder::build() - '${serviceName}'`,
-          message: 'Unhandled error occured',
-          error: JSON.parse(JSON.stringify(err, Object.getOwnPropertyNames(err)))
-        });
-      }
-    });
-  };
-
-  retr.issues = ({
-    outputTemplateJson,
-    buildOptions,
-    tmpPath
-  }) => {
-    return new Promise((resolve, reject) => {
-      try {
-        console.info(`ServiceBuilder:issues() - '${serviceName}' started`);
-        // Code here
-        console.info(`ServiceBuilder:issues() - '${serviceName}' completed`);
-        return resolve([]);
-      } catch (err) {
-        console.error(err);
-        console.trace();
-        console.debug("\nParams:");
-        console.debug({ outputTemplateJson });
-        console.debug({ buildOptions });
-        console.debug({ tmpPath });
-        return reject({
-          component: `ServiceBuilder::issues() - '${serviceName}'`,
           message: 'Unhandled error occured',
           error: JSON.parse(JSON.stringify(err, Object.getOwnPropertyNames(err)))
         });

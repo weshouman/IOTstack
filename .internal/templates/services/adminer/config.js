@@ -34,7 +34,7 @@ const adminer = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'Adminer',
+      displayName: 'Adminer (untested)',
       serviceTypeTags: ['wui', 'database manager']
     };
   };

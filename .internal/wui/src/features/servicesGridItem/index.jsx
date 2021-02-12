@@ -157,7 +157,7 @@ const ServiceItem = (props) => {
   const [updated, setIsUpdated] = useState(false);
   useEffect(() => {
     if (updated) {
-      dispatchGetBuildIssues(selectedServices.selectedServices, {});
+      dispatchGetBuildIssues(selectedServices.selectedServices, getBuildOptions());
     }
     setIsUpdated(false);
   }, [
@@ -218,7 +218,14 @@ const ServiceItem = (props) => {
           networkTemplateList={networkTemplateList}
           serviceTemplates={serviceTemplates}
         />
-        <Box display="flex" p={1} justifyContent="center" fontSize="2rem">{serviceMetadata.displayName}</Box>
+        <Box
+          display="flex"
+          p={1}
+          justifyContent="center"
+          className={`${styles.serviceName}`}
+        >
+          {serviceMetadata.displayName}
+        </Box>
         <Box display="flex" p={1} justifyContent="center">
           {!serviceMetadata.iconUri
           && (
@@ -236,7 +243,13 @@ const ServiceItem = (props) => {
           )}
         </Box>
         <Box display="flex" p={1} m={1} justifyContent="center">
-          <Button variant="contained" onClick={() => setModalOpen(true)}>{serviceMetadata.displayName} Configuration</Button>
+          <Button
+            variant="contained"
+            onClick={() => { setTemporaryBuildOptions(buildOptions); setModalOpen(true); }}
+            className={`${styles.configButton}`}
+          >
+            {serviceMetadata.displayName} Configuration
+          </Button>
         </Box>
         <Box display="flex" p={1} justifyContent="center">
           <FormControlLabel

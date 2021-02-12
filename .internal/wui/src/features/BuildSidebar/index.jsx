@@ -23,7 +23,8 @@ import {
   downloadBuildFile
 } from '../../actions/downloadBuild.action';
 import BuildCompletedModal from '../buildCompletedModal';
-import { API_STATUS } from '../../constants'
+import { API_STATUS } from '../../constants';
+import { getBuildOptions } from '../../utils/buildOptionSync';
 
 // const useStyles = makeStyles({
 //   serviceCard: {
@@ -79,8 +80,8 @@ const buildIssuesRender = (issues) => {
         {issues.status === API_STATUS.SUCCESS
         && (
           <Fragment>
-            {Array.isArray(issues.payload.issueList.services)
-            && issues.payload.issueList.services.length > 0
+            {Array.isArray(issues?.payload?.issueList?.services)
+            && (issues?.payload?.issueList?.services?.length ?? 0) > 0
             && (
               <Box paddingTop={2}>
                 <Box>
@@ -99,15 +100,15 @@ const buildIssuesRender = (issues) => {
                 </Box>
               </Box>
             )}
-            {Array.isArray(issues.payload.issueList.networks)
-            && issues.payload.issueList.networks.length > 0
+            {Array.isArray(issues?.payload?.issueList?.networks)
+            && (issues?.payload?.issueList?.networks?.length ?? 0) > 0
             && (
               <Box paddingTop={2}>
                 <Box>
                   Networks:
                   <Box>
                     <ul>
-                      {issues.payload.issueList.networks.map((issue) => {
+                      {(issues?.payload?.issueList?.networks ?? []).map((issue) => {
                         return (
                           <li key={`${issue.issueType}${issue.name}${issue.message}`}>
                             {buildIssueListItem(issue.name, issue.issueType, issue.message)}
@@ -119,8 +120,8 @@ const buildIssuesRender = (issues) => {
                 </Box>
               </Box>
             )}
-            {Array.isArray(issues.payload.issueList.other)
-            && issues.payload.issueList.other.length > 0
+            {Array.isArray(issues?.payload?.issueList?.other)
+            && (issues?.payload?.issueList?.other?.length ?? 0) > 0
             && (
               <Box paddingTop={2}>
                 <Box>
@@ -320,7 +321,7 @@ const Sidebar = (props) => {
         <Divider />
         {buildServices(() => {
           if (Array.isArray(selectedServices.selectedServices) && selectedServices.selectedServices.length > 0) {
-            dispatchBuildStack(selectedServices.selectedServices);
+            dispatchBuildStack(selectedServices.selectedServices, getBuildOptions());
           }
         })}
       </Box>

@@ -48,7 +48,7 @@ const adminer = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'Adminer',
+      displayName: 'Open Hab (untested)',
       serviceTypeTags: ['wui', 'dashboard', 'home automation']
     };
   };

@@ -8,8 +8,8 @@ const heimdall = () => {
       serviceName, // Required
       modifyableEnvironment: [
         {
-          key: 'INFLUXDB_UDP_BIND_ADDRESS',
-          value: '0.0.0.0:8086'
+          key: 'TZ',
+          value: 'Etc/UTC2'
         }
       ],
       volumes: true,
@@ -37,7 +37,7 @@ const heimdall = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'Heimdall',
+      displayName: 'Heimdall (untested)',
       serviceTypeTags: ['wui', 'database manager']
     };
   };

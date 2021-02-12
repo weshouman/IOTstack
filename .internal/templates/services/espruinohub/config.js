@@ -31,7 +31,7 @@ const espruinohub = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'EspruinoHub',
+      displayName: 'EspruinoHub (untested)',
       serviceTypeTags: ['mqtt', 'ble', 'rpi only']
     };
   };

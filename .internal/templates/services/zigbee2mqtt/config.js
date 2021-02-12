@@ -35,7 +35,7 @@ const zigbee2mqtt = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'zigbee2mqtt',
+      displayName: 'zigbee2mqtt (untested)',
       serviceTypeTags: ['zigbee', 'mqtt']
     };
   };

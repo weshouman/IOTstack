@@ -3,26 +3,30 @@ import React, { Fragment, useState, useEffect } from 'react';
 import Grid from '@material-ui/core/Grid';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
+import Box from '@material-ui/core/Box';
+import MenuItem from '@material-ui/core/MenuItem';
+import Select from '@material-ui/core/Select';
 
 const NetworkConfig = (props) => {
   const {
-    serviceConfigOptions,
+    // serviceConfigOptions,
     serviceName,
-    setBuildOptions,
+    // setBuildOptions,
     getBuildOptions,
-    buildOptionsInit,
-    setServiceOptions,
+    // buildOptionsInit,
+    // setServiceOptions,
     networkTemplateList,
-    setTemporaryBuildOptions,
+    // setTemporaryBuildOptions,
     getTemporaryBuildOptions,
     setTemporaryServiceOptions,
-    setupTemporaryBuildOptions,
-    saveTemporaryBuildOptions,
+    // setupTemporaryBuildOptions,
+    // saveTemporaryBuildOptions,
     serviceTemplates,
     onChange
   } = props;
 
-  const tempBuildOptions = getTemporaryBuildOptions();
+  // const tempBuildOptions = getTemporaryBuildOptions();
+  const [networkMode, setNetworkMode] = useState({});
 
   const [modifiedNetworkList, setModifiedNetworkList] = useState({});
   useEffect(() => {
@@ -33,6 +37,12 @@ const NetworkConfig = (props) => {
     setModifiedNetworkList({
       ...defaultOnNetworks
     });
+
+    const templateNetworkMode = serviceTemplates?.[serviceName]?.['network-mode'];
+    const calculatedNetworkMode = Object.keys(defaultOnNetworks).length > 0 ? 'bridge' : 'host';
+
+    const toNetworkMode = getBuildOptions()?.services?.[serviceName]?.networkMode ?? templateNetworkMode ?? calculatedNetworkMode;
+    setNetworkMode(toNetworkMode);
   }, []);
 
   useEffect(() => {
@@ -44,14 +54,36 @@ const NetworkConfig = (props) => {
     modifiedNetworkList
   ]);
 
-  const onChangeCb = (networkName, event) => {
-    const networkSelected = event.target.checked;
-    setModifiedNetworkList({
-      ...modifiedNetworkList,
-      [networkName]: networkSelected
+  useEffect(() => {
+    setTemporaryServiceOptions(serviceName, {
+      ...getTemporaryBuildOptions()?.services?.[serviceName] ?? {},
+      networkMode: networkMode
     });
-    if (typeof(onChange) === 'function') {
-      onChange(networkName, networkName);
+  }, [
+    networkMode
+  ]);
+
+  const onChangeCb = (event, changeType, networkName) => {
+    if (changeType === 'mode') {
+      const newMode = event.target.checked;
+      setNetworkMode(newMode);
+      if (typeof(onChange) === 'function') {
+        onChange(event, changeType);
+      }
+    } else if (changeType === 'network') {
+      const networkSelected = event.target.checked;
+      setModifiedNetworkList({
+        ...modifiedNetworkList,
+        [networkName]: networkSelected
+      });
+      if (typeof(onChange) === 'function') {
+        onChange(networkName, networkSelected, changeType);
+      }
+    } else {
+      
+      if (typeof(onChange) === 'function') {
+        onChange(event, changeType, networkName);
+      }
     }
   };
 
@@ -61,7 +93,29 @@ const NetworkConfig = (props) => {
 
   return (
     <Fragment>
-      IOTstack Networks:
+      <Grid container spacing={3} justify="space-between">
+        <Grid item>
+          IOTstack Networks:
+        </Grid>
+        <Grid item>
+          <Box m={-1} mr={1}>
+            <Box m={1} display="inline">Mode:</Box>
+            <Select
+              labelId="network-mode-label"
+              id="network-mode"
+              value={networkMode}
+              onChange={(evt) => onChangeCb(evt, 'mode')}
+            >
+              <MenuItem value={'Unchanged'}>Unchanged</MenuItem>
+              <MenuItem value={'host'}>Host</MenuItem>
+              <MenuItem value={'bridge'}>Bridge</MenuItem>
+              <MenuItem value={'overlay'}>Overlay</MenuItem>
+              <MenuItem value={'macvlan'}>MAC-VLAN</MenuItem>
+              <MenuItem value={'none'}>No Networking</MenuItem>
+            </Select>
+          </Box>
+        </Grid>
+      </Grid>
       <Grid container spacing={3} justify="space-between">
         {(networkTemplateList?.payload ?? []).map((networkName) => {
           return (
@@ -77,7 +131,7 @@ const NetworkConfig = (props) => {
                 control={
                   <Checkbox
                     checked={modifiedNetworkList?.[networkName] ?? defaultValue(networkName)}
-                    onChange={(evt) => onChangeCb(networkName, evt) }
+                    onChange={(evt) => onChangeCb(evt, 'network', networkName) }
                     name={networkName}
                     color="primary"
                   />

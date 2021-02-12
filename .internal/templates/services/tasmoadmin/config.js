@@ -34,7 +34,7 @@ const tasmoadmin = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'TasmoAdmin',
+      displayName: 'TasmoAdmin (untested)',
       serviceTypeTags: ['wui', 'iot']
     };
   };

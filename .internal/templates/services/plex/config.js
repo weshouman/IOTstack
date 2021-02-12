@@ -40,8 +40,8 @@ const plex = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'Plex',
-      serviceTypeTags: ['wui', 'database manager']
+      displayName: 'Plex (untested)',
+      serviceTypeTags: ['wui', 'video', 'media']
     };
   };
 

@@ -82,7 +82,6 @@ const BuildController = ({ server, settings, version, logger }) => {
           console.warn('Failed to compile some templates: ', failedStack);
         }
 
-
         // All templates gathered and ready for processing by each service.
         const templatesBuildLogic = [];
         const {
@@ -337,6 +336,26 @@ const BuildController = ({ server, settings, version, logger }) => {
           networks: [],
           other: []
         };
+
+        // Compile service options to JSON output
+        for (let i = 0; i < templatesBuildLogic.length; i++) {
+          await templatesBuildLogic[i].compile({
+            outputTemplateJson: outputStack,
+            buildOptions,
+          });
+        }
+
+        await Promise.allSettled(networkTemplatePromises).then((networkTemplateResults) => {
+          networkTemplateResults.forEach((networkPromiseResult) => {
+            if (networkPromiseResult.status === 'fulfilled' && networkPromiseResult.value) {
+              const networkName = Object.keys(networkPromiseResult.value)[0];
+              outputStack.networks[networkName] = networkPromiseResult.value[networkName];
+            } else {
+              failedStack.networks.push(networkPromiseResult);
+            }
+          });
+          return outputStack;
+        });
 
         return templatesBuildLogic.reduce((prom, buildLogic) => {
           return prom.then(() => {

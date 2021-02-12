@@ -32,6 +32,20 @@ const getConfigComponents = (configOptions) => {
               return null;
             }
   
+          case "devices":
+            if (configOptions[configName] === true) { // Check if set to true
+              return ServiceUiControls.Devices
+            } else {
+              return null;
+            }
+    
+          case "modifyableEnvironment":
+            if (configOptions[configName].length > 0) {
+              return ServiceUiControls.Environment
+            } else {
+              return null;
+            }
+    
         default:
           if (configOptions[configName]) { // Check if set
             return () => (<Fragment><div>Unknown Option {configName}</div></Fragment>);

@@ -40,7 +40,7 @@ const influxDb = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'InfluxDB',
+      displayName: 'InfluxDB (untested)',
       serviceTypeTags: ['database', 'timeseries', 'sql']
     };
   };

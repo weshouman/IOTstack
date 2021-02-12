@@ -69,13 +69,44 @@ const getInternalVolume = (intExtStr) => {
 const replaceExternalVolume = (intExtStr, newExtVolume) => {
   if (typeof(intExtStr) === 'string' && (typeof(newExtVolume) === 'string')) {
     const intLoc = intExtStr.indexOf(':');
-    const VolumesWithoutExt = intExtStr.substring(intLoc, intExtStr.length);
-    return `${newExtVolume}${VolumesWithoutExt}`;
+    const volumesWithoutExt = intExtStr.substring(intLoc, intExtStr.length);
+    return `${newExtVolume}${volumesWithoutExt}`;
   }
 
   return intExtStr;
 };
 
+const getEnvironmentKey = (EnvKVStr) => {
+  if (typeof(EnvKVStr) === 'string') {
+    const splitted = EnvKVStr.split('=');
+    if (splitted.length === 2) {
+      return splitted[0];
+    }
+  }
+
+  return EnvKVStr;
+};
+
+const getEnvironmentValue = (EnvKVStr) => {
+  if (typeof(EnvKVStr) === 'string') {
+    const splitted = EnvKVStr.split('=');
+    if (splitted.length === 2) {
+      return splitted[1];
+    }
+  }
+
+  return EnvKVStr;
+};
+
+const replaceEnvironmentValue = (EnvKVStr, newEnvValue) => {
+  if (typeof(EnvKVStr) === 'string' && (typeof(newEnvValue) === 'string')) {
+    const intLoc = EnvKVStr.indexOf('=');
+    const EnvWithoutValue = EnvKVStr.substring(intLoc, EnvKVStr.length);
+    return `${EnvWithoutValue}${newEnvValue}`;
+  }
+
+  return EnvKVStr;
+};
 
 module.exports = {
   getExternalPort,
@@ -84,5 +115,8 @@ module.exports = {
   getPortProtocol,
   getExternalVolume,
   getInternalVolume,
-  replaceExternalVolume
+  replaceExternalVolume,
+  getEnvironmentKey,
+  getEnvironmentValue,
+  replaceEnvironmentValue
 };

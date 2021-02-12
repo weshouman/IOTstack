@@ -10,7 +10,7 @@ const home_assistant = () => {
         "8123:8123": 'http'
       },
       volumes: true,
-      networks: false,
+      networks: true,
       logging: true
     }
   };
@@ -34,7 +34,7 @@ const home_assistant = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'Home Assistant',
+      displayName: 'Home Assistant (untested)',
       serviceTypeTags: ['wui', 'dashboard', 'home automation', 'iot']
     };
   };

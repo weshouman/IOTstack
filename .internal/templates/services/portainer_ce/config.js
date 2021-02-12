@@ -34,7 +34,7 @@ const portainer_ce = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'Portainer-CE',
+      displayName: 'Portainer-CE (untested)',
       serviceTypeTags: ['wui', 'container manager', 'docker']
     };
   };

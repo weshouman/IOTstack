@@ -53,7 +53,7 @@ const mariadb = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'MariaDB',
+      displayName: 'MariaDB (untested)',
       serviceTypeTags: ['database', 'sql']
     };
   };

@@ -8,9 +8,12 @@ const motioneye = () => {
       serviceName, // Required
       labeledPorts: {
         "8765:8765": 'http',
-        "8081:8081": 'streaming'
+        "8081:60081": 'streaming1',
+        "8082:60082": 'streaming2',
+        "8083:60083": 'streaming3'
       },
       volumes: true,
+      devices: true,
       networks: true,
       logging: true
     }
@@ -35,7 +38,7 @@ const motioneye = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'Motion Eye',
+      displayName: 'Motion Eye (untested)',
       serviceTypeTags: ['wui', 'physical security', 'video']
     };
   };

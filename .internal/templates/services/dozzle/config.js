@@ -34,7 +34,7 @@ const dozzle = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'Dozzle',
+      displayName: 'Dozzle (untested)',
       serviceTypeTags: ['logs', 'docker', 'container manager', 'wui']
     };
   };

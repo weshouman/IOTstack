@@ -45,7 +45,7 @@ const timescaledb = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'Timescale DB',
+      displayName: 'Timescale DB (untested)',
       serviceTypeTags: ['timeseries', 'database']
     };
   };

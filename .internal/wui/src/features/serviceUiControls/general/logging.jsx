@@ -7,22 +7,22 @@ import Box from '@material-ui/core/Box';
 const PortConfig = (props) => {
 
   const {
-    serviceConfigOptions,
+    // serviceConfigOptions,
     serviceName,
-    setBuildOptions,
+    // setBuildOptions,
     getBuildOptions,
-    buildOptionsInit,
-    setServiceOptions,
-    setTemporaryBuildOptions,
+    // buildOptionsInit,
+    // setServiceOptions,
+    // setTemporaryBuildOptions,
     getTemporaryBuildOptions,
     setTemporaryServiceOptions,
-    setupTemporaryBuildOptions,
-    saveTemporaryBuildOptions,
-    serviceTemplates,
+    // setupTemporaryBuildOptions,
+    // saveTemporaryBuildOptions,
+    // serviceTemplates,
     onChange
   } = props;
 
-  const tempBuildOptions = getTemporaryBuildOptions();
+  // const tempBuildOptions = getTemporaryBuildOptions();
 
   const [loggingEnabled, setLoggingEnabled] = useState(getBuildOptions()?.services?.[serviceName]?.loggingEnabled ?? true);
   useEffect(() => {

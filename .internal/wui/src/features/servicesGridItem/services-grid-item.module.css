@@ -32,3 +32,13 @@
   width: auto;
 }
 
+.serviceName {
+  white-space: nowrap;
+  overflow: hidden;
+  font-size: 2rem;
+}
+
+.configButton {
+  white-space: nowrap;
+  overflow: hidden;
+}

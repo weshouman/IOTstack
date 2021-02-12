@@ -6,7 +6,9 @@ const mosquitto = () => {
   retr.getConfigOptions = () => {
     return {
       serviceName, // Required
-      labeledPorts: {},
+      labeledPorts: {
+        "1883:1883": 'mosquitto'
+      },
       volumes: true,
       networks: true,
       logging: true
@@ -32,7 +34,7 @@ const mosquitto = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'Mosquitto',
+      displayName: 'Mosquitto (untested)',
       serviceTypeTags: ['mqtt', 'server']
     };
   };

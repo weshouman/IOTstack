@@ -56,7 +56,7 @@ const pihole = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'PiHole',
+      displayName: 'PiHole (untested)',
       serviceTypeTags: ['wui', 'dns', 'dashboard']
     };
   };

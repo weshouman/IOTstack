@@ -6,6 +6,13 @@ const ServiceBuilder = ({
   const retr = {};
   const serviceName = 'transmission';
 
+  /*
+    Order:
+      1. compile() - merges build options into the final JSON output.
+      2. issues()  - runs checks on the compile()'ed JSON, and can also test for errors.
+      3. build()   - sets up scripts and files.
+  */
+
   retr.init = () => {
     logger.debug(`ServiceBuilder:init() - '${serviceName}'`);
   };
@@ -35,43 +42,24 @@ fi
 `;
   };
 
-  retr.build = ({
+  retr.compile = ({
     outputTemplateJson,
     buildOptions,
-    tmpPath,
-    zipList,
-    prebuildScripts,
-    postbuildScripts
   }) => {
     return new Promise((resolve, reject) => {
       try {
-        console.info(`ServiceBuilder:build() - '${serviceName}' started`);
-
-        prebuildScripts.push({
-          serviceName,
-          comment: 'Create required service directory exists for first launch',
-          multilineComment: null,
-          code: createVolumesDirectory()
-        });
-
-        postbuildScripts.push({
-          serviceName,
-          comment: 'Ensure required service directory exists for launch',
-          multilineComment: null,
-          code: checkVolumesDirectory()
-        });
-
-        console.info(`ServiceBuilder:build() - '${serviceName}' completed`);
-        return resolve();
+        console.info(`ServiceBuilder:compile() - '${serviceName}' started`);
+        // Code here
+        console.info(`ServiceBuilder:compile() - '${serviceName}' completed`);
+        return resolve({ type: 'service' });
       } catch (err) {
         console.error(err);
         console.trace();
         console.debug("\nParams:");
         console.debug({ outputTemplateJson });
         console.debug({ buildOptions });
-        console.debug({ tmpPath });
         return reject({
-          component: `ServiceBuilder::build() - '${serviceName}'`,
+          component: `ServiceBuilder::compile() - '${serviceName}'`,
           message: 'Unhandled error occured',
           error: JSON.parse(JSON.stringify(err, Object.getOwnPropertyNames(err)))
         });
@@ -99,6 +87,50 @@ fi
         console.debug({ tmpPath });
         return reject({
           component: `ServiceBuilder::issues() - '${serviceName}'`,
+          message: 'Unhandled error occured',
+          error: JSON.parse(JSON.stringify(err, Object.getOwnPropertyNames(err)))
+        });
+      }
+    });
+  };
+
+  retr.build = ({
+    outputTemplateJson,
+    buildOptions,
+    tmpPath,
+    zipList,
+    prebuildScripts,
+    postbuildScripts
+  }) => {
+    return new Promise((resolve, reject) => {
+      try {
+        console.info(`ServiceBuilder:build() - '${serviceName}' started`);
+
+        prebuildScripts.push({
+          serviceName,
+          comment: 'Create required service directory exists for first launch',
+          multilineComment: null,
+          code: createVolumesDirectory()
+        });
+
+        postbuildScripts.push({
+          serviceName,
+          comment: 'Ensure required service directory exists for launch',
+          multilineComment: null,
+          code: checkVolumesDirectory()
+        });
+
+        console.info(`ServiceBuilder:build() - '${serviceName}' completed`);
+        return resolve({ type: 'service' });
+      } catch (err) {
+        console.error(err);
+        console.trace();
+        console.debug("\nParams:");
+        console.debug({ outputTemplateJson });
+        console.debug({ buildOptions });
+        console.debug({ tmpPath });
+        return reject({
+          component: `ServiceBuilder::build() - '${serviceName}'`,
           message: 'Unhandled error occured',
           error: JSON.parse(JSON.stringify(err, Object.getOwnPropertyNames(err)))
         });

@@ -34,7 +34,7 @@ const domoticz = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'Domoticz',
+      displayName: 'Domoticz (untested)',
       serviceTypeTags: ['wui', 'dashboard', 'home automation', 'iot', 'z-wave']
     };
   };

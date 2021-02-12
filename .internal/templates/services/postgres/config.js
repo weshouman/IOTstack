@@ -45,7 +45,7 @@ const postgres = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'Postgres',
+      displayName: 'Postgres (untested)',
       serviceTypeTags: ['database']
     };
   };

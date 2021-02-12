@@ -4,85 +4,96 @@ import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import {
   getExternalVolume,
-  getInternalVolume
-  // replaceExternalVolume
+  getInternalVolume,
+  replaceExternalVolume
 } from '../../../utils/parsers';
 
 const VolumesConfig = (props) => {
 
   const {
-    serviceConfigOptions,
+    // serviceConfigOptions,
     serviceName,
-    setBuildOptions,
+    // setBuildOptions,
     getBuildOptions,
-    buildOptionsInit,
-    setServiceOptions,
-    setTemporaryBuildOptions,
+    // buildOptionsInit,
+    // setServiceOptions,
+    // setTemporaryBuildOptions,
     getTemporaryBuildOptions,
     setTemporaryServiceOptions,
-    setupTemporaryBuildOptions,
-    saveTemporaryBuildOptions,
+    // setupTemporaryBuildOptions,
+    // saveTemporaryBuildOptions,
     serviceTemplates,
     onChange
   } = props;
 
   const tempBuildOptions = getTemporaryBuildOptions();
-  const yamlVolumeSettings = getBuildOptions()?.services?.[serviceName]?.volumes || [];
+  const yamlVolumeSettings = serviceTemplates?.[serviceName]?.volumes || [];
 
   const [volumeSettings, setVolumeSettings] = useState(yamlVolumeSettings);
+  const [loaded, setLoaded] = useState(false);
   useEffect(() => {
-    // setTemporaryServiceOptions(serviceName, {
-    //   ...getTemporaryBuildOptions()?.services?.[serviceName] ?? {},
-    //   ports: portSettings
-    // });
+    if ((getBuildOptions().services?.[serviceName]?.volumes?.length ?? 0) < 1 ) {
+      setTemporaryServiceOptions(serviceName, {
+        ...getBuildOptions().services?.[serviceName] ?? {},
+        volumes: yamlVolumeSettings
+      });
+    } else {
+      setVolumeSettings(getBuildOptions().services?.[serviceName]?.volumes);
+    }
+    setLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (loaded) {
+      setTemporaryServiceOptions(serviceName, {
+        ...tempBuildOptions?.services?.[serviceName] ?? {},
+        volumes: volumeSettings
+      });
+    }
   }, [
-    // portSettings
+    volumeSettings
   ]);
 
-  const onChangeCb = (portKey, portLabelValue, event) => {
-    // const newPort = event.target.value;
-    // // const defaultTemplatePort = defaultValue(portKey, portKey);
-    // setPortSettings({
-    //   ...portSettings,
-    //   [portKey]: replaceExternalVolume((portSettings[portKey] || portKey), newPort)
-    // });
-    // if (typeof(onChange) === 'function') {
-    //   onChange(portKey, portLabelValue, newPort);
-    // }
+  const onChangeCb = (internalVolume, event) => {
+    const newExternalVolumePath = event.target.value;
+    const temporaryVolumes = [...volumeSettings];
+    
+    const volumeIndex = temporaryVolumes.findIndex((index) => {
+      return getInternalVolume(index) === internalVolume;
+    });
+    
+    if (volumeIndex > -1) {
+      temporaryVolumes[volumeIndex] = replaceExternalVolume(temporaryVolumes[volumeIndex], newExternalVolumePath);
+    }
+
+    setVolumeSettings(temporaryVolumes);
+    if (typeof(onChange) === 'function') {
+      onChange(internalVolume, newExternalVolumePath);
+    }
   };
 
   return (
     <Fragment>
-      Volumes
-      <Grid container spacing={3}>
-        {yamlVolumeSettings.map((volume) => {
-          console.log(1111, volume)
+      <Grid container spacing={4}>
+        {volumeSettings.map((volume) => {
           const internalVolume = getInternalVolume(volume);
-
-          let temporaryVolume = '';
-          (getTemporaryBuildOptions()?.services?.[serviceName]?.volumes ?? []).forEach((tempVolume) => {
-            if (getInternalVolume(tempVolume) === internalVolume) {
-              temporaryVolume = getTemporaryBuildOptions()?.services?.[serviceName]?.volumes ?? '';
-            } else {
-              temporaryVolume = volume;
-            }
-          });
-          const defaultExternalVolume = getExternalVolume(volume);
-          const currntExternalVolume = getExternalVolume(temporaryVolume);
+          const currentExternalVolume = getExternalVolume(volume);
 
           return (
             <Grid
               item
               xs={12}
-              md={6}
-              lg={3}
+              md={12}
+              lg={6}
+              xl={5}
               key={internalVolume}
             >
               <TextField
                 id={`volumeConfig_${internalVolume}`}
-                label={`Volume: ${internalVolume}`}
+                label={`Vol: ${internalVolume} ${currentExternalVolume === '' ? '(Deleted)' : ''}`}
                 onChange={(event) => { onChangeCb(internalVolume, event) }}
-                value={temporaryVolume ? currntExternalVolume : defaultExternalVolume}
+                value={currentExternalVolume}
+                style={{ width: '100%' }}
               />
             </Grid>
           );
