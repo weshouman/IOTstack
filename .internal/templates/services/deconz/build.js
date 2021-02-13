@@ -41,7 +41,7 @@ fi
 
   retr.compile = ({
     outputTemplateJson,
-    buildOptions,
+    buildOptions
   }) => {
     return new Promise((resolve, reject) => {
       try {

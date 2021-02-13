@@ -7,6 +7,45 @@ const {
   replaceEnvironmentValue,
 } = require('./dockerParse');
 
+const {
+  generateFileOrFolderName,
+  generatePassword,
+  generateAlphanumeric,
+  generateRandomPort
+} = require('./stringGenerate');
+
+const { byName } = require('./interpolate');
+
+const setCommonInterpolations = ({ stringList, inputString }) => {
+  let result = [];
+  if (Array.isArray(stringList)) {
+    result = stringList.map((iString) => {
+      return byName(iString, {
+        randomPassword: generatePassword(),
+        password: generatePassword(),
+        adminPassword: generatePassword(),
+        folderName: generateFileOrFolderName(),
+        compiledTime: new Date().getTime(),
+        randomAlphanumeric: generateAlphanumeric(),
+        randomPort: generateRandomPort()
+      });
+    });
+  }
+
+  if (typeof inputString === 'string') {
+    return byName(inputString, {
+      randomPassword: generatePassword(),
+      password: generatePassword(),
+      adminPassword: generatePassword(),
+      folderName: generateFileOrFolderName(),
+      compiledTime: new Date().getTime(),
+      randomAlphanumeric: generateAlphanumeric(),
+      randomPort: generateRandomPort()
+    });
+  }
+
+  return result;
+};
 
 const setModifiedPorts = ({ buildTemplate, buildOptions, serviceName }) => {
   const serviceTemplate = buildTemplate?.services?.[serviceName];
@@ -21,7 +60,9 @@ const setModifiedPorts = ({ buildTemplate, buildOptions, serviceName }) => {
         if (serviceTemplate.ports[index] !== serviceConfig.ports[modifiedPortList[i]]) {
           updated = true;
         }
+
         serviceTemplate.ports[index] = serviceConfig.ports[modifiedPortList[i]];
+        serviceTemplate.ports[index] = setCommonInterpolations({ inputString: serviceTemplate.ports[index] });
       }
     });
   }
@@ -99,6 +140,7 @@ const setVolumes = ({ buildTemplate, buildOptions, serviceName }) => {
             serviceTemplate.volumes.splice(i, 1);
           } else {
             serviceTemplate.volumes[i] = replaceExternalVolume(configVolume, configExternalVolume);
+            serviceTemplate.volumes[i] = setCommonInterpolations({ inputString: serviceTemplate.volumes[i] });
           }
           updated = true;
           found = true;
@@ -133,6 +175,7 @@ const setEnvironmentVariables = ({ buildTemplate, buildOptions, serviceName }) =
             serviceTemplate.environment.splice(i, 1);
           } else {
             serviceTemplate.environment[i] = replaceEnvironmentValue(configEnvironment, newEnvironmentValue);
+            serviceTemplate.environment[i] = setCommonInterpolations({ inputString: serviceTemplate.environment[i] });
           }
           updated = true;
           found = true;
@@ -155,5 +198,6 @@ module.exports = {
   setNetworkMode,
   setNetworks,
   setVolumes,
-  setEnvironmentVariables
+  setEnvironmentVariables,
+  setCommonInterpolations
 };
