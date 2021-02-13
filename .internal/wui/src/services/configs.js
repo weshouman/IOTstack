@@ -30,6 +30,30 @@ const getServiceMetadata = (serviceName) => {
   });
 };
 
+const getAllServicesMetadata = () => {
+  return new Promise((resolve, reject) => {
+    try {
+      return fetch(`${config.apiProtocol}${config.apiUrl}/config/meta`).then((response) => {
+        return response.json().then((data) => {
+          return resolve(data);
+        }).catch((err) => {
+          console.error('getAllServicesMetadata: error parsing JSON response:');
+          console.error(response);
+          return reject(JSON.stringify(err, Object.getOwnPropertyNames(err)));
+        });
+      }).catch((err) => {
+        console.error('getAllServicesMetadata: error communicating with API.');
+        console.error(err);
+        return reject(JSON.stringify(err, Object.getOwnPropertyNames(err)));
+      });
+    } catch (err) {
+      console.error('getAllServicesMetadata: an unhandled error occured');
+      console.error(err);
+      return reject(JSON.stringify(err, Object.getOwnPropertyNames(err)));
+    }
+  });
+};
+
 const getServiceConfigOptions = (serviceName) => {
   return new Promise((resolve, reject) => {
     try {
@@ -60,7 +84,33 @@ const getServiceConfigOptions = (serviceName) => {
   });
 };
 
+const getAllServicesConfigOptions = (serviceName) => {
+  return new Promise((resolve, reject) => {
+    try {
+      return fetch(`${config.apiProtocol}${config.apiUrl}/config/options`).then((response) => {
+        return response.json().then((data) => {
+          return resolve(data);
+        }).catch((err) => {
+          console.error('getAllServicesConfigOptions: error parsing JSON response:');
+          console.error(response);
+          return reject(JSON.stringify(err, Object.getOwnPropertyNames(err)));
+        });
+      }).catch((err) => {
+        console.error('getAllServicesConfigOptions: error communicating with API.');
+        console.error(err);
+        return reject(JSON.stringify(err, Object.getOwnPropertyNames(err)));
+      });
+    } catch (err) {
+      console.error('getAllServicesConfigOptions: an unhandled error occured');
+      console.error(err);
+      return reject(JSON.stringify(err, Object.getOwnPropertyNames(err)));
+    }
+  });
+};
+
 export {
   getServiceMetadata,
-  getServiceConfigOptions
+  getServiceConfigOptions,
+  getAllServicesMetadata,
+  getAllServicesConfigOptions
 };

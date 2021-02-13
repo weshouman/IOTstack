@@ -7,7 +7,9 @@ import serviceTemplateList from './getServiceTemplateListReducer';
 import serviceTemplates from './getServiceTemplatesReducer';
 import networkTemplateList from './getNetworkTemplateListReducer';
 import configServiceMetadata from './getServiceMetadataReducer';
+import allServicesMetadataReducer from './getAllServicesMetadataReducer';
 import configServiceConfigOptions from './getServiceConfigOptionsReducer';
+import allServicesConfigOptionsReducer from './getAllServicesConfigOptionsReducer';
 import selectedServices from './updateSelectedServicesReducer';
 import hideServiceTags from './updateSelectedFilterTagsReducer';
 import buildIssues from './getBuildIssuesReducer';
@@ -25,7 +27,9 @@ export default configureStore({
     networkTemplateList: networkTemplateList,
     serviceTemplates: serviceTemplates,
     configServiceMetadata: configServiceMetadata,
+    allServicesMetadataReducer: allServicesMetadataReducer,
     configServiceConfigOptions: configServiceConfigOptions,
+    allServicesConfigOptionsReducer: allServicesConfigOptionsReducer,
     selectedServices: selectedServices,
     buildHistory: buildHistory,
     hideServiceTags: hideServiceTags,

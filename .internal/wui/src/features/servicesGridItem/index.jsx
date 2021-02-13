@@ -11,6 +11,7 @@ import ErrorOutlineOutlinedIcon from '@material-ui/icons/ErrorOutlineOutlined';
 import { makeStyles } from '@material-ui/core/styles';
 import ServiceConfigModal from '../serviceConfigModal';
 import { useTheme } from '@material-ui/core/styles';
+import { API_STATUS } from '../../constants'
 import {
   getBuildIssuesAction
 } from '../../actions/checkBuildIssues.action';
@@ -39,8 +40,6 @@ const mapDispatchToProps = (dispatch) => {
 const mapStateToProps = (selector) => {
   return {
     templateList: selector(state => state.templateList),
-    configServiceMetadata: selector(state => state.configServiceMetadata),
-    configServiceConfigOptions: selector(state => state.configServiceConfigOptions),
     hideServiceTags: selector(state => state.hideServiceTags),
     selectedServices: selector(state => state.selectedServices),
     buildIssues: selector(state => state.buildIssues)
@@ -69,13 +68,9 @@ const ServiceItem = (props) => {
     serviceName,
     networkTemplateList,
     serviceTemplates,
-    dispatchGetServiceMetadata,
-    dispatchGetServiceConfigOptions,
     dispatchAddSelectedService,
     dispatchRemoveSelectedService,
     dispatchGetBuildIssues,
-    configServiceMetadata,
-    configServiceConfigOptions,
     selectedServices,
     hideServiceTags,
     buildIssues,
@@ -88,70 +83,49 @@ const ServiceItem = (props) => {
     getTemporaryBuildOptions,
     setTemporaryServiceOptions,
     setupTemporaryBuildOptions,
-    saveTemporaryBuildOptions
+    saveTemporaryBuildOptions,
+    allServicesMetadataReducer,
+    allServicesConfigOptionsReducer
   } = props;
 
   const [isLoading, setIsLoading] = useState(false);
   const [serviceMetadata, setServiceMetadata] = useState({});
-  const [serviceMetadataError, setServiceMetadataError] = useState({});
+  const [serviceConfigOptions, setServiceConfigOptions] = useState({});
+  const [serviceLoadError, setServiceLoadError] = useState({});
   useEffect(() => {
     if (
-      typeof configServiceMetadata.services.completed[serviceName] === 'undefined'
-      && typeof configServiceMetadata.services.failed[serviceName] === 'undefined'
-      && !configServiceMetadata.services.pending.includes(serviceName)
-      && !isLoading
+      allServicesMetadataReducer.status === API_STATUS.SUCCESS
+      && allServicesConfigOptionsReducer.status === API_STATUS.SUCCESS
     ) {
-      setIsLoading(true);
-      return void dispatchGetServiceMetadata(serviceName);
+      if (
+        !(
+          (allServicesMetadataReducer?.payload?.[serviceName] ?? false)
+          && (allServicesConfigOptionsReducer?.payload?.[serviceName] ?? false)
+        )
+      ) {
+        setServiceLoadError(true);
+        setIsLoading(false);
+        return null;
+      }
+      setServiceMetadata(allServicesMetadataReducer?.payload?.[serviceName]);
+      setServiceConfigOptions(allServicesConfigOptionsReducer?.payload?.[serviceName]);
+      setIsLoading(false);
+      return null;
     }
 
     setIsLoading(false);
 
-    if (typeof configServiceMetadata.services.completed[serviceName] === 'object') {
-      setServiceMetadata(configServiceMetadata.services.completed[serviceName].payload);
-    } else if (!configServiceMetadata.services.pending.includes(serviceName)) {
-      setServiceMetadataError({
-        hasError: true
-      });
-    }
-  }, [
-    isLoading,
-    serviceName,
-    dispatchGetServiceMetadata,
-    configServiceMetadata.services.completed,
-    configServiceMetadata.services.pending,
-    configServiceMetadata.services.failed
-  ]);
-
-  const [serviceConfigOptions, setServiceConfigOptions] = useState({});
-  const [serviceConfigOptionsError, setServiceConfigOptionsError] = useState({});
-  useEffect(() => {
     if (
-      typeof configServiceConfigOptions.services.completed[serviceName] === 'undefined'
-      && typeof configServiceConfigOptions.services.failed[serviceName] === 'undefined'
-      && !configServiceConfigOptions.services.pending.includes(serviceName)
-      && !isLoading
+      allServicesMetadataReducer.status === API_STATUS.FAILURE
+      && allServicesConfigOptionsReducer.status === API_STATUS.FAILURE
     ) {
-      setIsLoading(true);
-      return void dispatchGetServiceConfigOptions(serviceName);
-    }
-
-    // setIsLoading(false);
-
-    if (typeof configServiceConfigOptions.services.completed[serviceName] === 'object') {
-      setServiceConfigOptions(configServiceConfigOptions.services.completed[serviceName].payload);
-    } else if (!configServiceConfigOptions.services.pending.includes(serviceName)) {
-      setServiceConfigOptionsError({
-        hasError: true
-      });
+      setIsLoading(false);
+      setServiceLoadError(true);
+      return null;
     }
   }, [
-    isLoading,
-    serviceName,
-    dispatchGetServiceConfigOptions,
-    configServiceConfigOptions.services.completed,
-    configServiceConfigOptions.services.pending,
-    configServiceConfigOptions.services.failed
+    allServicesMetadataReducer,
+    allServicesConfigOptionsReducer
   ]);
 
   const [updated, setIsUpdated] = useState(false);
@@ -174,11 +148,14 @@ const ServiceItem = (props) => {
     }
     const issueList = buildIssues?.payload?.issueList ?? {};
     if (Array.isArray(issueList.services)) {
+      let issueFound = false;
       issueList.services.forEach((service) => {
         if (service.name === serviceName) {
-          return void setHasIssue(true);
+          issueFound = true;
         }
       });
+      
+      return void setHasIssue(issueFound);
     }
   }, [buildIssues, selectedServices.selectedServices, serviceName]);
 
@@ -355,7 +332,7 @@ const ServiceItem = (props) => {
           serviceComponent()
         )}
         {!isLoading
-        && serviceMetadataError.hasError === true
+        && serviceLoadError === true
         && (
           errorComponent()
         )}

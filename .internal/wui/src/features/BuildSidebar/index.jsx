@@ -38,8 +38,8 @@ const getUniqueTagsFromTemplates = ({ serviceTemplateListPayload, metadataList }
   const tagList = [];
   if (Array.isArray(serviceTemplateListPayload)) {
     serviceTemplateListPayload.forEach((service) => {
-      if (metadataList[service] && metadataList[service].payload && Array.isArray(metadataList[service].payload.serviceTypeTags)) {
-        metadataList[service].payload.serviceTypeTags.forEach((tag) => {
+      if (Array.isArray(metadataList?.[service]?.serviceTypeTags ?? false)) {
+        metadataList[service].serviceTypeTags.forEach((tag) => {
           if (!tagList.includes(tag)) {
             tagList.push(tag);
           }
@@ -216,7 +216,8 @@ const Sidebar = (props) => {
       selectedServices: selector(state => state.selectedServices),
       buildIssues: selector(state => state.buildIssues),
       buildStack: selector(state => state.buildStack),
-      scriptTemplates: selector(state => state.scriptTemplates)
+      scriptTemplates: selector(state => state.scriptTemplates),
+      allServicesMetadataReducer: selector(state => state.allServicesMetadataReducer)
     };
   };
   const mapDispatchToProps = (dispatch) => {
@@ -246,7 +247,7 @@ const Sidebar = (props) => {
 
   const {
     serviceTemplateList,
-    configServiceMetadata,
+    allServicesMetadataReducer,
     selectedServices,
     buildIssues,
     hideServiceTags,
@@ -313,7 +314,7 @@ const Sidebar = (props) => {
         border={1}
         className={`${styles.sidebarWrapper}`}
       >
-        {serviceFilter(serviceTemplateList.payload, configServiceMetadata.services.completed)}
+        {serviceFilter(serviceTemplateList.payload, allServicesMetadataReducer.payload)}
         <Divider />
         {buildIssuesRender(buildIssues)}
         <Divider />

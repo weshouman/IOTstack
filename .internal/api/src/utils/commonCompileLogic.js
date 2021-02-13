@@ -33,6 +33,8 @@ const setLoggingState = ({ buildTemplate, buildOptions, serviceName }) => {
   const serviceTemplate = buildTemplate?.services?.[serviceName];
   const serviceConfig = buildOptions?.serviceConfigurations?.services?.[serviceName];
 
+  const currentLogging = Object.keys(serviceTemplate?.logging ?? {});
+
   if (serviceConfig?.loggingEnabled === false) {
     if (serviceTemplate.logging) {
       delete serviceTemplate?.logging;
@@ -41,12 +43,14 @@ const setLoggingState = ({ buildTemplate, buildOptions, serviceName }) => {
     return false;
   }
 
-  return true;
+  return Object.keys(serviceTemplate?.logging ?? {}).length !== currentLogging.length;
 };
 
 const setNetworkMode = ({ buildTemplate, buildOptions, serviceName }) => {
   const serviceTemplate = buildTemplate?.services?.[serviceName];
   const serviceConfig = buildOptions?.serviceConfigurations?.services?.[serviceName];
+
+  const currentNetworkMode = serviceTemplate?.['network_mode'];
 
   if (serviceConfig?.networkMode) {
     if (
@@ -55,11 +59,10 @@ const setNetworkMode = ({ buildTemplate, buildOptions, serviceName }) => {
       && serviceConfig.networkMode !== ''
     ) {
       serviceTemplate['network_mode'] = serviceConfig.networkMode;
-      return true;
     }
   }
 
-  return false;
+  return currentNetworkMode !== serviceTemplate['network_mode'];
 };
 
 const setNetworks = ({ buildTemplate, buildOptions, serviceName }) => {

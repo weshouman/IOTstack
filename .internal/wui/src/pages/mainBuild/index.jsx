@@ -8,6 +8,8 @@ import BuildSidebar from '../../features/BuildSidebar';
 import { getServiceTemplateListAction } from '../../actions/getServiceTemplateList.action';
 import { getServiceTemplatesAction } from '../../actions/getServiceTemplates.action';
 import { getNetworkTemplateListAction } from '../../actions/getNetworkTemplateList.action';
+import { getAllServicesConfigOptionsAction } from '../../actions/getAllServicesConfigOptions.action';
+import { getAllServicesMetadataAction } from '../../actions/getAllServicesMetadata.action';
 import {
   getBuildOptions,
   setBuildOptions,
@@ -23,8 +25,11 @@ import {
 const mapDispatchToProps = (dispatch) => {
   return {
     dispatchGetServiceTemplatesList: () => dispatch(getServiceTemplateListAction()),
+    dispatchGetServiceTemplatesList: () => dispatch(getServiceTemplateListAction()),
     dispatchGetNetworkTemplatesList: () => dispatch(getNetworkTemplateListAction()),
-    dispatchGetServiceTemplates: () => dispatch(getServiceTemplatesAction())
+    dispatchGetServiceTemplates: () => dispatch(getServiceTemplatesAction()),
+    dispatchGetAllServicesMetadata: () => dispatch(getAllServicesMetadataAction()),
+    dispatchGetAllServicesConfigOptions: () => dispatch(getAllServicesConfigOptionsAction())
   };
 };
 
@@ -32,7 +37,9 @@ const mapStateToProps = (selector) => {
   return {
     serviceTemplateList: selector(state => state.serviceTemplateList),
     networkTemplateList: selector(state => state.networkTemplateList),
-    serviceTemplates: selector(state => state.serviceTemplates)
+    serviceTemplates: selector(state => state.serviceTemplates),
+    allServicesConfigOptionsReducer: selector(state => state.allServicesConfigOptionsReducer),
+    allServicesMetadataReducer: selector(state => state.allServicesMetadataReducer)
   };
 };
 
@@ -47,6 +54,10 @@ const Main = (props) => {
     dispatchGetServiceTemplatesList,
     dispatchGetNetworkTemplatesList,
     dispatchGetServiceTemplates,
+    dispatchGetAllServicesMetadata,
+    dispatchGetAllServicesConfigOptions,
+    allServicesConfigOptionsReducer,
+    allServicesMetadataReducer,
     serviceTemplateList,
     networkTemplateList,
     serviceTemplates
@@ -57,6 +68,8 @@ const Main = (props) => {
     dispatchGetServiceTemplatesList();
     dispatchGetNetworkTemplatesList();
     dispatchGetServiceTemplates();
+    dispatchGetAllServicesMetadata();
+    dispatchGetAllServicesConfigOptions();
   }, []);
 
   return (
@@ -76,6 +89,8 @@ const Main = (props) => {
                   >
                     <ServiceGridItem
                       serviceName={templateName}
+                      allServicesConfigOptionsReducer={allServicesConfigOptionsReducer}
+                      allServicesMetadataReducer={allServicesMetadataReducer}
                       buildOptions={buildOptions}
                       setBuildOptions={setBuildOptions}
                       setServiceOptions={setServiceOptions}

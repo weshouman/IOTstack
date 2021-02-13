@@ -40,6 +40,14 @@ const registerConfigRoutes = ({ server, settings, version, logger } = {}) => {
   server.get('/config/:serviceName/meta', (req, res, next) => {
     configView.getMeta(req, res, next);
   });
+
+  server.get('/config/meta', (req, res, next) => {
+    configView.getAllMeta(req, res, next);
+  });
+
+  server.get('/config/options', (req, res, next) => {
+    configView.getAllConfigOptions(req, res, next);
+  });
 };
 
 module.exports = registerConfigRoutes;

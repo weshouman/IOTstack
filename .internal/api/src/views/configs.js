@@ -32,6 +32,29 @@ const ConfigsView = ({ server, settings, version, logger } = {}) => {
     }
   };
 
+  retr.getAllConfigOptions = (req, res, next) => {
+    try {
+      configsController.getAllConfigOptions().then((result) => {
+        return res.send(result);
+      }).catch((err) => {
+        logger.error(err);
+        return res.status(500).send({
+          component: 'ConfigsView::getAllConfigOptions',
+          message: 'Error getting config options',
+          error: JSON.parse(JSON.stringify(err, Object.getOwnPropertyNames(err)))
+        });
+      });
+    } catch (err) {
+      logger.error(err);
+      logger.log(req.body);
+      return res.status(500).send({
+        component: 'ConfigsView::getAllConfigOptions',
+        message: 'Unhandled error',
+        error: JSON.parse(JSON.stringify(err, Object.getOwnPropertyNames(err)))
+      });
+    }
+  };
+
   retr.getHelp = (req, res, next) => {
     try {
       const { serviceName } = req.params;
@@ -84,6 +107,29 @@ const ConfigsView = ({ server, settings, version, logger } = {}) => {
     try {
       const { serviceName } = req.params;
       configsController.getMeta({ serviceName }).then((result) => {
+        return res.send(result);
+      }).catch((err) => {
+        logger.error(err);
+        return res.status(500).send({
+          component: 'ConfigsView::getMeta',
+          message: 'Error getting help',
+          error: JSON.parse(JSON.stringify(err, Object.getOwnPropertyNames(err)))
+        });
+      });
+    } catch (err) {
+      logger.error(err);
+      logger.log(req.body);
+      return res.status(500).send({
+        component: 'ConfigsView::getMeta',
+        message: 'Unhandled error',
+        error: JSON.parse(JSON.stringify(err, Object.getOwnPropertyNames(err)))
+      });
+    }
+  };
+
+  retr.getAllMeta = (req, res, next) => {
+    try {
+      configsController.getAllMeta().then((result) => {
         return res.send(result);
       }).catch((err) => {
         logger.error(err);
