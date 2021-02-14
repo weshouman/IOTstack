@@ -151,7 +151,7 @@ echo ""
 echo "Setup complete. You can start the stack with: "
 echo "  docker-compose up"
 echo "or"
-echo "  docker-compose up -d"
+echo "  docker-compose up -d --remove-orphans"
 
 `;
 
