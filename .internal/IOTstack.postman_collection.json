@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "f9aa4568-fc88-42e4-b005-2f8ddf330e79",
+		"_postman_id": "9ccf19f7-fa69-4acb-b1ae-898fe7392ac1",
 		"name": "IOTstack",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -165,8 +165,7 @@
 					},
 					"response": []
 				}
-			],
-			"protocolProfileBehavior": {}
+			]
 		},
 		{
 			"name": "Configs",
@@ -197,6 +196,37 @@
 							"path": [
 								"config",
 								"{{serviceName}}",
+								"options"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Services Config Options",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:32128/config/options",
+							"host": [
+								"localhost"
+							],
+							"port": "32128",
+							"path": [
+								"config",
 								"options"
 							]
 						}
@@ -334,9 +364,40 @@
 						"description": "Get metadata about a service, such as its tags."
 					},
 					"response": []
+				},
+				{
+					"name": "Get All Services Metadata",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:32128/config/meta",
+							"host": [
+								"localhost"
+							],
+							"port": "32128",
+							"path": [
+								"config",
+								"meta"
+							]
+						},
+						"description": "Get metadata about all services, such as their tags."
+					},
+					"response": []
 				}
-			],
-			"protocolProfileBehavior": {}
+			]
 		},
 		{
 			"name": "Templates",
@@ -506,9 +567,7 @@
 							},
 							"response": []
 						}
-					],
-					"protocolProfileBehavior": {},
-					"_postman_isSubFolder": true
+					]
 				},
 				{
 					"name": "Networks",
@@ -642,9 +701,7 @@
 							},
 							"response": []
 						}
-					],
-					"protocolProfileBehavior": {},
-					"_postman_isSubFolder": true
+					]
 				},
 				{
 					"name": "Scripts",
@@ -714,12 +771,9 @@
 							},
 							"response": []
 						}
-					],
-					"protocolProfileBehavior": {},
-					"_postman_isSubFolder": true
+					]
 				}
-			],
-			"protocolProfileBehavior": {}
+			]
 		},
 		{
 			"name": "Get API State and Health",
@@ -752,6 +806,5 @@
 			},
 			"response": []
 		}
-	],
-	"protocolProfileBehavior": {}
+	]
 }

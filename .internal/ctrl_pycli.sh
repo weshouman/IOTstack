@@ -5,12 +5,12 @@ DNAME=iostack_pycli
 FULL_NAME="$DNAME:$VERSION"
 
 if [ "$1" = "stop" ]; then
-  docker stop $(docker ps -q --filter ancestor=$FULL_NAME ) 2> /dev/null
+  docker stop $(docker images -q --format "{{.Repository}}:{{.Tag}}" | grep "${DNAME}") 2> /dev/null
 else
   if [[ $IOTENV == "development" ]]; then
     echo "[Development] Stopping container:"
-    echo "docker stop $(docker ps -q --filter ancestor=$FULL_NAME) || docker rmi $FULL_NAME --force"
-    docker stop $(docker ps -q --filter ancestor=$FULL_NAME) 2> /dev/null || docker rmi $FULL_NAME --force 2> /dev/null
+    echo "docker stop $(docker images -q --format "{{.Repository}}:{{.Tag}}" | grep "${DNAME}") || docker rmi $FULL_NAME --force"
+    docker stop $(docker images -q --format "{{.Repository}}:{{.Tag}}" | grep "${DNAME}") 2> /dev/null || docker rmi $FULL_NAME --force 2> /dev/null
     echo ""
     echo "Rebuilding container:"
     echo "docker build --no-cache -t $FULL_NAME -f ./.internal/pycli.Dockerfile ."

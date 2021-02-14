@@ -127,6 +127,12 @@ else
 
 		sleep 1
 
+		docker rmi $(docker images -q --format "{{.Repository}}:{{.Tag}}" | grep 'iostack_wui') --force 2> /dev/null
+		docker rmi $(docker images -q --format "{{.Repository}}:{{.Tag}}" | grep 'iostack_api') --force 2> /dev/null
+		docker rmi $(docker images -q --format "{{.Repository}}:{{.Tag}}" | grep 'iostack_pycli') --force 2> /dev/null
+
+		sleep 1
+
 		# Build all asynchronously, so it's faster. Give PyCLI a slight headstart to keep the user waiting the shortest time.
 		docker build --quiet -t iostack_pycli:$VERSION -f ./.internal/pycli.Dockerfile . > /dev/null &
 		sleep 1
