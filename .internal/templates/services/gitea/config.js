@@ -34,7 +34,7 @@ const gitea = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'Gitea (untested)',
+      displayName: 'Gitea',
       serviceTypeTags: ['wui', 'git']
     };
   };

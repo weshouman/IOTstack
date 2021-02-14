@@ -145,6 +145,14 @@ ${renderPostbuildScripts(options?.postbuildScripts)}
 
 #### End postbuild service scripts
 
+cp docker-compose-base.yml docker-compose.yml
+
+echo ""
+echo "Setup complete. You can start the stack with: "
+echo "  docker-compose up"
+echo "or"
+echo "  docker-compose up -d"
+
 `;
 
       return resolve(result);

@@ -6,6 +6,17 @@ const ServiceBuilder = ({
   const retr = {};
   const serviceName = 'portainer';
 
+  const {
+    setModifiedPorts,
+    setLoggingState,
+    setNetworkMode,
+    setNetworks
+  } = require('../../../src/utils/commonCompileLogic');
+
+  const {
+    checkPortConflicts
+  } = require('../../../src/utils/commonBuildChecks');
+
   /*
     Order:
       1. compile() - merges build options into the final JSON output.
@@ -24,7 +35,15 @@ const ServiceBuilder = ({
     return new Promise((resolve, reject) => {
       try {
         console.info(`ServiceBuilder:compile() - '${serviceName}' started`);
-        // Code here
+
+        const compileResults = {
+          modifiedPorts: setModifiedPorts({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
+          modifiedLogging: setLoggingState({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
+          modifiedNetworkMode: setNetworkMode({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
+          modifiedNetworks: setNetworks({ buildTemplate: outputTemplateJson, buildOptions, serviceName })
+        };
+        console.info(`ServiceBuilder:compile() - '${serviceName}' Results:`, compileResults);
+
         console.info(`ServiceBuilder:compile() - '${serviceName}' completed`);
         return resolve({ type: 'service' });
       } catch (err) {
@@ -50,14 +69,21 @@ const ServiceBuilder = ({
     return new Promise((resolve, reject) => {
       try {
         console.info(`ServiceBuilder:issues() - '${serviceName}' started`);
-        // Code here
-        console.info(`ServiceBuilder:issues() - '${serviceName}' completed`);
-        return resolve([{
+        let issues = [];
+
+        const portConflicts = checkPortConflicts({ buildTemplate: outputTemplateJson, buildOptions, serviceName });
+        issues = [...issues, ...portConflicts];
+
+        issues.push({
           type: 'service',
           name: serviceName,
           issueType: 'deprecation',
           message: 'Portainer is deprecated and may be removed from IOTstack at any time. Use Portainer-CE instead.'
-        }]);
+        });
+
+        console.info(`ServiceBuilder:issues() - '${serviceName}' Issues found: ${issues.length}`);
+        console.info(`ServiceBuilder:issues() - '${serviceName}' completed`);
+        return resolve(issues);
       } catch (err) {
         console.error(err);
         console.trace();

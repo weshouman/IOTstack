@@ -10,6 +10,17 @@ const ServiceBuilder = ({
   const retr = {};
   const serviceName = 'nodered';
 
+  const {
+    setModifiedPorts,
+    setLoggingState,
+    setNetworkMode,
+    setNetworks
+  } = require('../../../src/utils/commonCompileLogic');
+
+  const {
+    checkPortConflicts
+  } = require('../../../src/utils/commonBuildChecks');
+
   /*
     Order:
       1. compile() - merges build options into the final JSON output.
@@ -28,7 +39,15 @@ const ServiceBuilder = ({
     return new Promise((resolve, reject) => {
       try {
         console.info(`ServiceBuilder:compile() - '${serviceName}' started`);
-        // Code here
+
+        const compileResults = {
+          modifiedPorts: setModifiedPorts({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
+          modifiedLogging: setLoggingState({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
+          modifiedNetworkMode: setNetworkMode({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
+          modifiedNetworks: setNetworks({ buildTemplate: outputTemplateJson, buildOptions, serviceName })
+        };
+        console.info(`ServiceBuilder:compile() - '${serviceName}' Results:`, compileResults);
+
         console.info(`ServiceBuilder:compile() - '${serviceName}' completed`);
         return resolve({ type: 'service' });
       } catch (err) {
@@ -54,6 +73,12 @@ const ServiceBuilder = ({
     return new Promise((resolve, reject) => {
       try {
         console.info(`ServiceBuilder:issues() - '${serviceName}' started`);
+        let issues = [];
+
+        const portConflicts = checkPortConflicts({ buildTemplate: outputTemplateJson, buildOptions, serviceName });
+        issues = [...issues, ...portConflicts];
+
+
         let addonsSelected = false;
         const addonsList = buildOptions?.services?.nodered?.addons ?? [];
         if (addonsList.length > 0) {
@@ -61,14 +86,17 @@ const ServiceBuilder = ({
         }
         console.info(`ServiceBuilder:issues() - '${serviceName}' completed`);
         if (!addonsSelected) {
-          return resolve([{
+          issues.push({
             type: 'service',
             name: serviceName,
             issueType: 'no addons',
             message: 'No pallette addons selected for NodeRed. Select addons in options to remove this warning. This is optional.'
-          }]);
+          });
         }
-        return resolve([]);
+
+        console.info(`ServiceBuilder:issues() - '${serviceName}' Issues found: ${issues.length}`);
+        console.info(`ServiceBuilder:issues() - '${serviceName}' completed`);
+        return resolve(issues);
       } catch (err) {
         console.error(err);
         console.trace();

@@ -23,7 +23,7 @@ const Settings = ({ env, logger, version }) => {
       buildDockerFilePostfix: '_docker-compose-base.yml',
       buildOptionsFilePostfix: '_build-options.json',
       buildZipFilePostfix: '_build.zip',
-      buildInstallerFilePostfix: '_installer.sh',
+      buildInstallerFilePostfix: '_build-installer.sh',
       serviceFiles: '/serviceFiles/',
       buildFiles: '/buildFiles/'
     }

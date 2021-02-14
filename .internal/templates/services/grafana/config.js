@@ -44,7 +44,7 @@ const grafana = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'Grafana (untested)',
+      displayName: 'Grafana',
       serviceTypeTags: ['aggregator', 'wui', 'graphs', 'dashboard'],
       iconUri: 'https://grafana.com/static/img/logos/grafana_logo_swirl-events.svg'
     };

@@ -34,7 +34,7 @@ const dashmachine = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'DashMachine (untested)',
+      displayName: 'DashMachine',
       serviceTypeTags: ['wui', 'dashboard']
     };
   };

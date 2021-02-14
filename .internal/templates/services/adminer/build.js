@@ -75,7 +75,6 @@ const ServiceBuilder = ({
         issues = [...issues, ...portConflicts];
 
         console.info(`ServiceBuilder:issues() - '${serviceName}' Issues found: ${issues.length}`);
-        checkPortConflicts({ buildTemplate: outputTemplateJson, serviceConfigurations: buildOptions })
         console.info(`ServiceBuilder:issues() - '${serviceName}' completed`);
         return resolve(issues);
       } catch (err) {

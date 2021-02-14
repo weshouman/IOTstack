@@ -6,6 +6,17 @@ const ServiceBuilder = ({
   const retr = {};
   const serviceName = 'timescaledb';
 
+  const {
+    setModifiedPorts,
+    setLoggingState,
+    setNetworkMode,
+    setNetworks
+  } = require('../../../src/utils/commonCompileLogic');
+
+  const {
+    checkPortConflicts
+  } = require('../../../src/utils/commonBuildChecks');
+
   /*
     Order:
       1. compile() - merges build options into the final JSON output.
@@ -39,7 +50,15 @@ fi
     return new Promise((resolve, reject) => {
       try {
         console.info(`ServiceBuilder:compile() - '${serviceName}' started`);
-        // Code here
+
+        const compileResults = {
+          modifiedPorts: setModifiedPorts({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
+          modifiedLogging: setLoggingState({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
+          modifiedNetworkMode: setNetworkMode({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
+          modifiedNetworks: setNetworks({ buildTemplate: outputTemplateJson, buildOptions, serviceName })
+        };
+        console.info(`ServiceBuilder:compile() - '${serviceName}' Results:`, compileResults);
+
         console.info(`ServiceBuilder:compile() - '${serviceName}' completed`);
         return resolve({ type: 'service' });
       } catch (err) {
@@ -65,9 +84,14 @@ fi
     return new Promise((resolve, reject) => {
       try {
         console.info(`ServiceBuilder:issues() - '${serviceName}' started`);
-        // Code here
+        let issues = [];
+
+        const portConflicts = checkPortConflicts({ buildTemplate: outputTemplateJson, buildOptions, serviceName });
+        issues = [...issues, ...portConflicts];
+
+        console.info(`ServiceBuilder:issues() - '${serviceName}' Issues found: ${issues.length}`);
         console.info(`ServiceBuilder:issues() - '${serviceName}' completed`);
-        return resolve([]);
+        return resolve(issues);
       } catch (err) {
         console.error(err);
         console.trace();

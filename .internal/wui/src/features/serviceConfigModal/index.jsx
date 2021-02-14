@@ -62,6 +62,13 @@ const ServiceConfigModal = (props) => {
     }
   }
 
+  const resetDefaults = (evt) => {
+    const currentBuildOptions = getBuildOptions();
+    delete currentBuildOptions?.services[serviceName];
+    setBuildOptions(currentBuildOptions);
+    closeModal(evt);
+  };
+
   const classes = useStyles();
   const [modalStyle] = React.useState(getModalStyle);
   const body = (
@@ -100,12 +107,15 @@ const ServiceConfigModal = (props) => {
         })}
         <Box pt={"1rem"}>
           <Grid container item xs={12} spacing={3} >
-            <Grid item xs={7} md={6}>
+            <Grid item xs={7} md={4}>
               <Button variant="contained" onClick={(evt) => { saveTemporaryBuildOptions(); closeModal(evt); }}>Save and Close</Button>
             </Grid>
-            <Grid item xs={7} md={6}>
+            <Grid item xs={7} md={4}>
               <Button variant="contained" onClick={(evt) => { closeModal(evt); }}>Cancel and Close</Button>
             </Grid>
+            {/* <Grid item xs={7} md={4}>
+              <Button variant="contained" onClick={(evt) => { resetDefaults(evt); }}>Reset to Default</Button>
+            </Grid> */}
           </Grid>
         </Box>
       </Fragment>
