@@ -14,6 +14,7 @@ source ./scripts/setup_iotstack.sh
 source ./.internal/meta.sh
 
 SKIPCHECKS="false"
+FORCE_REBUILD="false"
 
 function check_git_updates() {
 	UPSTREAM=${1:-'@{u}'}
@@ -55,6 +56,43 @@ function project_checks() {
 		echo "Project is up to date" >&2
 	fi
 }
+
+while test $# -gt 0
+do
+	case "$1" in
+		--branch) CURRENT_BRANCH=${2:-$(git name-rev --name-only HEAD)}
+			;;
+		--no-check) echo ""
+			;;
+		--stop) echo "Stopping all menu containers" && bash ./.internal/docker_menu.sh stop
+			;;
+		--rebuild) echo "Force rebuild all menu containers" && FORCE_REBUILD="true"
+			;;
+		--run-env-setup)
+				echo "Setting up environment:"
+				generate_container_ssh
+				install_ssh_keys
+				if [[ ! "$(user_in_group bluetooth)" == "notgroup" ]] && [[ ! "$(user_in_group bluetooth)" == "true" ]]; then
+					echo "User is NOT in 'bluetooth' group. Adding:" >&2
+					echo "sudo -E usermod -G bluetooth -a $USER" >&2
+					echo "You will need to restart your system before the changes take effect."
+					sudo -E usermod -G "bluetooth" -a $USER
+				fi
+
+				if [ ! "$(user_in_group docker)" == "true" ]; then
+					echo "User is NOT in 'docker' group. Adding:" >&2
+					echo "sudo -E usermod -G docker -a $USER" >&2
+					echo "You will need to restart your system before the changes take effect."
+					sudo -E usermod -G "docker" -a $USER
+				fi
+			;;
+		--encoding) ENCODING_TYPE=$2
+			;;
+		--*) echo "bad option $1"
+			;;
+	esac
+	shift
+done
 
 # ----------------------------------------------
 # Menu bootstrap entry point
@@ -120,8 +158,8 @@ else
 		PREBUILT_IMAGES="false"
 	fi
 
-	if [[ "$PREBUILT_IMAGES" == "false" ]]; then
-		echo " Rebuild requied"
+	if [[ "$PREBUILT_IMAGES" == "false" || "$FORCE_REBUILD" == "true" ]]; then
+		echo " Rebuild requied. All running menu containers will be restarted."
 		echo "You either recently installed or upgraded IOTstack. The menu docker images need to be rebuilt in order for the menu to run correctly. This will take about a minute and is completely automatic."
 		bash ./.internal/docker_menu.sh stop > /dev/null &
 
@@ -173,50 +211,15 @@ fi
 echo " Menu check completed."
 echo ""
 
-while test $# -gt 0
-do
-	case "$1" in
-		--branch) CURRENT_BRANCH=${2:-$(git name-rev --name-only HEAD)}
-			;;
-		--no-check) echo ""
-			;;
-		--stop) echo "Stopping all menu containers" && bash ./.internal/docker_menu.sh stop
-			;;
-		--run-env-setup)
-				echo "Setting up environment:"
-				generate_container_ssh
-				install_ssh_keys
-				if [[ ! "$(user_in_group bluetooth)" == "notgroup" ]] && [[ ! "$(user_in_group bluetooth)" == "true" ]]; then
-					echo "User is NOT in 'bluetooth' group. Adding:" >&2
-					echo "sudo -E usermod -G bluetooth -a $USER" >&2
-					echo "You will need to restart your system before the changes take effect."
-					sudo -E usermod -G "bluetooth" -a $USER
-				fi
-
-				if [ ! "$(user_in_group docker)" == "true" ]; then
-					echo "User is NOT in 'docker' group. Adding:" >&2
-					echo "sudo -E usermod -G docker -a $USER" >&2
-					echo "You will need to restart your system before the changes take effect."
-					sudo -E usermod -G "docker" -a $USER
-				fi
-			;;
-		--encoding) ENCODING_TYPE=$2
-			;;
-		--*) echo "bad option $1"
-			;;
-	esac
-	shift
-done
-
 echo "Spinning up menu containers... "
 
 if [[ "$SKIPCHECKS" == "false" ]]; then
-	if nc -w 1 localhost 32777 ; then
-		echo "WUI detected on localhost:32777"
+	if nc -w 1 $HOST_CON_IP $API_PORT ; then
+		echo "WUI detected on $HOST_CON_IP:$API_PORT"
 	fi
 
-	if nc -w 1 localhost 32128 ; then
-		echo "API detected on localhost:32128"
+	if nc -w 1 $HOST_CON_IP $WUI_PORT ; then
+		echo "API detected on $HOST_CON_IP:$WUI_PORT"
 	fi
 fi
 

@@ -6,11 +6,11 @@ FULL_NAME="$DNAME:$VERSION"
 
 if [ "$1" = "stop" ]; then
   docker stop $(docker images -q --format "{{.Repository}}:{{.Tag}}" | grep "${DNAME}") 2> /dev/null
-  docker stop $(docker ps -q --format "{{.ID}} {{.Ports}}" | grep "32128" | cut -d ' ' -f1) 2> /dev/null
+  docker stop $(docker ps -q --format "{{.ID}} {{.Ports}}" | grep "$API_PORT" | cut -d ' ' -f1) 2> /dev/null
 else
   if [[ $IOTENV == "development" ]]; then
     docker stop $(docker images -q --format "{{.Repository}}:{{.Tag}}" | grep "${DNAME}") 2> /dev/null || docker rmi $FULL_NAME --force 2> /dev/null
-    docker stop $(docker ps -q --format "{{.ID}} {{.Ports}}" | grep "32128" | cut -d ' ' -f1) 2> /dev/null
+    docker stop $(docker ps -q --format "{{.ID}} {{.Ports}}" | grep "$API_PORT" | cut -d ' ' -f1) 2> /dev/null
     docker pull node:14 # Docker occasionally fails to pull image when building when it is not cached.
     docker build --no-cache -t $FULL_NAME -f ./.internal/api.Dockerfile .
   else
@@ -26,17 +26,19 @@ else
   CORS_LIST=""
   for sepspace in "$(hostname --all-ip-addresses)"; do
     sepspace="$(echo $sepspace | xargs)"
-    CORS_LIST="$CORS_LIST $sepspace:32777 "
+    CORS_LIST="$CORS_LIST $sepspace:$API_PORT "
   done
 
   if ! docker ps --format '{{.Image}}' | grep -w $FULL_NAME &> /dev/null; then
     if [[ $IOTENV == "development" ]]; then
-      echo "Starting in development watch mode the IOTstack API Server"
-      docker run -p 32128:32128 \
+      echo "Starting in development watch mode the IOTstack API Server on port: $API_PORT"
+      docker run -p $API_PORT:$API_PORT \
         --mount type=bind,source="$IOTSTACKPWD"/.internal/templates,target=/usr/iotstack_api/templates,readonly \
         --mount type=bind,source="$IOTSTACKPWD"/.internal/saved_builds,target=/usr/iotstack_api/builds \
         --mount type=bind,source="$IOTSTACKPWD"/.internal/.ssh,target=/root/.ssh,readonly \
         --mount type=bind,source="$IOTSTACKPWD"/.internal/api,target=/usr/iotstack_api \
+        -e API_PORT="$API_PORT" \
+        -e API_INTERFACE="$API_INTERFACE" \
         -e HOSTUSER="$HOSTUSER" \
         -e IOTSTACKPWD="$IOTSTACKPWD" \
         -e CORS="$CORS_LIST" \
@@ -45,11 +47,13 @@ else
         --restart unless-stopped \
         $FULL_NAME
     else
-      echo "Starting IOTstack API Server"
-      docker run -d -p 32128:32128 \
+      echo "Starting IOTstack API Server on port: $API_PORT"
+      docker run -d -p $API_PORT:$API_PORT \
         --mount type=bind,source="$IOTSTACKPWD"/.internal/templates,target=/usr/iotstack_api/templates,readonly \
         --mount type=bind,source="$IOTSTACKPWD"/.internal/saved_builds,target=/usr/iotstack_api/builds \
         --mount type=bind,source="$IOTSTACKPWD"/.internal/.ssh,target=/root/.ssh,readonly \
+        -e API_PORT="$API_PORT" \
+        -e API_INTERFACE="$API_INTERFACE" \
         -e HOSTUSER="$HOSTUSER" \
         -e IOTSTACKPWD="$IOTSTACKPWD" \
         -e CORS="$CORS_LIST" \
@@ -58,11 +62,13 @@ else
         --restart unless-stopped \
         $FULL_NAME
 
-      # docker run -p 32128:32128 \
+      # docker run -p $API_PORT:$API_PORT \
       #   --mount type=bind,source="$IOTSTACKPWD"/.internal/templates,target=/usr/iotstack_api/templates,readonly \
       #   --mount type=bind,source="$IOTSTACKPWD"/.internal/saved_builds,target=/usr/iotstack_api/builds,readonly \
       #   --mount type=bind,source="$IOTSTACKPWD"/.internal/.ssh,target=/root/.ssh,readonly \
-      #   -e cors="yourLanIpHere:32777" \
+      #   -e API_PORT="$API_PORT" \
+      #   -e API_INTERFACE="$API_INTERFACE" \
+      #   -e cors="yourLanIpHere:$WUI_PORT" \
       #   -e HOSTUSER="$HOSTUSER" \
       #   -e IOTSTACKPWD="$IOTSTACKPWD" \
       #   -e CORS="$(CORS_LIST)" \
@@ -71,10 +77,12 @@ else
       #   --restart unless-stopped \
       #   $FULL_NAME
 
-      # docker run -p 32128:32128 \
+      # docker run -p $API_PORT:$API_PORT \
       #   --mount type=bind,source="$IOTSTACKPWD"/.internal/templates,target=/usr/iotstack_api/templates,readonly \
       #   --mount type=bind,source="$IOTSTACKPWD"/.internal/saved_builds,target=/usr/iotstack_api/builds,readonly \
       #   --mount type=bind,source="$IOTSTACKPWD"/.internal/.ssh,target=/root/.ssh,readonly \
+      #   -e API_PORT="$API_PORT" \
+      #   -e API_INTERFACE="$API_INTERFACE" \
       #   -e HOSTUSER="$HOSTUSER" \
       #   -e IOTSTACKPWD="$IOTSTACKPWD" \
       #   -e CORS="$(CORS_LIST)" \
@@ -84,6 +92,6 @@ else
       #   -it $FULL_NAME /bin/bash
     fi
   else
-    echo "IOTstack API Server is running"
+    echo "IOTstack API Server is running. Check port: $API_PORT or run 'docker ps'"
   fi
 fi

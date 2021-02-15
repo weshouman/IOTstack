@@ -11,6 +11,7 @@ const nodered = () => {
       },
       volumes: true,
       networks: true,
+      devices: true,
       nodered_npmSelection: true,
       logging: true
     }
@@ -35,7 +36,7 @@ const nodered = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'NodeRed (untested)',
+      displayName: 'NodeRed',
       serviceTypeTags: ['wui', 'dashboard', 'low code', 'graphs', 'aggregator', 'iot', 'server']
     };
   };

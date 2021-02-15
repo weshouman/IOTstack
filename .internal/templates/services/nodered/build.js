@@ -32,6 +32,21 @@ const ServiceBuilder = ({
     logger.debug(`ServiceBuilder:init() - '${serviceName}'`);
   };
 
+  const createVolumesDirectory = () => {
+    return `
+mkdir -p ./volumes/nodered/data
+`;
+  };
+
+  const checkVolumesDirectory = () => {
+    return `
+if [[ ! -d ./volumes/nodered/data ]]; then
+  echo "Nodered data directory is missing!"
+  sleep 2
+fi
+`;
+  };
+
   retr.compile = ({
     outputTemplateJson,
     buildOptions,
@@ -90,7 +105,7 @@ const ServiceBuilder = ({
             type: 'service',
             name: serviceName,
             issueType: 'no addons',
-            message: 'No pallette addons selected for NodeRed. Select addons in options to remove this warning. This is optional.'
+            message: 'No pallette addons selected for NodeRed. Select addons in options to remove this warning. Default modules will be installed.'
           });
         }
 
@@ -125,7 +140,7 @@ const ServiceBuilder = ({
     return new Promise((resolve, reject) => {
       try {
         console.info(`ServiceBuilder:build() - '${serviceName}' started`);
-        const addonsList = buildOptions?.services?.nodered?.addons ?? [];
+        const addonsList = buildOptions?.services?.nodered?.addons ?? false;
         const noderedDockerfileTemplate = path.join(__dirname, settings.paths.buildFiles, 'Dockerfile.template');
         const noderedDockerfileCommandTemplate = require(path.join(__dirname, settings.paths.buildFiles, 'addons.json'));
         const tempDockerfileName = `${fileTimePrefix}_Dockerfile.template`;
@@ -133,12 +148,20 @@ const ServiceBuilder = ({
         const templateData = fs.readFileSync(noderedDockerfileTemplate, { encoding: 'utf8', flag: 'r' });
         let addonDockerCommandOutput = noderedDockerfileCommandTemplate.data.dockerFileInstallCommand;
 
-        if (addonsList.length > 0) {
-          addonsList.forEach((addon) => {
-            addonDockerCommandOutput += `${addon} `
-          });
+        if (Array.isArray(addonsList)) {
+          if (addonsList.length > 0) {
+            addonsList.forEach((addon) => {
+              addonDockerCommandOutput += `${addon} `;
+            });
+          } else {
+            addonDockerCommandOutput = '';
+          }
         } else {
-          addonDockerCommandOutput = '';
+          // Use default addons
+          const defaultAddons = require("./buildFiles/addons.json");
+          (defaultAddons?.data?.addons?.defaultOn ?? []).forEach((addon) => {
+            addonDockerCommandOutput += `${addon} `;
+          });
         }
   
         const outputDockerFile = byName(templateData, {
@@ -152,6 +175,20 @@ const ServiceBuilder = ({
         zipList.push({
           fullPath: tempBuildFile,
           zipName: '/services/nodered/Dockerfile'
+        });
+
+        prebuildScripts.push({
+          serviceName,
+          comment: 'Create required service directory exists for first launch',
+          multilineComment: null,
+          code: createVolumesDirectory()
+        });
+
+        postbuildScripts.push({
+          serviceName,
+          comment: 'Ensure required service directory exists for launch',
+          multilineComment: null,
+          code: checkVolumesDirectory()
         });
 
         console.info(`ServiceBuilder:build() - '${serviceName}' completed`);

@@ -1,7 +1,7 @@
 let appVersion = require('../package.json').version;
 
-let listenInterface = '0.0.0.0';
-let listenPort = '32128';
+let listenInterface = process.env?.API_INTERFACE ?? '0.0.0.0';
+let listenPort = process.env?.API_PORT ?? '32128';
 let additionalCorsList = [];
 
 const processCliArgs = (args) => {

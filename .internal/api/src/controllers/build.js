@@ -170,6 +170,11 @@ const BuildController = ({ server, settings, version, logger }) => {
           console.debug('BuildController::buildStack: Build Completed');
         }).catch((err) => {
           console.error('BuildController::buildStack: Build Error: ', err);
+          return reject({
+            component: 'BuildController::buildStack',
+            message: 'Unhandled error occured',
+            error: JSON.parse(JSON.stringify(err, Object.getOwnPropertyNames(err)))
+          });
         });
 
         const { yamlFilename, yamlOutputFilePath } = await buildsService.saveBuildYaml({ buildJson: outputStack, fileTimePrefix: currentDate });
