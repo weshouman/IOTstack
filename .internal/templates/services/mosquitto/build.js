@@ -38,6 +38,33 @@ fi
 `;
   };
 
+  const createVolumesDirectory = () => {
+    return `
+mkdir -p ./volumes/mosquitto/data
+mkdir -p ./volumes/mosquitto/pwfile
+mkdir -p ./volumes/mosquitto/data
+`;
+  };
+
+  const checkVolumesDirectory = () => {
+    return `
+if [[ ! -d ./volumes/mosquitto/data ]]; then
+  echo "Mosquitto data directory is missing!"
+  sleep 2
+fi
+
+if [[ ! -d ./volumes/mosquitto/pwfile ]]; then
+  echo "Mosquitto pwfile directory is missing!"
+  sleep 2
+fi
+
+if [[ ! -d ./volumes/mosquitto/log ]]; then
+  echo "Mosquitto log directory is missing!"
+  sleep 2
+fi
+`;
+  };
+
   retr.compile = ({
     outputTemplateJson,
     buildOptions,
@@ -127,6 +154,21 @@ fi
           multilineComment: null,
           code: checkServiceFilesCopied()
         });
+
+        prebuildScripts.push({
+          serviceName,
+          comment: 'Create required service directory exists for first launch',
+          multilineComment: null,
+          code: createVolumesDirectory()
+        });
+
+        postbuildScripts.push({
+          serviceName,
+          comment: 'Ensure required service directory exists for launch',
+          multilineComment: null,
+          code: checkVolumesDirectory()
+        });
+
         console.info(`ServiceBuilder:build() - '${serviceName}' completed`);
         return resolve({ type: 'service' });
       } catch (err) {

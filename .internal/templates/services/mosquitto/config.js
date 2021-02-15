@@ -34,7 +34,7 @@ const mosquitto = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'Mosquitto (untested)',
+      displayName: 'Mosquitto',
       serviceTypeTags: ['mqtt', 'server']
     };
   };

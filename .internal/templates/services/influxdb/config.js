@@ -5,7 +5,7 @@ const influxDb = () => {
 
   retr.getConfigOptions = () => {
     return {
-      serviceName: 'influxdb', // Required
+      serviceName, // Required
       labeledPorts: {
         "8086:8086": 'http'
       },
@@ -40,7 +40,7 @@ const influxDb = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'InfluxDB (untested)',
+      displayName: 'InfluxDB',
       serviceTypeTags: ['database', 'timeseries', 'sql']
     };
   };
