@@ -1,10 +1,13 @@
+const fs = require('fs');
+const path = require('path');
+
 const ServiceBuilder = ({
   settings,
   version,
   logger
 }) => {
   const retr = {};
-  const serviceName = 'web_things';
+  const serviceName = 'webthingsio_gateway';
 
   const {
     setModifiedPorts,
@@ -27,6 +30,21 @@ const ServiceBuilder = ({
 
   retr.init = () => {
     logger.debug(`ServiceBuilder:init() - '${serviceName}'`);
+  };
+
+  const createVolumesDirectory = () => {
+    return `
+mkdir -p ./volumes/webthingsio_gateway/share/config
+`;
+  };
+
+  const checkVolumesDirectory = () => {
+    return `
+if [[ ! -f ./volumes/webthingsio_gateway/share/config/local.json ]]; then
+  echo "WebThings Gateway webthingsio_gateway/share/config/local.json file is missing!"
+  sleep 2
+fi
+`;
   };
 
   retr.compile = ({
@@ -101,6 +119,7 @@ const ServiceBuilder = ({
 
   retr.build = ({
     outputTemplateJson,
+    fileTimePrefix,
     buildOptions,
     tmpPath,
     zipList,
@@ -110,7 +129,37 @@ const ServiceBuilder = ({
     return new Promise((resolve, reject) => {
       try {
         console.info(`ServiceBuilder:build() - '${serviceName}' started`);
-        // Code here
+
+        // Start config read, update and write:
+        const tempConfigfileName = `${fileTimePrefix}_local.json`;
+        const tempBuildFile = path.join(tmpPath, tempConfigfileName);
+        const webThingsConfFilePath = path.join(__dirname, settings.paths.serviceFiles, 'local.json');
+
+        const webthingsConfigFile = require(webThingsConfFilePath);
+        webthingsConfigFile.test = 'true';
+
+        fs.writeFileSync(tempBuildFile, JSON.stringify(webthingsConfigFile));
+
+        // Add config file to zip
+        zipList.push({
+          fullPath: tempBuildFile,
+          zipName: '/volumes/webthingsio_gateway/share/config/local.json'
+        });
+
+        prebuildScripts.push({
+          serviceName,
+          comment: 'Create required service directory exists for first launch',
+          multilineComment: null,
+          code: createVolumesDirectory()
+        });
+
+        postbuildScripts.push({
+          serviceName,
+          comment: 'Ensure required service directory exists for launch',
+          multilineComment: null,
+          code: checkVolumesDirectory()
+        });
+
         console.info(`ServiceBuilder:build() - '${serviceName}' completed`);
         return resolve({ type: 'service' });
       } catch (err) {

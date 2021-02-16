@@ -1,16 +1,16 @@
-const web_things = () => {
+const webthingsio_gateway = () => {
   const retr = {};
 
-  const serviceName = 'web_things';
+  const serviceName = 'webthingsio_gateway';
 
   retr.getConfigOptions = () => {
     return {
       serviceName, // Required
       labeledPorts: {
-        "4060:4060": 'http',
-        "4061:4061": 'other'
+        "4060:8080": 'http',
+        "4443:4443": 'other'
       },
-      volumes: false,
+      volumes: true,
       networks: false,
       logging: true
     }
@@ -43,4 +43,4 @@ const web_things = () => {
   return retr;
 };
 
-module.exports = web_things;
+module.exports = webthingsio_gateway;

@@ -28,6 +28,7 @@ const BuildController = ({ server, settings, version, logger }) => {
           services: {},
           networks: {}
         };
+
         const currentDate = formatDate();
         const toZip = [];
         const prebuildScripts = [];
@@ -107,19 +108,29 @@ const BuildController = ({ server, settings, version, logger }) => {
           if (fs.existsSync(serviceBuildScript)) {
             templatesBuildLogic.push(require(serviceBuildScript)({ settings, version, logger }));
           } else {
-            console.log(`BuildController::buildStack: No service build file for '${serviceName}'. Looking in: '${serviceBuildScript}'`)
+            console.log(`BuildController::buildStack: No service build file for '${serviceName}'. Looking in: '${serviceBuildScript}'`);
           }
         });
 
         // Instantiate each network's build logic
+        let failedServices = [];
         Object.keys(outputStack.networks).forEach((networkName) => {
           const networkBuildScript = path.join(networksBuildPath, networkName, buildLogicFile);
           if (fs.existsSync(networkBuildScript)) {
             templatesBuildLogic.push(require(networkBuildScript)({ settings, version, logger }));
           } else {
-            console.log(`BuildController::buildStack: No network build file for '${networkName}'. Looking in: '${networkBuildScript}'`)
+            console.log(`BuildController::buildStack: No network build file for '${networkName}'. Looking in: '${networkBuildScript}'`);
+            failedServices.push({ serviceName: `No build file. Check logs for more details. Looking in: '${serviceBuildScript}'` });
           }
         });
+
+        if (failedServices.length > 0) {
+          return reject({
+            component: 'BuildController::buildStack',
+            message: `One or more services failed to build: '${JSON.stringify(failedServices)}'`,
+            error: JSON.parse(JSON.stringify(err, Object.getOwnPropertyNames(err)))
+          });
+        }
 
         const issueList = {
           services: [],
@@ -184,6 +195,10 @@ const BuildController = ({ server, settings, version, logger }) => {
             error: JSON.parse(JSON.stringify(err, Object.getOwnPropertyNames(err)))
           });
         });
+
+        if (Object.keys(outputStack?.networks ?? {}).length === 0) {
+          delete outputStack.networks;
+        }
 
         const { yamlFilename, yamlOutputFilePath } = await buildsService.saveBuildYaml({ buildJson: outputStack, fileTimePrefix: currentDate });
         const { jsonFilename, jsonOutputFilePath } = await buildsService.saveBuildOptions({ buildOptionsJson: buildOptions, fileTimePrefix: currentDate });
@@ -325,14 +340,24 @@ const BuildController = ({ server, settings, version, logger }) => {
         const networksBuildPath = path.join(localTemplatesPath, localNetworksRelativePath);
 
         // Instantiate each service's build logic
+        let failedServices = [];
         Object.keys(outputStack.services).forEach((serviceName) => {
           const serviceBuildScript = path.join(servicesBuildPath, serviceName, buildLogicFile);
           if (fs.existsSync(serviceBuildScript)) {
             templatesBuildLogic.push(require(serviceBuildScript)({ settings, version, logger }));
           } else {
-            console.log(`BuildController::checkIssues: No service build file for '${serviceName}'. Looking in: '${serviceBuildScript}'`)
+            console.log(`BuildController::checkIssues: No service build file for '${serviceName}'. Looking in: '${serviceBuildScript}'`);
+            failedServices.push({ serviceName: `No build file. Check logs for more details. Looking in: '${serviceBuildScript}'` });
           }
         });
+
+        if (failedServices.length > 0) {
+          return reject({
+            component: 'BuildController::checkIssues',
+            message: `One or more services failed to build: '${JSON.stringify(failedServices)}'`,
+            error: JSON.parse(JSON.stringify(err, Object.getOwnPropertyNames(err)))
+          });
+        }
 
         // Instantiate each network's build logic
         Object.keys(outputStack.networks).forEach((networkName) => {
@@ -340,7 +365,7 @@ const BuildController = ({ server, settings, version, logger }) => {
           if (fs.existsSync(networkBuildScript)) {
             templatesBuildLogic.push(require(networkBuildScript)({ settings, version, logger }));
           } else {
-            console.log(`BuildController::checkIssues: No network build file for '${networkName}'. Looking in: '${networkBuildScript}'`)
+            console.log(`BuildController::checkIssues: No network build file for '${networkName}'. Looking in: '${networkBuildScript}'`);
           }
         });
 

@@ -175,7 +175,6 @@ else
 		docker build --quiet -t iostack_pycli:$VERSION -f ./.internal/pycli.Dockerfile . > /dev/null &
 		sleep 1
 		docker build --quiet -t iostack_api:$VERSION -f ./.internal/api.Dockerfile . > /dev/null &
-		sleep 2
 		docker build --quiet -t iostack_wui:$VERSION -f ./.internal/wui.Dockerfile . > /dev/null &
 
 		SLEEP_COUNTER=0
