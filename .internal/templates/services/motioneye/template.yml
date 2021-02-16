@@ -12,7 +12,7 @@ motioneye:
     - ./volumes/motioneye/etc_motioneye:/etc/motioneye
     - ./volumes/motioneye/var_lib_motioneye:/var/lib/motioneye
   devices:
-   - "/dev/video0:/dev/video0"
+   - "/dev/video0"
   networks:
     - iotstack_nw
   logging:

@@ -38,10 +38,7 @@ const NetworkConfig = (props) => {
       ...defaultOnNetworks
     });
 
-    const templateNetworkMode = serviceTemplates?.[serviceName]?.['network-mode'];
-    const calculatedNetworkMode = Object.keys(defaultOnNetworks).length > 0 ? 'bridge' : 'host';
-
-    const toNetworkMode = getBuildOptions()?.services?.[serviceName]?.networkMode ?? templateNetworkMode ?? calculatedNetworkMode;
+    const toNetworkMode = getBuildOptions()?.services?.[serviceName]?.networkMode ?? 'unchanged';
     setNetworkMode(toNetworkMode);
   }, []);
 
@@ -65,7 +62,7 @@ const NetworkConfig = (props) => {
 
   const onChangeCb = (event, changeType, networkName) => {
     if (changeType === 'mode') {
-      const newMode = event.target.checked;
+      const newMode = event.target.value;
       setNetworkMode(newMode);
       if (typeof(onChange) === 'function') {
         onChange(event, changeType);
@@ -106,7 +103,7 @@ const NetworkConfig = (props) => {
               value={networkMode}
               onChange={(evt) => onChangeCb(evt, 'mode')}
             >
-              <MenuItem value={'Unchanged'}>Unchanged</MenuItem>
+              <MenuItem value={'unchanged'}>Unchanged{serviceTemplates[serviceName]?.network_mode ? ` (${serviceTemplates[serviceName]?.network_mode})` : ''}</MenuItem>
               <MenuItem value={'host'}>Host</MenuItem>
               <MenuItem value={'bridge'}>Bridge</MenuItem>
               <MenuItem value={'overlay'}>Overlay</MenuItem>

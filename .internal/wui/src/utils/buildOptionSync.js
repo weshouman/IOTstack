@@ -76,6 +76,25 @@ const saveTemporaryBuildOptions = () => {
   setBuildOptions(getTemporaryBuildOptions());
 };
 
+const getSelectedItems_services = () => {
+  try {
+    return JSON.parse(localStorage.getItem('selectedItems'))?.services || [];
+  } catch (err) {
+    console.error('Error getting build options', err);
+  }
+
+  return {};
+};
+
+const setSelectedItems_services = (newItems) => {
+  const currentSelected = getSelectedItems_services()?.services ?? false;
+  if (!Array.isArray(currentSelected)) {
+    localStorage.setItem('selectedItems', JSON.stringify({ services: [] }));
+  }
+
+  localStorage.setItem('selectedItems', JSON.stringify({ services: newItems }));
+};
+
 module.exports = {
   getBuildOptions,
   setBuildOptions,
@@ -86,5 +105,7 @@ module.exports = {
   setTemporaryServiceOptions,
   setupTemporaryBuildOptions,
   saveTemporaryBuildOptions,
-  deleteTemporaryBuildOptions
+  deleteTemporaryBuildOptions,
+  setSelectedItems_services,
+  getSelectedItems_services
 };

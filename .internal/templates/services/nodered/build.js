@@ -18,7 +18,8 @@ const ServiceBuilder = ({
   } = require('../../../src/utils/commonCompileLogic');
 
   const {
-    checkPortConflicts
+    checkPortConflicts,
+    checkNetworkConflicts
   } = require('../../../src/utils/commonBuildChecks');
 
   /*
@@ -93,6 +94,10 @@ fi
         const portConflicts = checkPortConflicts({ buildTemplate: outputTemplateJson, buildOptions, serviceName });
         issues = [...issues, ...portConflicts];
 
+        const networkConflicts = checkNetworkConflicts({ buildTemplate: outputTemplateJson, buildOptions, serviceName });
+        if (networkConflicts) {
+          issues.push(networkConflicts);
+        }
 
         let addonsSelected = false;
         const addonsList = buildOptions?.services?.nodered?.addons ?? [];

@@ -32,6 +32,23 @@ const checkPortConflicts = ({ buildTemplate, buildOptions, serviceName }) => {
   return portConflicts;
 };
 
+const checkNetworkConflicts = ({ buildTemplate, buildOptions, serviceName }) => {
+  const currentServiceNetworkMode = buildTemplate?.services?.[serviceName]?.network_mode ?? null;
+  const currentServiceNetworks = buildTemplate?.services?.[serviceName]?.networks ?? [];
+
+  if (currentServiceNetworks.length > 0 && currentServiceNetworkMode) {
+    return {
+      type: 'service',
+      name: serviceName,
+      issueType: 'networkConflict',
+      message: `Networks configured: ${currentServiceNetworks.length} and 'Network Mode' is set. You can only choose to set networks or network mode.`
+    }
+  }
+
+  return false;
+};
+
 module.exports = {
-  checkPortConflicts
+  checkPortConflicts,
+  checkNetworkConflicts
 };

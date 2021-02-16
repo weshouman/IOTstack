@@ -25,6 +25,10 @@ import {
   addSelectedService,
   removeSelectedService
 } from '../../actions/updateSelectedServices.action';
+import {
+  getSelectedItems_services,
+  setSelectedItems_services
+} from '../../utils/buildOptionSync';
 import styles from './services-grid-item.module.css';
 
 const mapDispatchToProps = (dispatch) => {
@@ -93,6 +97,13 @@ const ServiceItem = (props) => {
   const [serviceConfigOptions, setServiceConfigOptions] = useState({});
   const [serviceLoadError, setServiceLoadError] = useState({});
   useEffect(() => {
+    const savedSelectedServices = getSelectedItems_services();
+    savedSelectedServices.map((service) => {
+      dispatchAddSelectedService(service);
+    });
+  }, []);
+
+  useEffect(() => {
     if (
       allServicesMetadataReducer.status === API_STATUS.SUCCESS
       && allServicesConfigOptionsReducer.status === API_STATUS.SUCCESS
@@ -143,6 +154,7 @@ const ServiceItem = (props) => {
 
   const [hasIssue, setHasIssue] = useState(false);
   useEffect(() => {
+    setSelectedItems_services(selectedServices.selectedServices);
     if (!selectedServices.selectedServices.includes(serviceName)) {
       return void setHasIssue(false);
     }
@@ -178,7 +190,10 @@ const ServiceItem = (props) => {
       >
         <ServiceConfigModal
           isOpen={modalOpen}
-          handleClose={() => setModalOpen(false)}
+          handleClose={() => {
+            setModalOpen(false);
+            dispatchGetBuildIssues(selectedServices.selectedServices, getBuildOptions());
+          }}
           serviceMetadata={serviceMetadata}
           serviceConfigOptions={serviceConfigOptions}
           serviceName={serviceName}

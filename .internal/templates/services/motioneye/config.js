@@ -38,7 +38,7 @@ const motioneye = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'Motion Eye (untested)',
+      displayName: 'Motion Eye',
       serviceTypeTags: ['wui', 'physical security', 'video']
     };
   };

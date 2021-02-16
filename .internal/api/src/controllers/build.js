@@ -127,6 +127,14 @@ const BuildController = ({ server, settings, version, logger }) => {
           other: []
         };
 
+        // Compile service options to JSON output
+        for (let i = 0; i < templatesBuildLogic.length; i++) {
+          await templatesBuildLogic[i].compile({
+            outputTemplateJson: outputStack,
+            buildOptions,
+          });
+        }
+
         await templatesBuildLogic.reduce((prom, buildLogic) => {
           return prom.then(async () => {
             if (typeof buildLogic.build === 'function') {

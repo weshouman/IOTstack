@@ -16,6 +16,29 @@ const {
 
 const { byName } = require('./interpolate');
 
+const arraysEqual = (a, b) => {
+  if (!Array.isArray(a) || !Array.isArray(b)) {
+    return false;
+  }
+  if (a === b) {
+    return true;
+  }
+
+  if (a.length !== b.length) {
+    return false;
+  }
+
+  a.sort();
+  b.sort();
+
+  for (let i = 0; i < a.length; ++i) {
+    if (a[i] !== b[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+
 const setCommonInterpolations = ({ stringList, inputString }) => {
   let result = [];
   if (Array.isArray(stringList)) {
@@ -96,10 +119,14 @@ const setNetworkMode = ({ buildTemplate, buildOptions, serviceName }) => {
   if (serviceConfig?.networkMode) {
     if (
       serviceTemplate['network_mode'] !== serviceConfig.networkMode
-      && serviceConfig.networkMode !== 'Unchanged'
+      && serviceConfig.networkMode !== 'unchanged'
       && serviceConfig.networkMode !== ''
     ) {
       serviceTemplate['network_mode'] = serviceConfig.networkMode;
+    }
+
+    if (serviceConfig.networkMode === 'none') {
+      delete serviceTemplate['network_mode'];
     }
   }
 
@@ -192,6 +219,38 @@ const setEnvironmentVariables = ({ buildTemplate, buildOptions, serviceName }) =
   return updated;
 };
 
+const setDevices = ({ buildTemplate, buildOptions, serviceName }) => {
+  const serviceTemplate = buildTemplate?.services?.[serviceName];
+  const serviceConfig = buildOptions?.serviceConfigurations?.services?.[serviceName];
+  let updated = false;
+
+  const currentDevices = serviceTemplate?.devices ?? {};
+
+  if (Array.isArray(serviceConfig?.devices ?? false)) {
+    serviceTemplate.devices = serviceConfig?.devices?.map((device) => {
+      if (device === '') {
+        return null;
+      }
+      return device;
+    }).filter((ele) => {
+      return ele !== null;
+    });
+    updated = true;
+  }
+
+  const newDevices = serviceTemplate?.devices ?? {};
+
+  if (currentDevices.length === 0) {
+    delete serviceTemplate.devices;
+  }
+
+  if (arraysEqual(currentDevices, newDevices)) {
+    updated = false;
+  }
+
+  return updated;
+};
+
 module.exports = {
   setModifiedPorts,
   setLoggingState,
@@ -199,5 +258,6 @@ module.exports = {
   setNetworks,
   setVolumes,
   setEnvironmentVariables,
-  setCommonInterpolations
+  setCommonInterpolations,
+  setDevices
 };

@@ -14,7 +14,8 @@ const ServiceBuilder = ({
   } = require('../../../src/utils/commonCompileLogic');
 
   const {
-    checkPortConflicts
+    checkPortConflicts,
+    checkNetworkConflicts
   } = require('../../../src/utils/commonBuildChecks');
 
   /*
@@ -40,7 +41,8 @@ const ServiceBuilder = ({
           modifiedPorts: setModifiedPorts({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
           modifiedLogging: setLoggingState({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
           modifiedNetworkMode: setNetworkMode({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
-          modifiedNetworks: setNetworks({ buildTemplate: outputTemplateJson, buildOptions, serviceName })
+          modifiedNetworks: setNetworks({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
+          modifiedDevices: setDevices({ buildTemplate: outputTemplateJson, buildOptions, serviceName })
         };
         console.info(`ServiceBuilder:compile() - '${serviceName}' Results:`, compileResults);
 
@@ -73,6 +75,11 @@ const ServiceBuilder = ({
 
         const portConflicts = checkPortConflicts({ buildTemplate: outputTemplateJson, buildOptions, serviceName });
         issues = [...issues, ...portConflicts];
+
+        const networkConflicts = checkNetworkConflicts({ buildTemplate: outputTemplateJson, buildOptions, serviceName });
+        if (networkConflicts) {
+          issues.push(networkConflicts);
+        }
 
         console.info(`ServiceBuilder:issues() - '${serviceName}' Issues found: ${issues.length}`);
         console.info(`ServiceBuilder:issues() - '${serviceName}' completed`);

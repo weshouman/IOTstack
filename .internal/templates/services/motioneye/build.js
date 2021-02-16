@@ -10,11 +10,13 @@ const ServiceBuilder = ({
     setModifiedPorts,
     setLoggingState,
     setNetworkMode,
-    setNetworks
+    setNetworks,
+    setDevices
   } = require('../../../src/utils/commonCompileLogic');
 
   const {
-    checkPortConflicts
+    checkPortConflicts,
+    checkNetworkConflicts
   } = require('../../../src/utils/commonBuildChecks');
 
   /*
@@ -28,10 +30,21 @@ const ServiceBuilder = ({
     logger.debug(`ServiceBuilder:init() - '${serviceName}'`);
   };
 
-  const checkVideoDevice = () => {
+  const checkVideoDevices = (devicesList) => {
+    let scriptResult = "";
+    devicesList.forEach((device) => {
+      scriptResult = `${scriptResult}
+if [[ ! -f ${device} ]]; then
+  MOTIONEYE_PAUSE_DEVICES_ERROR="true"
+  echo "MotionEye Device ${device} doesn't exist. May cause errors on startup."
+fi
+`
+    });
+
     return `
-if [[ ! -f /dev/video0 ]]; then
-  echo "MotionEye /dev/video0 doesn't exist. May cause errors on startup."
+MOTIONEYE_PAUSE_DEVICES_ERROR="false"
+${scriptResult}
+if [[ "$MOTIONEYE_PAUSE_DEVICES_ERROR" == "true" ]]; then
   sleep 2
 fi
 `;
@@ -49,7 +62,8 @@ fi
           modifiedPorts: setModifiedPorts({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
           modifiedLogging: setLoggingState({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
           modifiedNetworkMode: setNetworkMode({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
-          modifiedNetworks: setNetworks({ buildTemplate: outputTemplateJson, buildOptions, serviceName })
+          modifiedNetworks: setNetworks({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
+          modifiedDevices: setDevices({ buildTemplate: outputTemplateJson, buildOptions, serviceName })
         };
         console.info(`ServiceBuilder:compile() - '${serviceName}' Results:`, compileResults);
 
@@ -83,6 +97,20 @@ fi
         const portConflicts = checkPortConflicts({ buildTemplate: outputTemplateJson, buildOptions, serviceName });
         issues = [...issues, ...portConflicts];
 
+        const networkConflicts = checkNetworkConflicts({ buildTemplate: outputTemplateJson, buildOptions, serviceName });
+        if (networkConflicts) {
+          issues.push(networkConflicts);
+        }
+
+        if ((outputTemplateJson?.services?.[serviceName]?.devices ?? []).length === 0) {
+          issues.push({
+            type: 'service',
+            name: serviceName,
+            issueType: 'missingDevices',
+            message: `No devices set, cannot record from local hardware. MotionEye will only work as a remote recorder.`
+          });
+        }
+
         console.info(`ServiceBuilder:issues() - '${serviceName}' Issues found: ${issues.length}`);
         console.info(`ServiceBuilder:issues() - '${serviceName}' completed`);
         return resolve(issues);
@@ -114,12 +142,14 @@ fi
       try {
         console.info(`ServiceBuilder:build() - '${serviceName}' started`);
 
-        postbuildScripts.push({
-          serviceName,
-          comment: 'Ensure MotionEye can see video device',
-          multilineComment: null,
-          code: checkVideoDevice()
-        });
+        if ((outputTemplateJson?.services?.[serviceName]?.devices ?? []).length > 0) {
+          postbuildScripts.push({
+            serviceName,
+            comment: 'Ensure MotionEye can see devices',
+            multilineComment: null,
+            code: checkVideoDevices(outputTemplateJson.services[serviceName].devices)
+          });
+        }
 
         console.info(`ServiceBuilder:build() - '${serviceName}' completed`);
         return resolve({ type: 'service' });
