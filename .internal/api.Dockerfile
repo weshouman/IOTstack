@@ -7,4 +7,4 @@ COPY ./.internal/api ./
 RUN npm install
 
 EXPOSE 32128
-CMD [ "npm", "start" ]
+CMD [ "/bin/bash", "start.sh" ]

@@ -49,8 +49,9 @@ const BuildController = ({ server, settings, version, logger }) => {
         await Promise.allSettled(serviceTemplatePromises).then((serviceTemplateResults) => {
           serviceTemplateResults.forEach((servicePromiseResult) => {
             if (servicePromiseResult.status === 'fulfilled' && servicePromiseResult.value) {
-              const serviceName = Object.keys(servicePromiseResult.value)[0];
-              outputStack.services[serviceName] = servicePromiseResult.value[serviceName];
+              Object.keys(servicePromiseResult.value).forEach((serviceName) => {
+                outputStack.services[serviceName] = servicePromiseResult.value[serviceName];
+              });
             } else {
               failedStack.services.push(servicePromiseResult);
             }
@@ -103,32 +104,35 @@ const BuildController = ({ server, settings, version, logger }) => {
         const networksBuildPath = path.join(localTemplatesPath, localNetworksRelativePath);
 
         // Instantiate each service's build logic
+        let failedServices = [];
         Object.keys(outputStack.services).forEach((serviceName) => {
           const serviceBuildScript = path.join(servicesBuildPath, serviceName, buildLogicFile);
+          if (!fs.existsSync(path.join(servicesBuildPath, serviceName))) {
+            return; // Skip. This means the service's directory doesn't exist and it is likely an add-on (NextCloud DB for example)
+          }
+
           if (fs.existsSync(serviceBuildScript)) {
             templatesBuildLogic.push(require(serviceBuildScript)({ settings, version, logger }));
           } else {
             console.log(`BuildController::buildStack: No service build file for '${serviceName}'. Looking in: '${serviceBuildScript}'`);
+            failedServices.push({ serviceName: `No build file. Check logs for more details. Looking in: '${serviceBuildScript}'` });
           }
         });
 
         // Instantiate each network's build logic
-        let failedServices = [];
         Object.keys(outputStack.networks).forEach((networkName) => {
           const networkBuildScript = path.join(networksBuildPath, networkName, buildLogicFile);
           if (fs.existsSync(networkBuildScript)) {
             templatesBuildLogic.push(require(networkBuildScript)({ settings, version, logger }));
           } else {
             console.log(`BuildController::buildStack: No network build file for '${networkName}'. Looking in: '${networkBuildScript}'`);
-            failedServices.push({ serviceName: `No build file. Check logs for more details. Looking in: '${serviceBuildScript}'` });
           }
         });
 
         if (failedServices.length > 0) {
           return reject({
             component: 'BuildController::buildStack',
-            message: `One or more services failed to build: '${JSON.stringify(failedServices)}'`,
-            error: JSON.parse(JSON.stringify(err, Object.getOwnPropertyNames(err)))
+            message: `One or more services failed to build: '${JSON.stringify(failedServices)}'`
           });
         }
 
@@ -211,7 +215,8 @@ const BuildController = ({ server, settings, version, logger }) => {
           options: {
             build: currentDate,
             prebuildScripts,
-            postbuildScripts
+            postbuildScripts,
+            selectedServices: buildOptions.selectedServices
           },
           logger,
           version
@@ -343,6 +348,10 @@ const BuildController = ({ server, settings, version, logger }) => {
         let failedServices = [];
         Object.keys(outputStack.services).forEach((serviceName) => {
           const serviceBuildScript = path.join(servicesBuildPath, serviceName, buildLogicFile);
+          if (!fs.existsSync(path.join(servicesBuildPath, serviceName))) {
+            return; // Skip. This means the service's directory doesn't exist and it is likely an add-on (NextCloud DB for example)
+          }
+
           if (fs.existsSync(serviceBuildScript)) {
             templatesBuildLogic.push(require(serviceBuildScript)({ settings, version, logger }));
           } else {

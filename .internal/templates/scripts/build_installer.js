@@ -147,6 +147,13 @@ ${renderPostbuildScripts(options?.postbuildScripts)}
 
 cp docker-compose-base.yml docker-compose.yml
 
+if [[ -f ./postbuild.sh]]; then
+  echo "Running postbuild script:"
+  ./postbuild.sh ${(options?.selectedServices ?? []).join(' ')}
+fi
+
+
+
 echo ""
 echo "Setup complete. You can start the stack with: "
 echo "  docker-compose up"

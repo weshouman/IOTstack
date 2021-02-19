@@ -138,13 +138,21 @@ const setNetworks = ({ buildTemplate, buildOptions, serviceName }) => {
   const serviceConfig = buildOptions?.serviceConfigurations?.services?.[serviceName];
   let updated = false;
 
-  Object.keys(serviceConfig?.networks ?? {}).forEach((network) => {
+  const originalNetworks = [ ...serviceTemplate.networks ];
+
+  const networksList = Object.keys(serviceConfig?.networks ?? {});
+  if (networksList.length > 0) {
     serviceTemplate.networks = [];
-    if (serviceConfig.networks[network] === true) {
-      serviceTemplate.networks.push(network);
-    }
+    networksList.forEach((network) => {
+      if (serviceConfig.networks[network] === true) {
+        serviceTemplate.networks.push(network);
+      }
+    });
+  }
+
+  if (!arraysEqual(originalNetworks, serviceTemplate?.networks ?? [])) {
     updated = true;
-  });
+  }
 
   return updated;
 };
@@ -190,7 +198,7 @@ const setEnvironmentVariables = ({ buildTemplate, buildOptions, serviceName }) =
   let updated = false;
 
   if (Array.isArray(serviceConfig?.environment ?? false)) {
-    serviceConfig.environment.forEach((configEnvironment, environmenteIndex) => {
+    serviceConfig.environment.forEach((configEnvironment, environmentIndex) => {
       const configEnvironmentKey = getEnvironmentKey(configEnvironment);
       let found = false;
       for (let i = 0; i < (serviceTemplate?.environment ?? []).length; i++) {

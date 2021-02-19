@@ -6,11 +6,37 @@ const nextcloud = () => {
   retr.getConfigOptions = () => {
     return {
       serviceName, // Required
+      modifyableEnvironment: [
+        {
+          key: 'TZ',
+          value: 'Etc/UTC'
+        },
+        {
+          key: 'MYSQL_HOST',
+          value: 'nextcloud_db'
+        },
+        {
+          key: 'MYSQL_PASSWORD',
+          value: '{$nextcloudRandomPassword}'
+        },
+        {
+          key: 'MYSQL_DATABASE',
+          value: 'nextcloud'
+        },
+        {
+          key: 'MYSQL_USER',
+          value: 'nextcloud'
+        },
+        {
+          key: 'MYSQL_ROOT_PASSWORD',
+          value: '{$nextcloudRootRandomPassword}'
+        }
+      ],
       labeledPorts: {
-        "9321:9321": 'http'
+        "9321:80": 'http'
       },
-      volumes: false,
-      networks: false,
+      volumes: true,
+      networks: true,
       logging: true
     }
   };
@@ -34,7 +60,7 @@ const nextcloud = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'NextCloud (untested)',
+      displayName: 'NextCloud',
       serviceTypeTags: ['wui']
     };
   };

@@ -13,7 +13,7 @@ const mariadb = () => {
         },
         {
           key: 'MYSQL_ROOT_PASSWORD',
-          value: 'PASSword'
+          value: '{$randomPassword}'
         },
         {
           key: 'MYSQL_DATABASE',
@@ -25,7 +25,7 @@ const mariadb = () => {
         },
         {
           key: 'MYSQL_PASSWORD',
-          value: 'PASSword'
+          value: '{$randomPassword}'
         }
       ],
       volumes: true,
@@ -53,7 +53,7 @@ const mariadb = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'MariaDB (untested)',
+      displayName: 'MariaDB',
       serviceTypeTags: ['database', 'sql']
     };
   };

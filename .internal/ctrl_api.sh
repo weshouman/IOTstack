@@ -4,13 +4,22 @@ source ./.internal/meta.sh
 DNAME=iostack_api
 FULL_NAME="$DNAME:$VERSION"
 
+RUN_MODE="production"
+
 if [ "$1" = "stop" ]; then
   docker stop $(docker images -q --format "{{.Repository}}:{{.Tag}}" | grep "${DNAME}") 2> /dev/null
   docker stop $(docker ps -q --format "{{.ID}} {{.Ports}}" | grep "$API_PORT" | cut -d ' ' -f1) 2> /dev/null
 else
-  if [[ $IOTENV == "development" ]]; then
+  if [[ $IOTENV == "development" || "$1" == "development" ]]; then
+    RUN_MODE="development"
+    echo "[Development: '$FULL_NAME'] Stopping container:"
+    echo "docker stop \$(docker images -q --format "{{.Repository}}:{{.Tag}}" | grep "${DNAME}") || docker rmi $FULL_NAME --force"
     docker stop $(docker images -q --format "{{.Repository}}:{{.Tag}}" | grep "${DNAME}") 2> /dev/null || docker rmi $FULL_NAME --force 2> /dev/null
+    echo "docker stop \$(docker ps -q --format "{{.ID}} {{.Ports}}" | grep $API_PORT | cut -d ' ' -f1) 2> /dev/null"
     docker stop $(docker ps -q --format "{{.ID}} {{.Ports}}" | grep "$API_PORT" | cut -d ' ' -f1) 2> /dev/null
+    echo ""
+    echo "Rebuilding container:"
+    echo "docker build --no-cache -t $FULL_NAME -f ./.internal/api.Dockerfile ."
     docker pull node:14 # Docker occasionally fails to pull image when building when it is not cached.
     docker build --no-cache -t $FULL_NAME -f ./.internal/api.Dockerfile .
   else
@@ -30,13 +39,14 @@ else
   done
 
   if ! docker ps --format '{{.Image}}' | grep -w $FULL_NAME &> /dev/null; then
-    if [[ $IOTENV == "development" ]]; then
+    if [[ $IOTENV == "development" || "$1" == "development"  ]]; then
       echo "Starting in development watch mode the IOTstack API Server on port: $API_PORT"
       docker run -p $API_PORT:$API_PORT \
         --mount type=bind,source="$IOTSTACKPWD"/.internal/templates,target=/usr/iotstack_api/templates,readonly \
         --mount type=bind,source="$IOTSTACKPWD"/.internal/saved_builds,target=/usr/iotstack_api/builds \
         --mount type=bind,source="$IOTSTACKPWD"/.internal/.ssh,target=/root/.ssh,readonly \
         --mount type=bind,source="$IOTSTACKPWD"/.internal/api,target=/usr/iotstack_api \
+        -e IOTENV="$RUN_MODE" \
         -e API_PORT="$API_PORT" \
         -e API_INTERFACE="$API_INTERFACE" \
         -e HOSTUSER="$HOSTUSER" \
@@ -52,6 +62,7 @@ else
         --mount type=bind,source="$IOTSTACKPWD"/.internal/templates,target=/usr/iotstack_api/templates,readonly \
         --mount type=bind,source="$IOTSTACKPWD"/.internal/saved_builds,target=/usr/iotstack_api/builds \
         --mount type=bind,source="$IOTSTACKPWD"/.internal/.ssh,target=/root/.ssh,readonly \
+        -e IOTENV="$RUN_MODE" \
         -e API_PORT="$API_PORT" \
         -e API_INTERFACE="$API_INTERFACE" \
         -e HOSTUSER="$HOSTUSER" \

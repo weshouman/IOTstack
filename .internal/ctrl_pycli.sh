@@ -4,11 +4,14 @@ source ./.internal/meta.sh
 DNAME=iostack_pycli
 FULL_NAME="$DNAME:$VERSION"
 
+RUN_MODE="production"
+
 if [ "$1" = "stop" ]; then
   docker stop $(docker images -q --format "{{.Repository}}:{{.Tag}}" | grep "${DNAME}") 2> /dev/null
 else
-  if [[ $IOTENV == "development" ]]; then
-    echo "[Development] Stopping container:"
+  if [[ $IOTENV == "development" || "$1" = "development" ]]; then
+    RUN_MODE="development"
+    echo "[Development: '$FULL_NAME'] Stopping container:"
     echo "docker stop $(docker images -q --format "{{.Repository}}:{{.Tag}}" | grep "${DNAME}") || docker rmi $FULL_NAME --force"
     docker stop $(docker images -q --format "{{.Repository}}:{{.Tag}}" | grep "${DNAME}") 2> /dev/null || docker rmi $FULL_NAME --force 2> /dev/null
     echo ""
@@ -33,6 +36,7 @@ else
     docker run \
       --mount type=bind,source="$IOTSTACKPWD"/.internal/saved_builds,target=/usr/iotstack_api/builds,readonly \
       --mount type=bind,source="$IOTSTACKPWD"/.internal/.ssh,target=/root/.ssh,readonly \
+      -e IOTENV="$RUN_MODE" \
       -e HOSTUSER="$HOSTUSER" \
       -e IOTSTACKPWD="$IOTSTACKPWD" \
       -e HOSTSSH_ADDR="$HOSTSSH_ADDR" \

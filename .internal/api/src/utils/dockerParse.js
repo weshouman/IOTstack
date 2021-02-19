@@ -101,8 +101,8 @@ const getEnvironmentValue = (EnvKVStr) => {
 const replaceEnvironmentValue = (EnvKVStr, newEnvValue) => {
   if (typeof(EnvKVStr) === 'string' && (typeof(newEnvValue) === 'string')) {
     const intLoc = EnvKVStr.indexOf('=');
-    const EnvWithoutValue = EnvKVStr.substring(intLoc, EnvKVStr.length);
-    return `${EnvWithoutValue}${newEnvValue}`;
+    const EnvWithoutValue = EnvKVStr.substring(0, intLoc);
+    return `${EnvWithoutValue}=${newEnvValue}`;
   }
 
   return EnvKVStr;

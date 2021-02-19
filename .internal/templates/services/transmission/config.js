@@ -40,8 +40,8 @@ const transmission = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'Transmission (untested)',
-      serviceTypeTags: ['bittorrent']
+      displayName: 'Transmission',
+      serviceTypeTags: ['bittorrent', 'wui']
     };
   };
 

@@ -8,7 +8,7 @@ const generatePassword = ({ chars, minLength, maxLength } = {}) => {
   const passwordLength = Math.floor(Math.random() * (useMaxLength - useMinLength + 1) + useMinLength);
   const generatedPassword = Array(passwordLength)
     .fill('')
-    .map(() => useChars[Math.floor(crypto.randomBytes(1)[0] / (0xffffffff + 1) * useChars.length)])
+    .map(() => useChars[Math.floor(Math.random() * (useChars.length + 1))])
     .join('');
 
   return generatedPassword;
@@ -25,10 +25,10 @@ const generateFileOrFolderName = ({ chars, minLength, maxLength } = {}) => {
   const nameLength = Math.floor(Math.random() * (useMaxLength - useMinLength + 1) + useMinLength);
   let generatedName = Array(nameLength)
     .fill('')
-    .map(() => useChars[Math.floor(crypto.randomBytes(1)[0] / (0xffffffff + 1) * useChars.length)])
+    .map(() => useChars[Math.floor(Math.random() * (useChars.length + 1))])
     .join('');
 
-    generatedName = firstChars[Math.floor(crypto.randomBytes(1)[0] / (0xffffffff + 1) * firstChars.length)] + generatedName;
+    generatedName = firstChars[Math.floor(Math.random() * (firstChars.length + 1))] + generatedName;
 
   return generatedName;
 };
@@ -41,7 +41,7 @@ const generateAlphanumeric = ({ chars, minLength, maxLength } = {}) => {
   const stringLength = Math.floor(Math.random() * (useMaxLength - useMinLength + 1) + useMinLength);
   const generatedString = Array(stringLength)
     .fill('')
-    .map(() => useChars[Math.floor(crypto.randomBytes(1)[0] / (0xffffffff + 1) * useChars.length)])
+    .map(() => useChars[Math.floor(Math.random() * (useChars.length + 1))])
     .join('');
 
   return generatedString;
