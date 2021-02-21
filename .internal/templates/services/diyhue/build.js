@@ -10,7 +10,9 @@ const ServiceBuilder = ({
     setModifiedPorts,
     setLoggingState,
     setNetworkMode,
-    setNetworks
+    setNetworks,
+    setEnvironmentVariables,
+    setDevices
   } = require('../../../src/utils/commonCompileLogic');
 
   const {
@@ -29,6 +31,21 @@ const ServiceBuilder = ({
     logger.debug(`ServiceBuilder:init() - '${serviceName}'`);
   };
 
+  const createVolumesDirectory = () => {
+    return `
+mkdir -p ./volumes/diyhue
+`;
+  };
+
+  const checkVolumesDirectory = () => {
+    return `
+if [[ ! -d ./volumes/diyhue ]]; then
+  echo "diyhue directory is missing!"
+  sleep 2
+fi
+`;
+  };
+
   retr.compile = ({
     outputTemplateJson,
     buildOptions,
@@ -41,7 +58,9 @@ const ServiceBuilder = ({
           modifiedPorts: setModifiedPorts({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
           modifiedLogging: setLoggingState({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
           modifiedNetworkMode: setNetworkMode({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
-          modifiedNetworks: setNetworks({ buildTemplate: outputTemplateJson, buildOptions, serviceName })
+          modifiedNetworks: setNetworks({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
+          modifiedEnvironment: setEnvironmentVariables({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
+          modifiedDevices: setDevices({ buildTemplate: outputTemplateJson, buildOptions, serviceName })
         };
         console.info(`ServiceBuilder:compile() - '${serviceName}' Results:`, compileResults);
 
@@ -110,7 +129,21 @@ const ServiceBuilder = ({
     return new Promise((resolve, reject) => {
       try {
         console.info(`ServiceBuilder:build() - '${serviceName}' started`);
-        // Code here
+
+        prebuildScripts.push({
+          serviceName,
+          comment: 'Create required service directory exists for first launch',
+          multilineComment: null,
+          code: createVolumesDirectory()
+        });
+
+        postbuildScripts.push({
+          serviceName,
+          comment: 'Ensure required service directory exists for launch',
+          multilineComment: null,
+          code: checkVolumesDirectory()
+        });
+
         console.info(`ServiceBuilder:build() - '${serviceName}' completed`);
         return resolve({ type: 'service' });
       } catch (err) {

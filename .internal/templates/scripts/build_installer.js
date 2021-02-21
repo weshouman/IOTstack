@@ -147,8 +147,8 @@ ${renderPostbuildScripts(options?.postbuildScripts)}
 
 cp docker-compose-base.yml docker-compose.yml
 
-if [[ -f ./postbuild.sh]]; then
-  echo "Running postbuild script:"
+if [[ -f ./postbuild.sh ]]; then
+  echo "Running postbuild script (${(options?.selectedServices ?? []).join(', ')}):"
   ./postbuild.sh ${(options?.selectedServices ?? []).join(' ')}
 fi
 
@@ -156,7 +156,7 @@ fi
 
 echo ""
 echo "Setup complete. You can start the stack with: "
-echo "  docker-compose up"
+echo "  docker-compose up --remove-orphans"
 echo "or"
 echo "  docker-compose up -d --remove-orphans"
 

@@ -14,7 +14,9 @@ const ServiceBuilder = ({
     setModifiedPorts,
     setLoggingState,
     setNetworkMode,
-    setNetworks
+    setNetworks,
+    setEnvironmentVariables,
+    setDevices
   } = require('../../../src/utils/commonCompileLogic');
 
   const {
@@ -60,7 +62,9 @@ fi
           modifiedPorts: setModifiedPorts({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
           modifiedLogging: setLoggingState({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
           modifiedNetworkMode: setNetworkMode({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
-          modifiedNetworks: setNetworks({ buildTemplate: outputTemplateJson, buildOptions, serviceName })
+          modifiedNetworks: setNetworks({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
+          modifiedEnvironment: setEnvironmentVariables({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
+          modifiedDevices: setDevices({ buildTemplate: outputTemplateJson, buildOptions, serviceName })
         };
         console.info(`ServiceBuilder:compile() - '${serviceName}' Results:`, compileResults);
 

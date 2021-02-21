@@ -7,8 +7,22 @@ const diyhue = () => {
     return {
       serviceName, // Required
       labeledPorts: {
-        "9080:8080": 'http'
+        "8070:8070": 'http'
       },
+      modifyableEnvironment: [
+        {
+          key: 'TZ',
+          value: 'Etc/UTC'
+        },
+        {
+          key: 'IP',
+          value: 'Your.LAN.IP'
+        },
+        {
+          key: 'MAC',
+          value: 'MAC:Address:Here'
+        }
+      ],
       volumes: false,
       networks: false,
       logging: true
@@ -34,7 +48,7 @@ const diyhue = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'diyhue (untested)',
+      displayName: 'diyhue',
       serviceTypeTags: ['wui', 'iot']
     };
   };

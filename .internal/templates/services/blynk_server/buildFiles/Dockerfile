@@ -16,10 +16,5 @@ RUN mkdir /data
 RUN mkdir /config && touch /config/server.properties
 VOLUME ["/config", "/data/backup"]
 
-# IP port listing:
-# 8080: Hardware without ssl/tls support
-# 9443: Blynk app, https, web sockets, admin port
-EXPOSE 8080 9443
-
 WORKDIR /data
 ENTRYPOINT ["java", "-jar", "/blynk/server.jar", "-dataFolder", "/data", "-serverConfig", "/config/server.properties", "-mailConfig", "/config/mail.properties"]

@@ -22,7 +22,7 @@ const deconz = () => {
         },
         {
           key: 'DECONZ_DEVICE',
-          value: '{$selectedDevice}'
+          value: '{$deconzSelectedDevice}'
         }
       ],
       devices: true,

@@ -7,7 +7,11 @@ const plex = () => {
     return {
       serviceName, // Required
       labeledPorts: {
-        "9080:8080": 'http'
+        "32400:32400": 'http',
+        "1900:1900": 'dlna2',
+        "5353:5353": 'bonjour',
+        "32400:32400": 'roku',
+        "32400:32400": 'dlna2',
       },
       modifyableEnvironment: [
         {
@@ -16,7 +20,7 @@ const plex = () => {
         }
       ],
       volumes: true,
-      networks: false,
+      networks: true,
       logging: true
     }
   };
@@ -40,7 +44,7 @@ const plex = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'Plex (untested)',
+      displayName: 'Plex',
       serviceTypeTags: ['wui', 'video', 'media']
     };
   };

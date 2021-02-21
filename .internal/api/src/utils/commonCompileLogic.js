@@ -138,7 +138,7 @@ const setNetworks = ({ buildTemplate, buildOptions, serviceName }) => {
   const serviceConfig = buildOptions?.serviceConfigurations?.services?.[serviceName];
   let updated = false;
 
-  const originalNetworks = [ ...serviceTemplate.networks ];
+  const originalNetworks = [ ...serviceTemplate?.networks ?? [] ];
 
   const networksList = Object.keys(serviceConfig?.networks ?? {});
   if (networksList.length > 0) {

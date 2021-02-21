@@ -7,7 +7,8 @@ const domoticz = () => {
     return {
       serviceName, // Required
       labeledPorts: {
-        "8080:8080": 'http'
+        "8080:8080": 'http',
+        "1443:1443": 'ssl'
       },
       volumes: false,
       networks: false,
@@ -34,7 +35,7 @@ const domoticz = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'Domoticz (untested)',
+      displayName: 'Domoticz',
       serviceTypeTags: ['wui', 'dashboard', 'home automation', 'iot', 'z-wave']
     };
   };
