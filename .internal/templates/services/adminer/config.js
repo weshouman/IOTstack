@@ -18,7 +18,7 @@ const adminer = () => {
   retr.getHelp = () => {
     return {
       serviceName, // Required
-      website: '', // Website of service
+      website: 'https://www.adminer.org/', // Website of service
       rawMarkdownRemote: '', // Usually links to github raw help pages.
       rawMarkdownLocal: '', // Relative path to docs locally
       onlineRendered: '' // Usually links to the github page for this service.
@@ -35,7 +35,8 @@ const adminer = () => {
     return {
       serviceName, // Required
       displayName: 'Adminer',
-      serviceTypeTags: ['wui', 'database manager']
+      serviceTypeTags: ['wui', 'database manager'],
+      iconUri: '/logos/adminer.png'
     };
   };
 

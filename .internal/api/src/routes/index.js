@@ -12,6 +12,8 @@ const registerRouteHooks = ({ server, settings, version, logger } = {}) => {
   const configRoutes = require('./configs');
   configRoutes({ server, settings, version, logger });
 
+  const staticRoutes = require('./static');
+  staticRoutes({ server, settings, version, logger });
 };
 
 module.exports = registerRouteHooks;

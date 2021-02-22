@@ -44,7 +44,7 @@ const ServiceItem = (props) => {
         justifyContent="center"
       >
         <Box display="flex" p={1} justifyContent="center" fontSize="2rem">{buildTime}</Box>
-        <Box display="flex" m={1} justifyContent="center">
+        <Box display="flex" p={1} pb={2} justifyContent="center">
           <Link
             href="#"
             rel="noopener"
@@ -55,7 +55,59 @@ const ServiceItem = (props) => {
             Download Zip
           </Link>
         </Box>
-        <Box display="flex" m={1} justifyContent="center">
+        <Box display="flex" p={2} justifyContent="center" flexWrap="wrap">
+          <Box paddingBottom={1}>
+            <Link
+              noWrap
+              href="#"
+              rel="noopener"
+              target="_blank"
+              className={styles.docsLink}
+              color="inherit"
+            >
+              Download docker-compose.yml
+            </Link>
+          </Box>
+          <Box p={1}>
+            <Link
+              noWrap
+              href="#"
+              rel="noopener"
+              target="_blank"
+              className={styles.docsLink}
+              color="inherit"
+            >
+              View docker-compose.yml
+            </Link>
+          </Box>
+        </Box>
+        <Box display="flex" p={1} justifyContent="center" flexWrap="wrap">
+          <Box paddingBottom={1}>
+            <Link
+              noWrap
+              href="#"
+              rel="noopener"
+              target="_blank"
+              className={styles.docsLink}
+              color="inherit"
+            >
+              Download build-options.json
+            </Link>
+          </Box>
+          <Box p={1}>
+            <Link
+              noWrap
+              href="#"
+              rel="noopener"
+              target="_blank"
+              className={styles.docsLink}
+              color="inherit"
+            >
+              View build-options.json
+            </Link>
+          </Box>
+        </Box>
+        <Box display="flex" p={2} justifyContent="center">
           <Link
             href="#"
             rel="noopener"
@@ -63,7 +115,7 @@ const ServiceItem = (props) => {
             className={styles.docsLink}
             color="inherit"
           >
-            {buildTime} Help and Docs
+            Delete build
           </Link>
         </Box>
       </Box>

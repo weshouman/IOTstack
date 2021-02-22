@@ -7,9 +7,14 @@ import {
   getBuildHistoryListAction
 } from '../../actions/getBuildHistoryList.action';
 
+import {
+  clearBuildStateAction
+} from '../../actions/buildStack.action';
+
 const mapDispatchToProps = (dispatch) => {
   return {
-    dispatchGetBuildHistoryList: () => dispatch(getBuildHistoryListAction())
+    dispatchGetBuildHistoryList: () => dispatch(getBuildHistoryListAction()),
+    dispatchClearBuildState: () => dispatch(clearBuildStateAction())
   };
 };
 
@@ -27,10 +32,15 @@ const Main = (props) => {
     ...mapStateToProps(useSelector)
   };
 
-  const { dispatchGetBuildHistoryList, buildHistory } = props;
+  const {
+    dispatchGetBuildHistoryList,
+    dispatchClearBuildState,
+    buildHistory
+  } = props;
 
   useEffect(() => {
     dispatchGetBuildHistoryList();
+    dispatchClearBuildState();
   }, []);
 
   return (

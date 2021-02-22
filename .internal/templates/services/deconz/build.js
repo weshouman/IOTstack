@@ -6,6 +6,8 @@ const ServiceBuilder = ({
   const retr = {};
   const serviceName = 'deconz';
 
+  const { byName } = require('../../../src/utils/interpolate');
+
   const {
     setModifiedPorts,
     setLoggingState,
@@ -31,6 +33,21 @@ const ServiceBuilder = ({
 
   retr.init = () => {
     logger.debug(`ServiceBuilder:init() - '${serviceName}'`);
+  };
+
+  const createVolumesDirectory = () => {
+    return `
+mkdir -p ./volumes/deconz
+`;
+  };
+
+  const checkVolumesDirectory = () => {
+    return `
+if [[ ! -d ./volumes/deconz ]]; then
+  echo "Deconz directory is missing!"
+  sleep 2
+fi
+`;
   };
 
   const checkDeconzDevice = (devicePath) => {
@@ -59,6 +76,39 @@ fi
           modifiedEnvironment: setEnvironmentVariables({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
           modifiedDevices: setDevices({ buildTemplate: outputTemplateJson, buildOptions, serviceName })
         };
+
+        const selectedDevice = buildOptions?.serviceConfigurations?.services?.[serviceName]?.selectedDevice ?? '';
+
+        // Set deconz's selected device device
+        const deconzDevicesList = outputTemplateJson?.services?.[serviceName]?.devices ?? [];
+        if (Array.isArray(deconzDevicesList) && deconzDevicesList.length > 0) {
+          deconzDevicesList.forEach((device, index) => {
+            outputTemplateJson.services[serviceName].devices[index] = byName(
+              outputTemplateJson.services[serviceName].devices[index],
+              {
+                deconzSelectedDevice: selectedDevice
+              }
+            );
+          });
+        } else {
+          if ((outputTemplateJson?.services?.[serviceName] ?? false) && selectedDevice) {
+            outputTemplateJson.services[serviceName].devices = [selectedDevice];
+          }
+        }
+
+        // Set deconz's selected device env var
+        const serviceEnvironmentList = outputTemplateJson?.services?.[serviceName]?.environment ?? [];
+        if (Array.isArray(serviceEnvironmentList) && serviceEnvironmentList.length > 0) {
+          serviceEnvironmentList.forEach((envKVP, index) => {
+            outputTemplateJson.services[serviceName].environment[index] = byName(
+              outputTemplateJson.services[serviceName].environment[index],
+              {
+                deconzSelectedDevice: selectedDevice
+              }
+            );
+          });
+        }
+
         console.info(`ServiceBuilder:compile() - '${serviceName}' Results:`, compileResults);
 
         console.info(`ServiceBuilder:compile() - '${serviceName}' completed`);
@@ -127,11 +177,27 @@ fi
       try {
         console.info(`ServiceBuilder:build() - '${serviceName}' started`);
 
+        if (buildOptions?.serviceConfigurations?.services?.[serviceName]?.selectedDevice ?? false) {
+          postbuildScripts.push({
+            serviceName,
+            comment: 'Check deconz set env device',
+            multilineComment: null,
+            code: checkDeconzDevice(buildOptions?.serviceConfigurations?.services?.[serviceName]?.selectedDevice ?? '/dev/null')
+          });
+        }
+
+        prebuildScripts.push({
+          serviceName,
+          comment: 'Create required service directory exists for first launch',
+          multilineComment: null,
+          code: createVolumesDirectory()
+        });
+
         postbuildScripts.push({
           serviceName,
-          comment: 'Check deconz set env device',
+          comment: 'Ensure required service directory exists for launch',
           multilineComment: null,
-          code: checkDeconzDevice('/dev/ttyS0') // TODO: Finish this logic
+          code: checkVolumesDirectory()
         });
 
         console.info(`ServiceBuilder:build() - '${serviceName}' completed`);

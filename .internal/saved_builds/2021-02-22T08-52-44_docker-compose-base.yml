@@ -1,0 +1,32 @@
+services:
+  deconz:
+    image: marthoc/deconz
+    container_name: deconz
+    restart: unless-stopped
+    ports:
+      - "8090:80"
+      - "443:443"
+      - "5901:5900"
+    volumes:
+      - "./volumes/deconz/:/root/.local/share/dresden-elektronik/deCONZ"
+    devices:
+      - /dev/ttyAMA0
+    environment:
+      - DECONZ_VNC_MODE=1
+      - DECONZ_VNC_PASSWORD=J-uy4KUCs_-BkXN6JMuJV8
+      - DEBUG_INFO=1
+      - DEBUG_APS=0
+      - DEBUG_ZCL=0
+      - DEBUG_ZDP=0
+      - DEBUG_OTAU=0
+      - DECONZ_DEVICE=/dev/ttyAMA0
+    networks:
+      - iotstack_nw
+networks:
+  iotstack_nw:
+    name: IOTstack_Net
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.77.60.0/24

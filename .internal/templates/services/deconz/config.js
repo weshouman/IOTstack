@@ -52,7 +52,7 @@ const deconz = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'Deconz (untested)',
+      displayName: 'Deconz',
       serviceTypeTags: ['iot']
     };
   };

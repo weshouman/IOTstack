@@ -194,13 +194,20 @@ const buildList = (selectedServices) => {
   );
 };
 
-const buildServices = (dispatchBuildStack) => {
+const buildServices = (dispatchBuildStack, buildStack) => {
   return (
     <Box className={styles.section}>
       Build:
       <Box>
         <Button variant="contained" onClick={dispatchBuildStack}>Build</Button>
       </Box>
+      {(buildStack?.status === API_STATUS.FAILURE ?? false)
+      && (
+        <Fragment>
+          <Box>Error occured when building. Please check API logs.</Box>
+          <Box>{buildStack?.error?.message ?? 'Unknown error'}</Box>
+        </Fragment>
+      )}
     </Box>
   );
 };
@@ -324,7 +331,7 @@ const Sidebar = (props) => {
           if (Array.isArray(selectedServices.selectedServices) && selectedServices.selectedServices.length > 0) {
             dispatchBuildStack(selectedServices.selectedServices, getBuildOptions());
           }
-        })}
+        }, buildStack)}
       </Box>
     </Fragment>
   );

@@ -152,7 +152,7 @@ if [[ -f ./postbuild.sh ]]; then
   ./postbuild.sh ${(options?.selectedServices ?? []).join(' ')}
 fi
 
-
+# cat setup.json |  docker run -i  ubuntu /bin/bash -c 'cat' # for compose-override
 
 echo ""
 echo "Setup complete. You can start the stack with: "

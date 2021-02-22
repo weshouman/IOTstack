@@ -1,5 +1,5 @@
 import { API_STATUS } from '../constants'
-import { CREATE_AND_BUILD_STACK } from '../actions/buildStack.action';
+import { CREATE_AND_BUILD_STACK, RESET_STATE_CREATE_AND_BUILD_STACK } from '../actions/buildStack.action';
 
 const defaultState = {
   status: API_STATUS.UNINIT
@@ -7,11 +7,17 @@ const defaultState = {
 
 const reducerHandler = (state = defaultState, action) => {
   switch (action.type) {
-    case `${CREATE_AND_BUILD_STACK}_${API_STATUS.PENDING}`:
+    case RESET_STATE_CREATE_AND_BUILD_STACK:
      return {
        ...state,
-      status: API_STATUS.PENDING
+      status: API_STATUS.UNINIT
      }
+
+     case `${CREATE_AND_BUILD_STACK}_${API_STATUS.PENDING}`:
+      return {
+        ...state,
+       status: API_STATUS.PENDING
+      }
      
     case `${CREATE_AND_BUILD_STACK}_${API_STATUS.SUCCESS}`:
       return {

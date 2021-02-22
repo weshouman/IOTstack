@@ -28,7 +28,7 @@ const grafana = () => {
   retr.getHelp = () => {
     return {
       serviceName, // Required
-      website: '', // Website of service
+      website: 'https://grafana.com/', // Website of service
       rawMarkdownRemote: '', // Usually links to github raw help pages.
       rawMarkdownLocal: '', // Relative path to docs locally
       onlineRendered: '' // Usually links to the github page for this service.
@@ -46,7 +46,7 @@ const grafana = () => {
       serviceName, // Required
       displayName: 'Grafana',
       serviceTypeTags: ['aggregator', 'wui', 'graphs', 'dashboard'],
-      iconUri: 'https://grafana.com/static/img/logos/grafana_logo_swirl-events.svg'
+      iconUri: '/logos/grafana.svg'
     };
   };
 

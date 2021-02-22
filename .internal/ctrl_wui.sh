@@ -19,9 +19,9 @@ else
     docker stop $(docker ps -q --format "{{.ID}} {{.Ports}}" | grep "$WUI_PORT" | cut -d ' ' -f1) 2> /dev/null
     echo ""
     echo "Rebuilding container:"
-    echo "docker build --no-cache -t $FULL_NAME -f ./.internal/wui.Dockerfile ."
+    echo "docker build --no-cache -t $FULL_NAME -f ./.internal/wui/wui.dev.Dockerfile ."
     docker pull node:alpine # Docker occasionally fails to pull image when building when it is not cached.
-    docker build --no-cache -t $FULL_NAME -f ./.internal/wui.Dockerfile .
+    docker build --no-cache -t $FULL_NAME -f ./.internal/wui/wui.dev.Dockerfile .
   else
     if [[ "$(docker images -q $FULL_NAME 2> /dev/null)" == "" ]]; then
       echo "Building '$FULL_NAME'"

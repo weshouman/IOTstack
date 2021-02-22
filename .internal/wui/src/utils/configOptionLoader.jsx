@@ -38,14 +38,21 @@ const getConfigComponents = (configOptions) => {
             } else {
               return null;
             }
-    
+
           case "modifyableEnvironment":
             if (configOptions[configName].length > 0) {
               return ServiceUiControls.Environment
             } else {
               return null;
             }
-    
+
+          case "deconzSelectedDevice":
+            if (configOptions[configName] === true) {
+              return ServiceUiControls.DeconzDevices
+            } else {
+              return null;
+            }
+  
         default:
           if (configOptions[configName]) { // Check if set
             return () => (<Fragment><div>Unknown Option {configName}</div></Fragment>);

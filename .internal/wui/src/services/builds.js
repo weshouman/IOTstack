@@ -92,18 +92,21 @@ const createAndBuildStack = ({ selectedServices, serviceConfigurations }) => {
           },
           body: JSON.stringify(bodyObject)
         }).then((response) => {
-        return response.json().then((data) => {
-          return resolve(data);
+          return response.json().then((data) => {
+            if (response.status > 399) {
+              return reject(data);
+            }
+            return resolve(data);
+          }).catch((err) => {
+            console.error('createAndBuildStack: error parsing JSON response:');
+            console.error(response);
+            return reject(JSON.stringify(err, Object.getOwnPropertyNames(err)));
+          });
         }).catch((err) => {
-          console.error('createAndBuildStack: error parsing JSON response:');
-          console.error(response);
+          console.error('createAndBuildStack: error communicating with API.');
+          console.error(err);
           return reject(JSON.stringify(err, Object.getOwnPropertyNames(err)));
         });
-      }).catch((err) => {
-        console.error('createAndBuildStack: error communicating with API.');
-        console.error(err);
-        return reject(JSON.stringify(err, Object.getOwnPropertyNames(err)));
-      });
     } catch (err) {
       console.error('createAndBuildStack: an unhandled error occured');
       console.error(err);

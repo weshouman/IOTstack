@@ -4,6 +4,7 @@ import Logging from './general/logging';
 import Volumes from './general/volumesConfig';
 import Devices from './general/devicesConfig';
 import Environment from './general/environmentConfig';
+import DeconzDevices from './custom/deconz-devices';
 
 export default {
   PortConfig,
@@ -11,5 +12,6 @@ export default {
   Logging,
   Volumes,
   Devices,
-  Environment
+  Environment,
+  DeconzDevices
 };
