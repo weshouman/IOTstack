@@ -115,6 +115,30 @@ const createAndBuildStack = ({ selectedServices, serviceConfigurations }) => {
   });
 };
 
+const getBuildFile = ({ build, type }) => {
+  return new Promise((resolve, reject) => {
+    try {
+      return fetch(`${config.apiProtocol}${config.apiUrl}/build/get/${build}/${type}`).then((response) => {
+        return response.text().then((data) => {
+          return resolve(data);
+        }).catch((err) => {
+          console.error('getBuildDockerComposeFile: error getting text response:');
+          console.error(response);
+          return reject(JSON.stringify(err, Object.getOwnPropertyNames(err)));
+        });
+      }).catch((err) => {
+        console.error('getBuildDockerComposeFile: error communicating with API.');
+        console.error(err);
+        return reject(JSON.stringify(err, Object.getOwnPropertyNames(err)));
+      });
+    } catch (err) {
+      console.error('getBuildDockerComposeFile: an unhandled error occured');
+      console.error(err);
+      return reject(JSON.stringify(err, Object.getOwnPropertyNames(err)));
+    }
+  });
+};
+
 const downloadBuild = ({ build, type, linkRef }) => {
   return new Promise((resolve, reject) => {
     try {
@@ -159,5 +183,6 @@ export {
   downloadBuild,
   getBuildHistoryList,
   getBuildIssues,
-  createAndBuildStack
+  createAndBuildStack,
+  getBuildFile
 };

@@ -7,7 +7,7 @@ wireguard:
   environment:
     - PUID=1000
     - PGID=1000
-    - TZ=Europe/Berlin
+    - TZ=Etc/UTC
     - SERVERURL=<enter yours>.duckdns.org
     - SERVERPORT=51820
     - PEERS=1

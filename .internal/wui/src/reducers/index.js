@@ -16,6 +16,7 @@ import buildIssues from './getBuildIssuesReducer';
 import buildStack from './buildStackReducer';
 import buildHistory from './getBuildHistoryListReducer';
 import scriptTemplates from './getScriptTemplatesReducer';
+import buildFiles from './getBuildFileReducer';
 
 
 const middlewares = [thunk, promiseMiddleware, asyncDispatchMiddleware];
@@ -35,7 +36,8 @@ export default configureStore({
     hideServiceTags: hideServiceTags,
     buildIssues: buildIssues,
     buildStack: buildStack,
-    scriptTemplates: scriptTemplates
+    scriptTemplates: scriptTemplates,
+    buildFiles: buildFiles
   },
   middleware: middlewares
 });

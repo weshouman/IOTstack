@@ -9,8 +9,34 @@ const wireguard = () => {
       labeledPorts: {
         "51820:51820": 'vpn'
       },
-      volumes: false,
-      networks: false,
+      modifyableEnvironment: [
+        {
+          key: 'TZ',
+          value: 'Etc/UTC'
+        },
+        {
+          key: 'SERVERURL',
+          value: '{$wireguardDuckDns}'
+        },
+        {
+          key: 'SERVERPORT',
+          value: '{$wireguardPort}'
+        },
+        {
+          key: 'PEERS',
+          value: '1'
+        },
+        {
+          key: 'PEERDNS',
+          value: 'auto'
+        },
+        {
+          key: 'INTERNAL_SUBNET',
+          value: '100.64.0.0/24'
+        }
+      ],
+      volumes: true,
+      networks: true,
       logging: true
     }
   };

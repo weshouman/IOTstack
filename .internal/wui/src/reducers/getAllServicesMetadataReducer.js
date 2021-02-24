@@ -11,14 +11,14 @@ const reducerHandler = (state = defaultState, action) => {
      return {
        ...state,
       status: API_STATUS.PENDING
-     }
+     };
      
     case `${GET_ALL_SERVICES_METADATA_ACTION}_${API_STATUS.SUCCESS}`:
       return {
         ...state,
         status: API_STATUS.SUCCESS,
         payload: action.res
-      }     
+      };
 
     case `${GET_ALL_SERVICES_METADATA_ACTION}_${API_STATUS.FAILURE}`:
       return {
@@ -26,9 +26,9 @@ const reducerHandler = (state = defaultState, action) => {
         status: API_STATUS.FAILURE,
         payload: undefined,
         error: action.error
-      }
+      };
    default:
-    return state
+    return state;
   }
 };
 

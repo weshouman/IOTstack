@@ -41,6 +41,7 @@ const BuildsService = ({ server, settings, version, logger }) => {
     return new Promise((resolve, reject) => {
       let jsonOutputFilePath;
       try {
+        buildOptionsJson.build = fileTimePrefix;
         const { localBuildsDirectory, buildOptionsFilePostfix  } = settings.paths;
         const jsonFilename = `${fileTimePrefix}${buildOptionsFilePostfix}`;
         jsonOutputFilePath = path.join(localBuildsDirectory, jsonFilename);

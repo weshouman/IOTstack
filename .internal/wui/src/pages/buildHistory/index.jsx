@@ -11,10 +11,15 @@ import {
   clearBuildStateAction
 } from '../../actions/buildStack.action';
 
+import {
+  downloadBuildFile
+} from '../../actions/downloadBuild.action';
+
 const mapDispatchToProps = (dispatch) => {
   return {
     dispatchGetBuildHistoryList: () => dispatch(getBuildHistoryListAction()),
-    dispatchClearBuildState: () => dispatch(clearBuildStateAction())
+    dispatchClearBuildState: () => dispatch(clearBuildStateAction()),
+    dispatchDownloadBuildFile: ({ build, type, linkRef }) => dispatch(downloadBuildFile({ build, type, linkRef }))
   };
 };
 
@@ -25,7 +30,7 @@ const mapStateToProps = (selector) => {
 };
 
 const Main = (props) => {
-
+  const downloadLinkRef = React.useRef(null);
   props = {
     ...props,
     ...mapDispatchToProps(useDispatch()),
@@ -35,6 +40,7 @@ const Main = (props) => {
   const {
     dispatchGetBuildHistoryList,
     dispatchClearBuildState,
+    dispatchDownloadBuildFile,
     buildHistory
   } = props;
 
@@ -45,7 +51,8 @@ const Main = (props) => {
 
   return (
     <Fragment>
-      <div className="MainPage">
+      <a ref={downloadLinkRef} />
+      <div className="BuildHistoryPage">
         <Grid
           container
           spacing={4}
@@ -58,6 +65,8 @@ const Main = (props) => {
                 display="flex"
               >
                 <BuildHistoryGridItem
+                  dispatchDownloadBuildFile={dispatchDownloadBuildFile}
+                  downloadLinkRef={downloadLinkRef}
                   buildTime={buildDetailsTime}
                   buildDetails={buildHistory.payload.buildsList[buildDetailsTime]}
                 />
