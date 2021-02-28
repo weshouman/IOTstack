@@ -24,6 +24,10 @@ const registerBuildRoutes = ({ server, settings, version, logger } = {}) => {
   server.get('/build/get/:buildTime/:type', (req, res, next) => {
     buildView.downloadPreviousBuildsList(req, res, next);
   });
+
+  server.post('/build/delete/:buildTime', (req, res, next) => {
+    buildView.deletePreviousBuild(req, res, next);
+  });
 };
 
 module.exports = registerBuildRoutes;

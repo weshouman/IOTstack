@@ -80,6 +80,30 @@ const BuildView = ({ server, settings, version, logger } = {}) => {
     }
   };
 
+  retr.deletePreviousBuild = (req, res, next) => {
+    const { buildTime } = req.params;
+    try {
+      buildsController.deletePreviousBuild({ host: req.headers.host, buildTime }).then((result) => {
+        return res.send(result);
+      }).catch((err) => {
+        logger.error(err);
+        return res.status(500).send({
+          component: 'BuildView::deletePreviousBuild',
+          message: 'Error getting build',
+          error: JSON.parse(JSON.stringify(err, Object.getOwnPropertyNames(err)))
+        });
+      });
+    } catch (err) {
+      logger.error(err);
+      logger.log(req.body);
+      return res.status(500).send({
+        component: 'BuildView::deletePreviousBuild',
+        message: 'Unhandled error',
+        error: JSON.parse(JSON.stringify(err, Object.getOwnPropertyNames(err)))
+      });
+    }
+  };
+
   retr.downloadPreviousBuildsList = (req, res, next) => {
     const { buildTime, type } = req.params;
     try {

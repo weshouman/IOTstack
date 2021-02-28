@@ -3,6 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
 import Box from '@material-ui/core/Box';
 import TextField from '@material-ui/core/TextField';
+import Grid from '@material-ui/core/Grid';
 // import Box from '@material-ui/core/Box';
 // import Tooltip from '@material-ui/core/Tooltip';
 import Button from '@material-ui/core/Button';
@@ -32,13 +33,17 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const ScriptViewerModal = ({
-  isOpen,
-  handleClose,
-  displayScript,
-  scriptTitle,
-  readOnly
-}) => {
+const ScriptViewerModal = (props) => {
+  const {
+    isOpen,
+    handleClose,
+    displayScript,
+    scriptTitle,
+    readOnly,
+    showActionButton,
+    actionButtonText,
+    actionButtonFunction
+  } = props;
   const [renderedScript, setRenderedScript] = useState('Failed to load');
 
   useEffect(() => {
@@ -72,9 +77,33 @@ const ScriptViewerModal = ({
           />
         </Box>
       </Fragment>
-      <Button variant="contained" onClick={closeModal}>
-        Close
-      </Button>
+      
+      <Grid
+        container
+        spacing={4}
+      >
+        <Grid item
+          display="flex"
+        >
+          <Button variant="contained" onClick={closeModal}>
+            Close
+          </Button>
+        </Grid>
+        {
+          showActionButton
+          && actionButtonText
+          && typeof(actionButtonFunction) === 'function'
+          && (
+            <Grid item
+              display="flex"
+            >
+              <Button variant="contained" onClick={() => actionButtonFunction(props)}>
+                {actionButtonText}
+              </Button>
+            </Grid>
+          )
+        }
+      </Grid>
       <ScriptViewerModal />
     </div>
   );

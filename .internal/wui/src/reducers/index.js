@@ -17,6 +17,7 @@ import buildStack from './buildStackReducer';
 import buildHistory from './getBuildHistoryListReducer';
 import scriptTemplates from './getScriptTemplatesReducer';
 import buildFiles from './getBuildFileReducer';
+import deleteBuild from './getDeleteBuildReducer';
 
 
 const middlewares = [thunk, promiseMiddleware, asyncDispatchMiddleware];
@@ -37,7 +38,8 @@ export default configureStore({
     buildIssues: buildIssues,
     buildStack: buildStack,
     scriptTemplates: scriptTemplates,
-    buildFiles: buildFiles
+    buildFiles: buildFiles,
+    deleteBuild: deleteBuild
   },
   middleware: middlewares
 });

@@ -25,7 +25,8 @@ const mapDispatchToProps = (dispatch) => {
 
 const mapStateToProps = (selector) => {
   return {
-    buildHistory: selector(state => state.buildHistory)
+    buildHistory: selector(state => state.buildHistory),
+    deleteBuild: selector(state => state.deleteBuild)
   };
 };
 
@@ -41,13 +42,18 @@ const Main = (props) => {
     dispatchGetBuildHistoryList,
     dispatchClearBuildState,
     dispatchDownloadBuildFile,
-    buildHistory
+    buildHistory,
+    deleteBuild
   } = props;
 
   useEffect(() => {
     dispatchGetBuildHistoryList();
     dispatchClearBuildState();
   }, []);
+
+  useEffect(() => {
+    dispatchGetBuildHistoryList();
+  }, [deleteBuild]);
 
   return (
     <Fragment>

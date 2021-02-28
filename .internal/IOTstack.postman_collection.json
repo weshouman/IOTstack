@@ -164,6 +164,36 @@
 						"description": "This checks for issues"
 					},
 					"response": []
+				},
+				{
+					"name": "Delete a build",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:32128/build/delete/{{build}}",
+							"host": [
+								"localhost"
+							],
+							"port": "32128",
+							"path": [
+								"build",
+								"delete",
+								"{{build}}"
+							]
+						},
+						"description": "Deletes a build, and all associated files."
+					},
+					"response": []
 				}
 			]
 		},

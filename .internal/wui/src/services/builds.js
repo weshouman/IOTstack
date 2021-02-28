@@ -115,6 +115,45 @@ const createAndBuildStack = ({ selectedServices, serviceConfigurations }) => {
   });
 };
 
+const deleteBuild = ({ build }) => {
+  return new Promise((resolve, reject) => {
+    try {
+      if (build.length > 20) {
+        console.error('deleteBuild: Invalid build name. Ensure length is less than 20.');
+        return reject('deleteBuild: Invalid build name. Ensure length is less than 20.');
+      }
+      return fetch(
+        `${config.apiProtocol}${config.apiUrl}/build/delete/${build}`,
+        {
+          method: 'POST',
+          cache: 'no-cache',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }).then((response) => {
+          return response.json().then((data) => {
+            if (response.status > 399) {
+              return reject(data);
+            }
+            return resolve(data);
+          }).catch((err) => {
+            console.error('deleteBuild: error parsing JSON response:');
+            console.error(response);
+            return reject(JSON.stringify(err, Object.getOwnPropertyNames(err)));
+          });
+        }).catch((err) => {
+          console.error('deleteBuild: error communicating with API.');
+          console.error(err);
+          return reject(JSON.stringify(err, Object.getOwnPropertyNames(err)));
+        });
+    } catch (err) {
+      console.error('deleteBuild: an unhandled error occured');
+      console.error(err);
+      return reject(JSON.stringify(err, Object.getOwnPropertyNames(err)));
+    }
+  });
+};
+
 const getBuildFile = ({ build, type }) => {
   return new Promise((resolve, reject) => {
     try {
@@ -184,5 +223,6 @@ export {
   getBuildHistoryList,
   getBuildIssues,
   createAndBuildStack,
-  getBuildFile
+  getBuildFile,
+  deleteBuild
 };

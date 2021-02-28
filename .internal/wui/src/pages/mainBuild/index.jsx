@@ -1,5 +1,5 @@
 // import React, { Fragment, useState, useEffect } from 'react';
-import React, { Fragment, useEffect } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from "react-redux";
 import Grid from '@material-ui/core/Grid';
 import Box from '@material-ui/core/Box';
@@ -19,8 +19,13 @@ import {
   getTemporaryBuildOptions,
   setTemporaryServiceOptions,
   setupTemporaryBuildOptions,
-  saveTemporaryBuildOptions
+  saveTemporaryBuildOptions,
+  getSelectedItems_services
 } from '../../utils/buildOptionSync';
+import {
+  addSelectedService,
+  clearAllSelectedServicesAction
+} from '../../actions/updateSelectedServices.action';
 
 const mapDispatchToProps = (dispatch) => {
   return {
@@ -29,7 +34,9 @@ const mapDispatchToProps = (dispatch) => {
     dispatchGetNetworkTemplatesList: () => dispatch(getNetworkTemplateListAction()),
     dispatchGetServiceTemplates: () => dispatch(getServiceTemplatesAction()),
     dispatchGetAllServicesMetadata: () => dispatch(getAllServicesMetadataAction()),
-    dispatchGetAllServicesConfigOptions: () => dispatch(getAllServicesConfigOptionsAction())
+    dispatchAddSelectedService: (serviceName) => dispatch(addSelectedService(serviceName)),
+    dispatchGetAllServicesConfigOptions: () => dispatch(getAllServicesConfigOptionsAction()),
+    dispatchClearAllSelectedServices: () => dispatch(clearAllSelectedServicesAction())
   };
 };
 
@@ -39,6 +46,7 @@ const mapStateToProps = (selector) => {
     networkTemplateList: selector(state => state.networkTemplateList),
     serviceTemplates: selector(state => state.serviceTemplates),
     allServicesConfigOptionsReducer: selector(state => state.allServicesConfigOptionsReducer),
+    selectedServices: selector(state => state.selectedServices),
     allServicesMetadataReducer: selector(state => state.allServicesMetadataReducer)
   };
 };
@@ -52,6 +60,8 @@ const Main = (props) => {
 
   const {
     dispatchGetServiceTemplatesList,
+    dispatchAddSelectedService,
+    dispatchClearAllSelectedServices,
     dispatchGetNetworkTemplatesList,
     dispatchGetServiceTemplates,
     dispatchGetAllServicesMetadata,
@@ -60,8 +70,10 @@ const Main = (props) => {
     allServicesMetadataReducer,
     serviceTemplateList,
     networkTemplateList,
-    serviceTemplates
+    serviceTemplates,
+    selectedServices
   } = props;
+  const [isLoading, setIsLoading] = useState(true);
   const buildOptions = getBuildOptions();
 
   useEffect(() => {
@@ -70,7 +82,19 @@ const Main = (props) => {
     dispatchGetServiceTemplates();
     dispatchGetAllServicesMetadata();
     dispatchGetAllServicesConfigOptions();
+
+    dispatchClearAllSelectedServices();
   }, []);
+
+  useEffect(() => {
+    if (isLoading) {
+      setIsLoading(false)
+      const savedSelectedServices = getSelectedItems_services();
+      savedSelectedServices.map((service) => {
+        dispatchAddSelectedService(service);
+      });
+    }
+  }, [selectedServices]);
 
   return (
     <Fragment>

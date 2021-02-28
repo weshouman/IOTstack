@@ -81,7 +81,7 @@ const BuildController = ({ server, settings, version, logger }) => {
         });
 
         if (failedStack.services.length > 0 || failedStack.networks.length > 0) {
-          console.warn('Failed to compile some templates: ', failedStack);
+          logger.warn('Failed to compile some templates: ', failedStack);
         }
 
         // All templates gathered and ready for processing by each service.
@@ -114,7 +114,7 @@ const BuildController = ({ server, settings, version, logger }) => {
           if (fs.existsSync(serviceBuildScript)) {
             templatesBuildLogic.push(require(serviceBuildScript)({ settings, version, logger }));
           } else {
-            console.log(`BuildController::buildStack: No service build file for '${serviceName}'. Looking in: '${serviceBuildScript}'`);
+            logger.log(`BuildController::buildStack: No service build file for '${serviceName}'. Looking in: '${serviceBuildScript}'`);
             failedServices.push({ serviceName: `No build file. Check logs for more details. Looking in: '${serviceBuildScript}'` });
           }
         });
@@ -125,7 +125,7 @@ const BuildController = ({ server, settings, version, logger }) => {
           if (fs.existsSync(networkBuildScript)) {
             templatesBuildLogic.push(require(networkBuildScript)({ settings, version, logger }));
           } else {
-            console.log(`BuildController::buildStack: No network build file for '${networkName}'. Looking in: '${networkBuildScript}'`);
+            logger.log(`BuildController::buildStack: No network build file for '${networkName}'. Looking in: '${networkBuildScript}'`);
           }
         });
 
@@ -163,7 +163,7 @@ const BuildController = ({ server, settings, version, logger }) => {
                 postbuildScripts
               });
               // .then((res) => {
-              //   console.log('Result: ', res);
+              //   logger.log('Result: ', res);
               // });
             }
 
@@ -190,9 +190,9 @@ const BuildController = ({ server, settings, version, logger }) => {
             return Promise.resolve({});
           });
         }, Promise.resolve()).then(() => {
-          console.debug('BuildController::buildStack: Build Completed');
+          logger.debug('BuildController::buildStack: Build Completed');
         }).catch((err) => {
-          console.error('BuildController::buildStack: Build Error: ', err);
+          logger.error('BuildController::buildStack: Build Error: ', err);
           return reject({
             component: 'BuildController::buildStack',
             message: 'Unhandled error occured',
@@ -265,8 +265,8 @@ const BuildController = ({ server, settings, version, logger }) => {
         });
 
       } catch (err) {
-        console.log(err);
-        console.trace();
+        logger.log(err);
+        logger.trace();
         return reject({
           component: 'BuildController::buildStack',
           message: 'Unhandled error occured',
@@ -330,7 +330,7 @@ const BuildController = ({ server, settings, version, logger }) => {
         });
 
         if (failedStack.services.length > 0 || failedStack.networks.length > 0) {
-          console.warn('Failed to compile some templates: ', failedStack);
+          logger.warn('Failed to compile some templates: ', failedStack);
         }
 
         // All templates gathered and ready for processing by each service.
@@ -355,7 +355,7 @@ const BuildController = ({ server, settings, version, logger }) => {
           if (fs.existsSync(serviceBuildScript)) {
             templatesBuildLogic.push(require(serviceBuildScript)({ settings, version, logger }));
           } else {
-            console.log(`BuildController::checkIssues: No service build file for '${serviceName}'. Looking in: '${serviceBuildScript}'`);
+            logger.log(`BuildController::checkIssues: No service build file for '${serviceName}'. Looking in: '${serviceBuildScript}'`);
             failedServices.push({ serviceName: `No build file. Check logs for more details. Looking in: '${serviceBuildScript}'` });
           }
         });
@@ -374,7 +374,7 @@ const BuildController = ({ server, settings, version, logger }) => {
           if (fs.existsSync(networkBuildScript)) {
             templatesBuildLogic.push(require(networkBuildScript)({ settings, version, logger }));
           } else {
-            console.log(`BuildController::checkIssues: No network build file for '${networkName}'. Looking in: '${networkBuildScript}'`);
+            logger.log(`BuildController::checkIssues: No network build file for '${networkName}'. Looking in: '${networkBuildScript}'`);
           }
         });
 
@@ -428,17 +428,68 @@ const BuildController = ({ server, settings, version, logger }) => {
             return Promise.resolve({ issueList });
           });
         }, Promise.resolve()).then(() => {
-          console.debug('BuildController::checkIssues: Issue check completed');
+          logger.debug('BuildController::checkIssues: Issue check completed');
           return resolve({ issueList });
         }).catch((err) => {
-          console.error('BuildController::checkIssues: Issue check error: ', err);
+          logger.error('BuildController::checkIssues: Issue check error: ', err);
           return reject({ issueList });
         });
       } catch (err) {
-        console.log(err);
-        console.trace();
+        logger.log(err);
+        logger.trace();
         return reject({
           component: 'BuildController::checkIssues',
+          message: 'Unhandled error occured',
+          error: JSON.parse(JSON.stringify(err, Object.getOwnPropertyNames(err)))
+        });
+      }
+    });
+  };
+
+  retr.deletePreviousBuild = ({ host, buildTime }) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const {
+          localBuildsDirectory
+        } = settings.paths;
+
+        const useBuildTime = buildTime.replace(/\//g, '');
+
+        if (useBuildTime !== buildTime) {
+          return reject({
+            component: 'BuildController::deletePreviousBuild',
+            message: `Build '${buildTime}' has an invalid name`
+          });
+        }
+
+        const buildFiles = getFileList(localBuildsDirectory);
+        let filesDeleted = [];
+
+        buildFiles.forEach((fileName) => {
+          const deconstructedFilename = fileName.split('_');
+          if (deconstructedFilename.length === 2) {
+            const checkBuildTime = deconstructedFilename[0];
+
+            if (checkBuildTime === useBuildTime) {
+              const fullPathZip = path.join(localBuildsDirectory, fileName);
+              fs.unlinkSync(fullPathZip);
+              filesDeleted.push(fileName);
+            }
+          }
+        });
+
+        if (filesDeleted.length < 1) {
+          return reject({
+            component: 'BuildController::deletePreviousBuild',
+            message: `Build '${buildTime}' not found`
+          });
+        }
+        return resolve({ filesDeleted, buildTime, host });
+      } catch (err) {
+        logger.log(err);
+        logger.trace();
+        return reject({
+          component: 'BuildController::deletePreviousBuild',
           message: 'Unhandled error occured',
           error: JSON.parse(JSON.stringify(err, Object.getOwnPropertyNames(err)))
         });
@@ -524,8 +575,8 @@ const BuildController = ({ server, settings, version, logger }) => {
           return resolve({ buildFiles: singleBuild, host });
         }
       } catch (err) {
-        console.log(err);
-        console.trace();
+        logger.log(err);
+        logger.trace();
         return reject({
           component: 'BuildController::getPreviousBuildsList',
           message: 'Unhandled error occured',
@@ -611,8 +662,8 @@ const BuildController = ({ server, settings, version, logger }) => {
           message: `Unknown type '${type}'`
         });
       } catch (err) {
-        console.log(err);
-        console.trace();
+        logger.log(err);
+        logger.trace();
         return reject({
           component: 'BuildController::downloadPreviousBuildsList',
           message: 'Unhandled error occured',

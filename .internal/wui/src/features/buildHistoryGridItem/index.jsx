@@ -14,6 +14,12 @@ import { makeStyles } from '@material-ui/core/styles';
 import { useTheme } from '@material-ui/core/styles';
 import ScriptViewerModal from '../scriptViewerModal';
 import { getBuildFileAction } from '../../actions/getBuildFile.action';
+import { deleteBuildAction } from '../../actions/deleteBuild.action';
+import {
+  addSelectedService,
+  clearAllSelectedServicesAction
+} from '../../actions/updateSelectedServices.action';
+import { setSelectedItems_services, setBuildOptions } from '../../utils/buildOptionSync';
 import styles from './build-history-grid-item.module.css';
 
 const useStyles = makeStyles({
@@ -26,7 +32,10 @@ const useStyles = makeStyles({
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    dispatchGetBuildFile: ({ build, type, label }) => dispatch(getBuildFileAction({ build, type, label }))
+    dispatchGetBuildFile: ({ build, type, label }) => dispatch(getBuildFileAction({ build, type, label })),
+    dispatchAddSelectedService: (serviceName) => dispatch(addSelectedService(serviceName)),
+    dispatchClearAllSelectedServices: () => dispatch(clearAllSelectedServicesAction()),
+    dispatchDeleteBuild: ({ build }) => dispatch(deleteBuildAction({ build }))
   };
 };
 
@@ -46,7 +55,10 @@ const ServiceItem = (props) => {
     ...mapStateToProps(useSelector)
   };
   const {
+    dispatchAddSelectedService,
+    dispatchClearAllSelectedServices,
     dispatchGetBuildFile,
+    dispatchDeleteBuild,
     buildTime,
     dispatchDownloadBuildFile,
     downloadLinkRef,
@@ -54,6 +66,7 @@ const ServiceItem = (props) => {
   } = props;
 
   const [scriptViewerModalOpen, setScriptViewerModalOpen] = useState(false);
+  const [loadableScriptOptions, setLoadableScriptOptions] = useState(false);
   const [displayScript, setDisplayScript] = useState('Loading...');
 
   useEffect(() => {
@@ -64,12 +77,24 @@ const ServiceItem = (props) => {
     }
   }, [buildFiles?.files?.completed?.[buildTime]?.status]);
 
-
   let isLoading = false;
   let buildHistoryError = {
     hasError: false
   };
 
+  const loadBuild = (modalProps) => {
+    const buildConfig = JSON.parse(modalProps.displayScript);
+  
+    setSelectedItems_services(buildConfig.selectedServices);
+    setBuildOptions(buildConfig.serviceConfigurations);
+    dispatchClearAllSelectedServices();
+    buildConfig?.selectedServices?.map((service) => {
+      dispatchAddSelectedService(service);
+    });
+
+    setScriptViewerModalOpen(false);
+  };
+  
   const buildHistoryComponent = () => {
     return (
       <Box
@@ -92,16 +117,20 @@ const ServiceItem = (props) => {
             Download Zip
           </Link>
         </Box>
-        <Box display="flex" p={1} pb={2} justifyContent="center">
-          <Link
-            href="#"
-            rel="noopener"
-            target="_blank"
+        <Box display="flex" p={2} justifyContent="center" flexWrap="wrap">
+          <Button
+            variant="contained"
             className={styles.docsLink}
+            style={{ textTransform: 'none' }}
             color="inherit"
+            onClick={() => {
+              setLoadableScriptOptions(true);
+              return dispatchGetBuildFile({ build: buildTime, type: 'json', label: buildTime });
+              // return setScriptViewerModalOpen(true);
+            }}
           >
             Load this build
-          </Link>
+          </Button>
         </Box>
         <Box display="flex" p={2} justifyContent="center" flexWrap="wrap">
           <Button
@@ -110,6 +139,7 @@ const ServiceItem = (props) => {
             style={{ textTransform: 'none' }}
             color="inherit"
             onClick={() => {
+              setLoadableScriptOptions(false);
               return dispatchGetBuildFile({ build: buildTime, type: 'yaml', label: buildTime });
               // return setScriptViewerModalOpen(true);
             }}
@@ -118,15 +148,17 @@ const ServiceItem = (props) => {
           </Button>
         </Box>
         <Box display="flex" p={2} justifyContent="center">
-          <Link
-            href="#"
-            rel="noopener"
-            target="_blank"
+          <Button
+            variant="contained"
             className={styles.docsLink}
+            style={{ textTransform: 'none' }}
             color="inherit"
+            onClick={() => {
+              return dispatchDeleteBuild({ build: buildTime });
+            }}
           >
-            Delete build
-          </Link>
+            Delete Build
+          </Button>
         </Box>
       </Box>
     )
@@ -168,6 +200,9 @@ const ServiceItem = (props) => {
         handleClose={() => setScriptViewerModalOpen(false)}
         displayScript={displayScript}
         scriptTitle={`docker-compose.yml for build: '${buildTime}'`}
+        showActionButton={loadableScriptOptions}
+        actionButtonText={'Load build'}
+        actionButtonFunction={loadBuild}
       />
       <Box
         className={`${styles.serviceCard} ${classes.serviceCard}`}

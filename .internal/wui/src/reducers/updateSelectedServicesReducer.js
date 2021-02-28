@@ -1,6 +1,7 @@
 import {
   REMOVE_FROM_SELECTED_SERVICES,
-  ADD_TO_SELECTED_SERVICES
+  ADD_TO_SELECTED_SERVICES,
+  CLEAR_ALL_SELECTED_SERVICES
 } from '../actions/updateSelectedServices.action';
 
 const defaultState = {
@@ -17,20 +18,27 @@ const reducerHandler = (state = defaultState, action) => {
         ...newState
       }
 
-      case `${ADD_TO_SELECTED_SERVICES}`:
-        if (newState.selectedServices.indexOf(action.data.serviceName) < 0) {
-          newState.selectedServices.push(action.data.serviceName);
-        } else {
-          console.warn(`Service '${action.data.serviceName}' is already added!`);
-          return {
-            ...state
-          }
-        }
+    case `${ADD_TO_SELECTED_SERVICES}`:
+      if (newState.selectedServices.indexOf(action.data.serviceName) < 0) {
+        newState.selectedServices.push(action.data.serviceName);
+      } else {
+        console.warn(`Service '${action.data.serviceName}' is already added!`);
         return {
-          ...state,
-          ...newState
+          ...state
         }
-  
+      }
+      return {
+        ...state,
+        ...newState
+      }
+
+    case `${CLEAR_ALL_SELECTED_SERVICES}`:
+      newState.selectedServices = [];
+      return {
+        ...state,
+        ...newState
+      }
+    
     default:
       return state
   }

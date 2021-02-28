@@ -97,12 +97,10 @@ const ServiceItem = (props) => {
   const [serviceConfigOptions, setServiceConfigOptions] = useState({});
   const [serviceLoadError, setServiceLoadError] = useState({});
   useEffect(() => {
-    const savedSelectedServices = getSelectedItems_services();
-    savedSelectedServices.map((service) => {
-      dispatchAddSelectedService(service);
-    });
-  }, []);
-
+    // const savedSelectedServices = getSelectedItems_services();
+    setSelectedItems_services(selectedServices.selectedServices);
+  }, [selectedServices]);
+  
   useEffect(() => {
     if (
       allServicesMetadataReducer.status === API_STATUS.SUCCESS
@@ -154,7 +152,6 @@ const ServiceItem = (props) => {
 
   const [hasIssue, setHasIssue] = useState(false);
   useEffect(() => {
-    setSelectedItems_services(selectedServices.selectedServices);
     if (!selectedServices.selectedServices.includes(serviceName)) {
       return void setHasIssue(false);
     }
@@ -166,7 +163,6 @@ const ServiceItem = (props) => {
           issueFound = true;
         }
       });
-      
       return void setHasIssue(issueFound);
     }
   }, [buildIssues, selectedServices.selectedServices, serviceName]);
