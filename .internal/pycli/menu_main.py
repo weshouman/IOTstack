@@ -7,22 +7,39 @@ import os
 import time
 import types
 import signal
+from multiprocessing import Process, Manager
 from deps.chars import specialChars
+from deps.api import checkApiHealth, checkWuiState
 
 term = Terminal()
 
-# Settings/Consts
-requiredDockerVersion = "18.2.0"
+apiUrl = 'http://localhost:32128'
+wuiUrl = 'http://localhost:32777'
+sshUri = os.getenv('HOSTSSH_ADDR')
 
 # Vars
 selectionInProgress = True
 currentMenuItemIndex = 0
 menuNavigateDirection = 0
-projectStatusPollRateRefresh = 1
-promptFiles = False
-buildComplete = None
-hotzoneLocation = [((term.height // 16) + 6), 0]
+screenRefreshRate = 1
+hotzoneLocation = [int(term.height ** 0.3), 0]
 screenActive = True
+
+manager = Manager()
+
+apiHealthResults = manager.dict()
+apiHealthResults['status'] = None
+
+wuiHealthResults = manager.dict()
+wuiHealthResults['status'] = None
+
+sshState = 'unknown'
+
+for x in sys.argv[1:]:
+  if x == '--no-ssh':
+    sshState = 'no'
+  if x == '--ssh':
+    sshState = 'yes'
 
   # Render Modes:
   #  0 = No render needed
@@ -83,6 +100,9 @@ def onResize(sig, action):
   global mainMenuList
   global currentMenuItemIndex
   global screenActive
+  global hotzoneLocation
+
+  hotzoneLocation = [int(term.height ** 0.4), 0]
   if screenActive:
     mainRender(1, mainMenuList, currentMenuItemIndex)
 
@@ -113,21 +133,22 @@ def buildStack():
   screenActive = True
   needsRender = 1
 
-def runExampleMenu():
-  exampleMenuFilePath = "./.templates/example_template/example_build.py"
-  with open(exampleMenuFilePath, "rb") as pythonDynamicImportFile:
-    code = compile(pythonDynamicImportFile.read(), exampleMenuFilePath, "exec")
+def installBuild():
+  global needsRender
+  installBuildFilePath = "./install_build.py"
+  with open(installBuildFilePath, "rb") as pythonDynamicImportFile:
+    code = compile(pythonDynamicImportFile.read(), installBuildFilePath, "exec")
   # execGlobals = globals()
+  # execLocals = locals()
   execGlobals = {
     "renderMode": renderMode
   }
-  execLocals = locals()
-  execGlobals["currentServiceName"] = 'SERVICENAME'
-  execGlobals["toRun"] = 'runOptionsMenu'
+  execLocals = {}
   screenActive = False
   exec(code, execGlobals, execLocals)
   signal.signal(signal.SIGWINCH, onResize)
   screenActive = True
+  needsRender = 1
 
 def dockerCommands():
   global needsRender
@@ -208,38 +229,9 @@ def skipItem(currentMenuItemIndex, direction):
     currentMenuItemIndex += lastSelectionDirection
   return currentMenuItemIndex
 
-def deletePromptFiles():
-  # global promptFiles
-  # global currentMenuItemIndex
-  if os.path.exists(".project_outofdate"):
-    os.remove(".project_outofdate")
-  if os.path.exists(".docker_outofdate"):
-    os.remove(".docker_outofdate")
-  if os.path.exists(".docker_notinstalled"):
-    os.remove(".docker_notinstalled")
-  promptFiles = False
-  currentMenuItemIndex = 0
-
-def installDocker():
-  print("Install Docker: curl -fsSL https://get.docker.com | sh && sudo usermod -aG docker $USER")
-  installDockerProcess = subprocess.Popen(['sudo', 'bash', './install_docker.sh', 'install'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-  installDockerProcess.wait()
-  installDockerResult, stdError = installDockerProcess.communicate()
-  installDockerResult = installDockerResult.decode("utf-8").rstrip()
-
-  return installDockerResult
-
-def upgradeDocker():
-  print("Upgrade Docker: sudo apt upgrade docker docker-compose")
-  upgradeDockerProcess = subprocess.Popen(['sudo', 'bash', './install_docker.sh', 'upgrade'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-  upgradeDockerProcess.wait()
-  upgradeDockerResult, stdError = upgradeDockerProcess.communicate()
-  upgradeDockerResult = upgradeDockerResult.decode("utf-8").rstrip()
-
-  return upgradeDockerResult
-
 baseMenu = [
-  ["Build Stack", buildStack],
+  ["Install Builds", installBuild],
+  ["Create Build", buildStack],
   ["Docker Commands", dockerCommands],
   ["Miscellaneous Commands", miscCommands],
   ["Backup and Restore", backupAndRestore],
@@ -248,118 +240,81 @@ baseMenu = [
   ["Exit", exitMenu]
 ]
 
+def apiThreadInit():
+  global apiHealthResults
+  apiCheckThread = Process(target=apiCheckWrapper, args=(apiHealthResults,))
+  apiCheckThread.start()
+  # apiCheckThread.join()
+
+def apiCheckWrapper(apiHealthResults):
+  while True:
+    apiHealthResults = updateApiState()
+    time.sleep(5)
+
+def updateApiState():
+  global apiHealthResults
+  apiHealthResults = checkApiHealth(apiUrl)
+  return apiHealthResults
+
+def updateWuiState():
+  global wuiHealthResults
+  wuiHealthResults = checkWuiState(wuiUrl)
+  return wuiHealthResults
+
+def generateApiState():
+  global apiHealthResults
+  rendered = ''
+
+  if apiHealthResults['status'] == None:
+    rendered = (term.black_on_cornsilk2(' Checking... ({apiUrl}) '.format(apiUrl=apiUrl)))
+    return rendered
+  if apiHealthResults['status'] >= 200 and apiHealthResults['status'] < 299:
+    rendered = (term.blue_on_green2(' Online ({apiUrl}) '.format(apiUrl=apiUrl)))
+  else:
+    rendered = (term.red_on_black(' Offline ({apiUrl}) '.format(apiUrl=apiUrl)))
+
+  return rendered
+
+def generateWuiState():
+  global wuiHealthResults
+  rendered = ''
+
+  if wuiHealthResults['status'] == None:
+    rendered = (term.black_on_cornsilk2(' Checking... ({wuiUrl}) '.format(wuiUrl=wuiUrl)))
+    return rendered
+  if wuiHealthResults['status'] >= 200 and wuiHealthResults['status'] < 299:
+    rendered = (term.blue_on_green2(' Online ({wuiUrl}) '.format(wuiUrl=wuiUrl)))
+  else:
+    rendered = (term.red_on_black(' Offline ({wuiUrl}) '.format(wuiUrl=wuiUrl)))
+
+  return rendered
+
+def generateSshState():
+  global sshHealthResults
+  rendered = ''
+
+  if sshState == 'unknown':
+    rendered = (term.black_on_cornsilk2(' Unknown ({sshUri}) '.format(sshUri=sshUri)))
+    return rendered
+  elif sshState == 'yes':
+    rendered = (term.blue_on_green2(' Online ({sshUri}) '.format(sshUri=sshUri)))
+  else:
+    rendered = (term.red_on_black(' Offline ({sshUri}) '.format(sshUri=sshUri)))
+
+  return rendered
+
 # Main Menu
 mainMenuList = baseMenu
 
-potentialMenu = {
-  "projectUpdate": {
-    "menuItem": ["Update IOTstack", installDocker],
-    "added": False
-  },
-  "dockerUpdate": { # TODO: Do note use, fix shell issues first
-    "menuItem": ["Update Docker", upgradeDocker],
-    "added": False
-  },
-  "dockerNotUpdated": { # TODO: Do note use, fix shell issues first
-    "menuItem": [term.red_on_black("Docker is not up to date"), doNothing, { "skip": True }],
-    "added": False
-  },
-  "dockerTerminals": { # TODO: Do note use, not finished
-    "menuItem": ["Docker Terminals", doNothing],
-    "added": False
-  },
-  "noProjectUpdate": {
-    "menuItem": [term.green_on_black("IOTstack is up to date"), doNothing, { "skip": True }],
-    "added": False
-  },
-  "spacer": {
-    "menuItem": ["------", doNothing, { "skip": True }],
-    "added": False
-  },
-  "newLine": {
-    "menuItem": [" ", doNothing, { "skip": True }],
-    "added": False
-  },
-  "deletePromptFiles": {
-    "menuItem": ["Delete 'out of date' prompt files", deletePromptFiles],
-    "added": False
-  },
-  "updatesCheck": {
-    "menuItem": [term.blue_on_black("Checking for updates..."), doNothing, { "skip": True }],
-    "added": False
-  }
-}
-
-def checkProjectUpdates():
-  getCurrentBranch = subprocess.Popen(["git", "name-rev", "--name-only", "HEAD"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-  getCurrentBranch.wait()
-  currentBranch, stdError = getCurrentBranch.communicate()
-  currentBranch = currentBranch.decode("utf-8").rstrip()
-  projectStatus = subprocess.Popen(["git", "fetch", "origin", currentBranch], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-  return projectStatus
-
-def addPotentialMenuItem(menuItemName, hasSpacer=True):
-  if (potentialMenu["newLine"]["added"] == False):
-    potentialMenu["newLine"]["added"] = True
-    baseMenu.append(potentialMenu["newLine"]["menuItem"])
-  if hasSpacer and potentialMenu["spacer"]["added"] == False:
-    potentialMenu["spacer"]["added"] = True
-    baseMenu.append(potentialMenu["spacer"]["menuItem"])
-
-  if (potentialMenu[menuItemName]["added"] == False):
-    potentialMenu[menuItemName]["added"] = True
-    baseMenu.append(potentialMenu[menuItemName]["menuItem"])
-    return True
-
-  return False
-
-def removeMenuItemByLabel(potentialItemKey):
-  i = -1
-  for menuItem in mainMenuList:
-    i += 1
-    if menuItem[0] == potentialMenu[potentialItemKey]["menuItem"][0]:
-      potentialMenu[potentialItemKey]["added"] = False
-      mainMenuList.pop(i)
-
-def doPotentialMenuCheck(projectStatus, promptFiles=False):
-  global needsRender
-
-  if (promptFiles == True):
-    addPotentialMenuItem("deletePromptFiles")
-    needsRender = 2
-  else:
-    removeMenuItemByLabel("deletePromptFiles")
-
-  # if (projectStatus.poll() == None):
-  #   addPotentialMenuItem("updatesCheck", False)
-  #   needsRender = 2
-  # else:
-  #   removeMenuItemByLabel("updatesCheck")
-
-  # if (projectStatus.poll() == 1):
-  #   added = addPotentialMenuItem("projectUpdate")
-  #   projectStatusPollRateRefresh = None
-  #   if (added):
-  #     needsRender = 1
-
-  # if (projectStatus.poll() == 0):
-  #   added = addPotentialMenuItem("noProjectUpdate")
-  #   projectStatusPollRateRefresh = None
-  #   if (added):
-  #     needsRender = 1
-
-def checkIfPromptFilesExist():
-  if os.path.exists(".project_outofdate"):
-    return True
-  if os.path.exists(".docker_outofdate"):
-    return True
-  if os.path.exists(".docker_notinstalled"):
-    return True
-  return False
-
 def renderHotZone(term, menu, selection):
   print(term.move(hotzoneLocation[0], hotzoneLocation[1]))
+
+  print(term.center(term.black_on_cornsilk4('API {apiResults}'.format(apiResults=generateApiState()))))
+  print(term.center(term.black_on_cornsilk4('WUI {wuiResults}'.format(wuiResults=generateWuiState()))))
+  print(term.center(term.black_on_cornsilk4('SSH {sshResults}'.format(sshResults=generateSshState()))))
+  print('')
+  print('')
+
   for (index, menuItem) in enumerate(menu):
     if index == selection:
       print(term.center('-> {t.blue_on_green}{title}{t.normal} <-'.format(t=term, title=menuItem[0])))
@@ -370,23 +325,13 @@ def mainRender(needsRender, menu, selection):
   term = Terminal()
   if needsRender == 1:
     print(term.clear())
-    print(term.move_y(term.height // 16))
-    print(term.black_on_cornsilk4(term.center('IOTstack Main Menu')))
+    print(term.move_y(int(term.height ** 0.1)))
+    print(term.black_on_cornsilk4(term.center('IOTstack Main Menu (w: {w}, h: {h})'.format(h=term.height, w=term.width, apiResults=generateApiState()))))
     print("")
 
   if needsRender >= 1:
     renderHotZone(term, menu, selection)
-
-  if (buildComplete and needsRender == 1):
-    print("")
-    print("")
-    print("")
-    print(term.center('{t.blue_on_green} {text} {t.normal}{t.white_on_black}{cPath} {t.normal}'.format(t=term, text="Build completed:", cPath=" ./docker-compose.yml")))
-    print(term.center('{t.white_on_black}{text}{t.blue_on_green2} {commandString} {t.normal}'.format(t=term, text="You can start the stack from the Docker Commands menu, or from the CLI with: ", commandString="docker-compose up -d")))
-    if os.path.exists('./compose-override.yml'):
-      print("")
-      print(term.center('{t.grey_on_blue4} {text} {t.normal}{t.white_on_black}{t.normal}'.format(t=term, text="'compose-override.yml' was merged into 'docker-compose.yml'")))
-    print("")
+    checkApiHealth
 
 def runSelection(selection):
   global needsRender
@@ -405,11 +350,12 @@ def isMenuItemSelectable(menu, index):
 
 # Entrypoint
 if __name__ == '__main__':
-  projectStatus = checkProjectUpdates() # Async
-  promptFiles = checkIfPromptFilesExist()
   term = Terminal()
-  
+
   signal.signal(signal.SIGWINCH, onResize)
+
+  updateApiState()
+  updateWuiState()
 
   with term.fullscreen():
     checkRenderOptions()
@@ -417,16 +363,12 @@ if __name__ == '__main__':
     with term.cbreak():
       while selectionInProgress:
         menuNavigateDirection = 0
-        if (promptFiles):
-          promptFiles = checkIfPromptFilesExist()
 
         if needsRender > 0: # Only rerender when changed to prevent flickering
           mainRender(needsRender, mainMenuList, currentMenuItemIndex)
           needsRender = 0
-
-        doPotentialMenuCheck(projectStatus=projectStatus, promptFiles=promptFiles)
         
-        key = term.inkey(timeout=projectStatusPollRateRefresh)
+        key = term.inkey(timeout=screenRefreshRate)
         if key.is_sequence:
           if key.name == 'KEY_TAB':
             menuNavigateDirection = 1

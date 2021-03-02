@@ -497,7 +497,7 @@ const BuildController = ({ server, settings, version, logger }) => {
     });
   };
 
-  retr.getPreviousBuildsList = ({ host, buildTime }) => {
+  retr.getPreviousBuildsList = ({ host, buildTime, index, limit }) => {
     return new Promise(async (resolve, reject) => {
       try {
         const {
@@ -569,8 +569,27 @@ const BuildController = ({ server, settings, version, logger }) => {
             }
           }
         });
+
         if (!buildTime) {
-          return resolve({ buildsList, host });
+          const useLimit = limit ?? -1;
+          const useIndex = index ?? 0;
+
+          if (useLimit < 1) {
+            return resolve({ buildsList, host });
+          }
+
+          const limitedBuildList = {};
+          let currentCount = 0;
+          Object.keys(buildsList).forEach((build, buildIndex) => {
+            if (buildIndex >= useIndex) {
+              currentCount++;
+              if (currentCount <= useLimit) {
+                limitedBuildList[build] = buildsList[build];
+              }
+            }
+          });
+
+          return resolve({ buildsList: limitedBuildList, host });
         } else {
           return resolve({ buildFiles: singleBuild, host });
         }

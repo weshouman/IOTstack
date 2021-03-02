@@ -17,6 +17,14 @@ const registerHealthRoutes = ({ server, settings, version, logger } = {}) => {
     healthView.health(req, res, next);
   });
 
+  server.get('/health/no-log', (req, res, next) => {
+    healthView.healthCheckNoLog(req, res, next);
+  });
+
+  server.post('/health/no-log', (req, res, next) => {
+    healthView.healthCheckNoLog(req, res, next);
+  });
+
   server.get('/ping', (req, res, next) => {
     healthView.health(req, res, next);
   });

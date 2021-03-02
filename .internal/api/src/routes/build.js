@@ -17,6 +17,22 @@ const registerBuildRoutes = ({ server, settings, version, logger } = {}) => {
     buildView.getPreviousBuildsList(req, res, next);
   });
 
+  server.get('/build/list/index/:index/limit/:limit', (req, res, next) => {
+    buildView.getPreviousBuildsList(req, res, next);
+  });
+
+  server.get('/build/list/limit/:limit/index/:index', (req, res, next) => {
+    buildView.getPreviousBuildsList(req, res, next);
+  });
+
+  server.get('/build/list/index/:index', (req, res, next) => {
+    buildView.getPreviousBuildsList(req, res, next);
+  });
+
+  server.get('/build/list/limit/:limit', (req, res, next) => {
+    buildView.getPreviousBuildsList(req, res, next);
+  });
+
   server.get('/build/get/:buildTime', (req, res, next) => {
     buildView.getPreviousBuildsList(req, res, next);
   });

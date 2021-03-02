@@ -57,9 +57,9 @@ const BuildView = ({ server, settings, version, logger } = {}) => {
   };
 
   retr.getPreviousBuildsList = (req, res, next) => {
-    const { buildTime } = req.params;
+    const { buildTime, index, limit } = req.params;
     try {
-      buildsController.getPreviousBuildsList({ host: req.headers.host, buildTime }).then((result) => {
+      buildsController.getPreviousBuildsList({ host: req.headers.host, buildTime, index, limit }).then((result) => {
         return res.send(result);
       }).catch((err) => {
         logger.error(err);

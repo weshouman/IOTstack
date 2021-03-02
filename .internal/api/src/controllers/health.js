@@ -18,6 +18,18 @@ const HealthController = ({ server, settings, version, logger }) => {
     });
   };
 
+  retr.healthCheckNoLog = () => {
+    const baseHealthResults = {
+      server: "online",
+      api: true,
+      version
+    };
+
+    return new Promise((resolveHealth, rejectHealth) => {
+      return resolveHealth(baseHealthResults);
+    });
+  };
+
   return retr;
 }
 module.exports = HealthController;
