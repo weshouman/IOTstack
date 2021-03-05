@@ -13,8 +13,8 @@ from deps.api import checkApiHealth, checkWuiState
 
 term = Terminal()
 
-apiUrl = 'http://localhost:32128'
-wuiUrl = 'http://localhost:32777'
+apiUrl = os.getenv('API_ADDR')
+wuiUrl = os.getenv('WUI_ADDR')
 sshUri = os.getenv('HOSTSSH_ADDR')
 
 # Vars
@@ -231,7 +231,7 @@ def skipItem(currentMenuItemIndex, direction):
 
 baseMenu = [
   ["Install Builds", installBuild],
-  ["Create Build", buildStack],
+  # ["Create Build", buildStack], # Not yet ready
   ["Docker Commands", dockerCommands],
   ["Miscellaneous Commands", miscCommands],
   ["Backup and Restore", backupAndRestore],
@@ -309,9 +309,9 @@ mainMenuList = baseMenu
 def renderHotZone(term, menu, selection):
   print(term.move(hotzoneLocation[0], hotzoneLocation[1]))
 
-  print(term.center(term.black_on_cornsilk4('API {apiResults}'.format(apiResults=generateApiState()))))
-  print(term.center(term.black_on_cornsilk4('WUI {wuiResults}'.format(wuiResults=generateWuiState()))))
-  print(term.center(term.black_on_cornsilk4('SSH {sshResults}'.format(sshResults=generateSshState()))))
+  print(term.center(term.black_on_cornsilk3('API {apiResults}'.format(apiResults=generateApiState()))))
+  print(term.center(term.black_on_cornsilk3('WUI {wuiResults}'.format(wuiResults=generateWuiState()))))
+  print(term.center(term.black_on_cornsilk3('SSH {sshResults}'.format(sshResults=generateSshState()))))
   print('')
   print('')
 
@@ -380,6 +380,16 @@ if __name__ == '__main__':
             runSelection(currentMenuItemIndex)
           if key.name == 'KEY_ESCAPE':
             exitMenu()
+        elif key:
+          if key == 'r': # R pressed
+            print('Refreshing...')
+            updateApiState()
+            updateWuiState()
+            checkRenderOptions()
+            needsRender = 1
+            mainRender(needsRender, mainMenuList, currentMenuItemIndex)
+          if key == ' ': # Space pressed
+            runSelection(currentMenuItemIndex)
         
         if not menuNavigateDirection == 0: # If a direction was pressed, find next selectable item
           currentMenuItemIndex += menuNavigateDirection

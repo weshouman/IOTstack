@@ -39,6 +39,8 @@ else
       -e IOTENV="$RUN_MODE" \
       -e HOSTUSER="$HOSTUSER" \
       -e IOTSTACKPWD="$IOTSTACKPWD" \
+      -e API_ADDR="${IOTSTACK_PYCLI_CON_API:-'http://host.docker.internal:32128'}" \
+      -e WUI_ADDR="${IOTSTACK_PYCLI_CON_WUI:-'http://host.docker.internal:32777'}" \
       -e HOSTSSH_ADDR="$HOSTSSH_ADDR" \
       -e HOSTSSH_PORT="$HOSTSSH_PORT" \
       --restart no \

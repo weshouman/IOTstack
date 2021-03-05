@@ -14,8 +14,10 @@ import traceback
 hostUser = os.getenv('HOSTUSER')
 iotstackPwd = os.getenv('IOTSTACKPWD')
 hostAddress = os.getenv('HOSTSSH_ADDR')
+apiAddress = os.getenv('API_ADDR')
+wuiAddress = os.getenv('WUI_ADDR')
 hostPort = os.getenv('HOSTSSH_PORT')
-doRemoteCheck = False # Don't commit if this is False
+doRemoteCheck = True # Don't commit if this is False
 
 print('blessed Version:', blessed.__version__)
 print('ruamel.yaml Version:', ruamel.yaml.__version__)
@@ -23,6 +25,8 @@ print('PyYAML Version:', yaml.__version__)
 print('')
 print('hostUser: ', hostUser)
 print('iotstackPwd: ', iotstackPwd)
+print('API Address: ', apiAddress)
+print('WUI Address: ', wuiAddress)
 print('SSH hostAddress: ', hostAddress)
 print('SSH hostPort: ', hostPort)
 

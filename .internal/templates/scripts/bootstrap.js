@@ -19,6 +19,13 @@ const BootstrapScript = ({
       }
       result.data = `Options given for ${scriptName} and ${options?.build}`;
 
+      if (options?.nofluff) {
+      result.data = `curl http://${req.get('host')}/build/get/${options?.build}/zip \\
+--output iotstack_build_${options?.build}.zip \\
+&& unzip -o ./iotstack_build_${options?.build}.zip \\
+&& bash build-installer.sh --from-net --overwrite
+`;
+      } else {
       result.data = `
 # Ensure you are in IOTstack's main directory.
 # Download, extract and execute commands:
@@ -28,6 +35,7 @@ $ curl http://${req.get('host')}/build/get/${options?.build}/zip \\
 && bash build-installer.sh --from-net --overwrite
 `;
 
+      }
       return resolve(result);
     } catch (err) {
       console.error(err);

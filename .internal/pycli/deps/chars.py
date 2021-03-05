@@ -40,7 +40,7 @@ specialChars = {
   }
 }
 
-def commonTopBorder(renderMode, size=64):
+def commonTopBorder(renderMode, size=62):
   output = ""
   output += "{btl}".format(btl=specialChars[renderMode]["borderTopLeft"])
   for i in range(size):
@@ -48,7 +48,7 @@ def commonTopBorder(renderMode, size=64):
   output += "{btr}".format(btr=specialChars[renderMode]["borderTopRight"])
   return output
 
-def commonBottomBorder(renderMode, size=64):
+def commonBottomBorder(renderMode, size=62):
   output = ""
   output += "{bbl}".format(bbl=specialChars[renderMode]["borderBottomLeft"])
   for i in range(size):
@@ -63,7 +63,7 @@ def padText(text, size=45):
     output += " "
   return output
 
-def commonEmptyLine(renderMode, size=64):
+def commonEmptyLine(renderMode, size=62):
   output = ""
   output += "{bv}".format(bv=specialChars[renderMode]["borderVertical"])
   for i in range(size):

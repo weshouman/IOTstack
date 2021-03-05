@@ -11,8 +11,9 @@ def main():
   import sys
   import subprocess
   from deps.chars import specialChars, commonTopBorder, commonBottomBorder, commonEmptyLine, padText
+  from deps.host_exec import execInteractive
   # from deps.consts import servicesDirectory, templatesDirectory, volumesDirectory, buildCache, envFile, dockerPathOutput, servicesFileName, composeOverrideFile
-  from deps.api import getPreviousBuildList, checkWuiState
+  from deps.api import getPreviousBuildList, checkWuiState, getTemplateBuildBootstrap
   from blessed import Terminal
   global signal
   global renderMode
@@ -28,8 +29,7 @@ def main():
   # Runtime vars
   menu = []
   term = Terminal()
-  hotzoneLocation = [6, 0] # Top text
-  paginationToggle = [min(10, term.height - 23), term.height - 20] # Top text + controls text
+  paginationToggle = [3, int(term.height - 24)] # Top text + controls text
   paginationStartIndex = 0
   paginationSize = paginationToggle[0]
   activeMenuLocation = 0
@@ -39,6 +39,12 @@ def main():
     hideHelpText = hideHelpText
   except:
     hideHelpText = False
+
+  def getMenuItem(selectedIndex):
+    if selectedIndex >= 0:
+      for (index, menuItem) in enumerate(menu):
+        if index == selectedIndex:
+          return menu[selectedIndex]
 
   def getBuildList():
     global apiPreviousBuildList
@@ -73,20 +79,26 @@ def main():
     
     return result
 
-  def renderHotZone(term, renderType, menu, selection, paddingBefore, allIssues):
+  def renderHotZone(term, renderType, menu, selection, paddingBefore, titleRenderStart, linesBelowHotzone):
     global paginationSize
     selectedTextLength = len("-> ")
 
-    print(term.move(hotzoneLocation[0], hotzoneLocation[1]))
+    print(term.move(titleRenderStart + 5, 0))
 
     if paginationStartIndex >= 1:
-      print(term.center("{b}     {uaf}       {uaf}{uaf}{uaf}                                         {ual}      {b}".format(
+      print(term.center("{b}     {uaf}       {uaf}{uaf}{uaf}                                       {ual}      {b}".format(
         b=specialChars[renderMode]["borderVertical"],
         uaf=specialChars[renderMode]["upArrowFull"],
         ual=specialChars[renderMode]["upArrowLine"]
       )))
     else:
       print(term.center(commonEmptyLine(renderMode)))
+
+    print(term.center(commonEmptyLine(renderMode)))
+    print(term.center(commonEmptyLine(renderMode)))
+    print(term.center(commonEmptyLine(renderMode)))
+
+    print(term.move(titleRenderStart + 6, 0))
 
     menuItemsActiveRow = term.get_location()[0]
     if renderType == 2 or renderType == 1: # Rerender entire hotzone
@@ -102,7 +114,6 @@ def main():
             toPrint = paddedLineText
           else:
             toPrint = '{title}{t.normal}'.format(t=term, title=lineText)
-          # #####
 
           leftPad = ''
           rightPad = ''
@@ -110,7 +121,7 @@ def main():
           for i in range(8):
             leftPad += " "
 
-          for i in range(23):
+          for i in range(21):
             rightPad += " "
 
           toPrint = leftPad + toPrint + rightPad
@@ -120,23 +131,8 @@ def main():
 
           print(toPrint)
 
-
-    if renderType == 3: # Only partial rerender of hotzone (the unselected menu item, and the newly selected menu item rows)
-      global lastSelection
-      global renderOffsetLastSelection
-      global renderOffsetCurrentSelection
-      # TODO: Finish this, currently disabled. To enable, update the actions for UP and DOWN array keys below to assigned 3 to needsRender
-      renderOffsetLastSelection = lastSelection - paginationStartIndex
-      renderOffsetCurrentSelection = selection - paginationStartIndex
-      lineText = generateLineText(menu[lastSelection][0], paddingBefore=paddingBefore)
-      toPrint = '{title}{t.normal}'.format(t=term, title=lineText)
-      print('{t.move_y(lastSelection)}{title}'.format(t=term, title=toPrint))
-
-      print(renderOffsetCurrentSelection, lastSelection, renderOffsetLastSelection)
-      lastSelection = selection
-
     if paginationStartIndex + paginationSize < len(menu):
-      print(term.center("{b}     {dal}       {daf}{daf}{daf}                                         {dal}      {b}".format(
+      print(term.center("{b}     {dal}       {daf}{daf}{daf}                                       {dal}      {b}".format(
         b=specialChars[renderMode]["borderVertical"],
         daf=specialChars[renderMode]["downArrowFull"],
         dal=specialChars[renderMode]["downArrowLine"]
@@ -149,8 +145,6 @@ def main():
     global paginationSize
     paddingBefore = 4
 
-    allIssues = []
-
     if selection >= paginationStartIndex + paginationSize:
       paginationStartIndex = selection - (paginationSize - 1) + 1
       renderType = 1
@@ -160,63 +154,45 @@ def main():
       renderType = 1
 
     try:
+      titleRenderStart = 0 if term.height < 32 else 2
+      linesBelowHotzone = 2 if hideHelpText else 12
+
       if (renderType == 1):
         print(term.clear())
-        print(term.move_y(7 - hotzoneLocation[0]))
-        print(term.black_on_cornsilk4(term.center('IOTstack Build Installer Menu')))
+        print(term.move_y(titleRenderStart))
+        print(term.black_on_cornsilk4(term.center('IOTstack Build Installer Menu (w: {w}, h: {h})'.format(h=term.height, w=term.width))))
         print("")
         print(term.center(commonTopBorder(renderMode)))
 
         print(term.center(commonEmptyLine(renderMode)))
-        print(term.center("{bv}      Select build to install                                   {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
+        print(term.center("{bv}      Select build to install                                 {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
+        print(term.center(commonEmptyLine(renderMode)))
         print(term.center(commonEmptyLine(renderMode)))
         print(term.center(commonEmptyLine(renderMode)))
         print(term.center(commonEmptyLine(renderMode)))
 
-      renderHotZone(term, renderType, menu, selection, paddingBefore, allIssues)
+      renderHotZone(term, renderType, menu, selection, paddingBefore, titleRenderStart, linesBelowHotzone)
 
       if (renderType == 1):
         print(term.center(commonEmptyLine(renderMode)))
         if not hideHelpText:
-          room = term.height - (16 + paginationSize)
+          room = term.height - (6 + paginationSize + linesBelowHotzone)
           if room < 0:
             print(term.center(commonEmptyLine(renderMode)))
-            print(term.center("{bv}   Not enough vertical room to render text ({th}, {rm})           {bv}".format(bv=specialChars[renderMode]["borderVertical"], th=padText(str(term.height), 3), rm=padText(str(room), 3))))
+            print(term.center("{bv}   Not enough vertical room to render text ({th}, {rm})         {bv}".format(bv=specialChars[renderMode]["borderVertical"], th=padText(str(term.height), 3), rm=padText(str(room), 3))))
             print(term.center(commonEmptyLine(renderMode)))
           else:
             print(term.center(commonEmptyLine(renderMode)))
-            print(term.center("{bv}      Controls:                                                 {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
-            print(term.center("{bv}      [Up] and [Down] to move selection cursor                  {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
-            print(term.center("{bv}      [Tab] Expand or collapse build menu size                  {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
-            print(term.center("{bv}      [H] Show/hide this text                                   {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
-            print(term.center("{bv}      [Space] Reload build list                                 {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
-            print(term.center("{bv}      [Enter] to install build                                  {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
-            print(term.center("{bv}      [Escape] to cancel build install                          {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
-            print(term.center(commonEmptyLine(renderMode)))
+            print(term.center("{bv}      Controls:                                               {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
+            print(term.center("{bv}      [Up] and [Down] to move selection cursor                {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
+            print(term.center("{bv}      [Tab] Expand or collapse build menu size                {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
+            print(term.center("{bv}      [H] Show/hide this text                                 {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
+            print(term.center("{bv}      [R] Reload build list                                   {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
+            print(term.center("{bv}      [Enter] to install build                                {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
+            print(term.center("{bv}      [Escape] to cancel build install                        {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
             print(term.center(commonEmptyLine(renderMode)))
         print(term.center(commonEmptyLine(renderMode)))
         print(term.center(commonBottomBorder(renderMode)))
-
-        if len(allIssues) > 0:
-          print(term.center(""))
-          print(term.center(""))
-          print(term.center(""))
-          print(term.center(("{btl}{bh}{bh}{bh}{bh}{bh}{bh} Build Issues "
-            "{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}"
-            "{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}"
-            "{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}"
-            "{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}"
-            "{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}"
-            "{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}"
-            "{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}"
-            "{bh}{bh}{bh}{bh}{bh}{bh}{bh}{btr}").format(
-            btl=specialChars[renderMode]["borderTopLeft"],
-            btr=specialChars[renderMode]["borderTopRight"],
-            bh=specialChars[renderMode]["borderHorizontal"]
-          )))
-          print(term.center(commonEmptyLine(renderMode, size = 139)))
-          print(term.center(commonEmptyLine(renderMode, size = 139)))
-          print(term.center(commonBottomBorder(renderMode, size = 139)))
 
     except Exception as err: 
       print("There was an error rendering the menu:")
@@ -226,9 +202,28 @@ def main():
 
     return
 
+  def downloadBootstrapScript(build):
+    print(term.clear())
+    print('Downloading bootstrap script for build {build}...'.format(build=build))
+    time.sleep(1)
+    scriptToExec = getTemplateBuildBootstrap('http://localhost:32128', build)
+    print('Install Build. Executing:')
+    print(scriptToExec['text'])
+    print('')
+    input("Press Enter to run this command or ctrl+c to exit")
+    print('')
+    print(execInteractive(scriptToExec['text']))
+    print('')
+    print('Install script finished')
+    input("Press Enter to continue to menu...")
+    mainRender(menu, selection, 1)
+
   def onResize(sig, action):
     global paginationToggle
-    paginationToggle = [10, term.height - 25]
+    global paginationSize
+    paginationToggle = [3, int(term.height - 24)]
+    paginationSize = paginationToggle[1] if not paginationSize == paginationToggle[0] else paginationToggle[0]
+    
     mainRender(menu, selection, 1)
 
   if __name__ == 'builtins':
@@ -261,19 +256,17 @@ def main():
               selection -= 1
               needsRender = 2
             if key.name == 'KEY_ENTER':
-              setCheckedMenuItems()
-              checkForIssues()
-              selectionInProgress = False
-              results["buildState"] = buildServices()
-              return results["buildState"]
+              downloadBootstrapScript(getMenuItem(selection)[0])
             if key.name == 'KEY_ESCAPE':
               results["buildState"] = False
               return results["buildState"]
           elif key:
-            if key == ' ': # Space pressed
-              print('Loading build list...')
+            if key == 'r': # R pressed
+              menu = []
+              print('Refreshing build list...')
               getBuildList()
               buildListToMenuItems()
+              mainRender(menu, selection, 1)
             if key == 'h': # H pressed
               if hideHelpText:
                 hideHelpText = False
