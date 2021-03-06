@@ -56,6 +56,7 @@ if doRemoteCheck:
       input("Press Enter to continue to menu...")
 
   except Exception:
+    sshState = '--no-ssh'
     print('Error attempting to execute commands on the host. You may need to regenerate SSH keys by running:')
     print('  ./menu.sh --run-env-setup')
     print('')
