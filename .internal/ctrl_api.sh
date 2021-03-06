@@ -6,16 +6,22 @@ FULL_NAME="$DNAME:$VERSION"
 
 RUN_MODE="production"
 
-if [ "$1" = "stop" ]; then
-  docker stop $(docker images -q --format "{{.Repository}}:{{.Tag}}" | grep "${DNAME}") 2> /dev/null
+if [ "$1" == "stop" ]; then
+  echo "docker stop \$(docker images -q --format \"{{.Repository}}:{{.Tag}} {{.ID}}\" | grep \"$DNAME\" | cut -d ' ' -f2)"
+  docker stop $(docker images -q --format "{{.Repository}}:{{.Tag}} {{.ID}}" | grep "$DNAME" | cut -d ' ' -f2) 2> /dev/null
+  echo "docker stop \$(docker ps -q --format \"{{.Image}} {{.ID}}\" | grep \"$DNAME\" | cut -d ' ' -f2)"
+  docker stop $(docker ps -q --format "{{.Image}} {{.ID}}" | grep "$DNAME" | cut -d ' ' -f2) 2> /dev/null
+  echo "docker stop \$(docker ps -q --format \"{{.ID}} {{.Ports}}\" | grep \"$API_PORT\" | cut -d ' ' -f1)"
   docker stop $(docker ps -q --format "{{.ID}} {{.Ports}}" | grep "$API_PORT" | cut -d ' ' -f1) 2> /dev/null
 else
   if [[ $IOTENV == "development" || "$1" == "development" ]]; then
     RUN_MODE="development"
     echo "[Development: '$FULL_NAME'] Stopping container:"
-    echo "docker stop \$(docker images -q --format "{{.Repository}}:{{.Tag}}" | grep "${DNAME}") || docker rmi $FULL_NAME --force"
-    docker stop $(docker images -q --format "{{.Repository}}:{{.Tag}}" | grep "${DNAME}") 2> /dev/null || docker rmi $FULL_NAME --force 2> /dev/null
-    echo "docker stop \$(docker ps -q --format "{{.ID}} {{.Ports}}" | grep $API_PORT | cut -d ' ' -f1) 2> /dev/null"
+    echo "docker stop \$(docker images -q --format \"{{.Repository}}:{{.Tag}} {{.ID}}\" | grep \"$DNAME\" | cut -d ' ' -f2) 2> /dev/null) || docker rmi $FULL_NAME --force"
+    docker stop $(docker images -q --format "{{.Repository}}:{{.Tag}} {{.ID}}" | grep "$DNAME" | cut -d ' ' -f2) 2> /dev/null || docker rmi $FULL_NAME --force 2> /dev/null
+    echo "docker stop \$(docker ps -q --format \"{{.Image}} {{.ID}}\" | grep \"$DNAME\" | cut -d ' ' -f2) || docker rmi $FULL_NAME --force 2> /dev/null"
+    docker stop $(docker ps -q --format "{{.Image}} {{.ID}}" | grep "$DNAME" | cut -d ' ' -f2) 2> /dev/null || docker rmi $FULL_NAME --force 2> /dev/null
+    echo "docker stop \$(docker ps -q --format \"{{.ID}} {{.Ports}}\" | grep $API_PORT | cut -d ' ' -f1) 2> /dev/null"
     docker stop $(docker ps -q --format "{{.ID}} {{.Ports}}" | grep "$API_PORT" | cut -d ' ' -f1) 2> /dev/null
     echo ""
     echo "Rebuilding container:"
@@ -41,11 +47,12 @@ else
   if ! docker ps --format '{{.Image}}' | grep -w $FULL_NAME &> /dev/null; then
     if [[ $IOTENV == "development" || "$1" == "development"  ]]; then
       echo "Starting in development watch mode the IOTstack API Server on port: $API_PORT"
-      docker run -p $API_PORT:$API_PORT \
+      docker run \
         --mount type=bind,source="$IOTSTACKPWD"/.internal/templates,target=/usr/iotstack_api/templates,readonly \
         --mount type=bind,source="$IOTSTACKPWD"/.internal/saved_builds,target=/usr/iotstack_api/builds \
         --mount type=bind,source="$IOTSTACKPWD"/.internal/.ssh,target=/root/.ssh,readonly \
         --mount type=bind,source="$IOTSTACKPWD"/.internal/api,target=/usr/iotstack_api \
+        --net=host \
         -e IOTENV="$RUN_MODE" \
         -e API_PORT="$API_PORT" \
         -e API_INTERFACE="$API_INTERFACE" \
@@ -58,7 +65,7 @@ else
         $FULL_NAME
     else
       echo "Starting IOTstack API Server on port: $API_PORT"
-      docker run -d -p $API_PORT:$API_PORT \
+      docker run -d \
         --mount type=bind,source="$IOTSTACKPWD"/.internal/templates,target=/usr/iotstack_api/templates,readonly \
         --mount type=bind,source="$IOTSTACKPWD"/.internal/saved_builds,target=/usr/iotstack_api/builds \
         --mount type=bind,source="$IOTSTACKPWD"/.internal/.ssh,target=/root/.ssh,readonly \

@@ -9,7 +9,7 @@ const getServiceMetadata = (serviceName) => {
         return reject('getServiceMetadata: invalid serviceName: ', serviceName);
       }
 
-      return fetch(`${config.apiProtocol}${config.apiUrl}/config/${serviceName}/meta`).then((response) => {
+      return fetch(`${config.apiProtocol}${config.apiUrl}:${config.apiPort}/config/${serviceName}/meta`).then((response) => {
         return response.json().then((data) => {
           return resolve(data);
         }).catch((err) => {
@@ -33,7 +33,7 @@ const getServiceMetadata = (serviceName) => {
 const getAllServicesMetadata = () => {
   return new Promise((resolve, reject) => {
     try {
-      return fetch(`${config.apiProtocol}${config.apiUrl}/config/meta`).then((response) => {
+      return fetch(`${config.apiProtocol}${config.apiUrl}:${config.apiPort}/config/meta`).then((response) => {
         return response.json().then((data) => {
           return resolve(data);
         }).catch((err) => {
@@ -63,7 +63,7 @@ const getServiceConfigOptions = (serviceName) => {
         return reject('getServiceConfigOptions: invalid serviceName: ', serviceName);
       }
 
-      return fetch(`${config.apiProtocol}${config.apiUrl}/config/${serviceName}/options`).then((response) => {
+      return fetch(`${config.apiProtocol}${config.apiUrl}:${config.apiPort}/config/${serviceName}/options`).then((response) => {
         return response.json().then((data) => {
           return resolve(data);
         }).catch((err) => {
@@ -87,7 +87,7 @@ const getServiceConfigOptions = (serviceName) => {
 const getAllServicesConfigOptions = (serviceName) => {
   return new Promise((resolve, reject) => {
     try {
-      return fetch(`${config.apiProtocol}${config.apiUrl}/config/options`).then((response) => {
+      return fetch(`${config.apiProtocol}${config.apiUrl}:${config.apiPort}/config/options`).then((response) => {
         return response.json().then((data) => {
           return resolve(data);
         }).catch((err) => {

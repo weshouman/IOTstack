@@ -161,7 +161,9 @@ else
 	if [[ "$PREBUILT_IMAGES" == "false" || "$FORCE_REBUILD" == "true" ]]; then
 		echo " Rebuild requied. All running menu containers will be restarted."
 		echo "You either recently installed or upgraded IOTstack. The menu docker images need to be rebuilt in order for the menu to run correctly. This will take about 10 minutes and is completely automatic."
-		bash ./.internal/docker_menu.sh stop > /dev/null &
+		echo ""
+		echo "Spinning down container instances"
+		bash ./.internal/docker_menu.sh stop
 
 		sleep 1
 

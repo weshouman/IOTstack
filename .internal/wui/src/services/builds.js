@@ -3,7 +3,7 @@ import config from '../config';
 const getBuildHistoryList = () => {
   return new Promise((resolve, reject) => {
     try {
-      return fetch(`${config.apiProtocol}${config.apiUrl}/build/list`).then((response) => {
+      return fetch(`${config.apiProtocol}${config.apiUrl}:${config.apiPort}/build/list`).then((response) => {
         return response.json().then((data) => {
           return resolve(data);
         }).catch((err) => {
@@ -39,7 +39,7 @@ const getBuildIssues = ({ selectedServices, serviceConfigurations }) => {
       }
 
       return fetch(
-        `${config.apiProtocol}${config.apiUrl}/build/dryrun`,
+        `${config.apiProtocol}${config.apiUrl}:${config.apiPort}/build/dryrun`,
         {
           method: 'POST',
           cache: 'no-cache',
@@ -83,7 +83,7 @@ const createAndBuildStack = ({ selectedServices, serviceConfigurations }) => {
       }
 
       return fetch(
-        `${config.apiProtocol}${config.apiUrl}/build/save`,
+        `${config.apiProtocol}${config.apiUrl}:${config.apiPort}/build/save`,
         {
           method: 'POST',
           cache: 'no-cache',
@@ -123,7 +123,7 @@ const deleteBuild = ({ build }) => {
         return reject('deleteBuild: Invalid build name. Ensure length is less than 20.');
       }
       return fetch(
-        `${config.apiProtocol}${config.apiUrl}/build/delete/${build}`,
+        `${config.apiProtocol}${config.apiUrl}:${config.apiPort}/build/delete/${build}`,
         {
           method: 'POST',
           cache: 'no-cache',
@@ -157,7 +157,7 @@ const deleteBuild = ({ build }) => {
 const getBuildFile = ({ build, type }) => {
   return new Promise((resolve, reject) => {
     try {
-      return fetch(`${config.apiProtocol}${config.apiUrl}/build/get/${build}/${type}`).then((response) => {
+      return fetch(`${config.apiProtocol}${config.apiUrl}:${config.apiPort}/build/get/${build}/${type}`).then((response) => {
         return response.text().then((data) => {
           return resolve(data);
         }).catch((err) => {
@@ -182,7 +182,7 @@ const downloadBuild = ({ build, type, linkRef }) => {
   return new Promise((resolve, reject) => {
     try {
       return fetch(
-        `${config.apiProtocol}${config.apiUrl}/build/get/${build}/${type}`,
+        `${config.apiProtocol}${config.apiUrl}:${config.apiPort}/build/get/${build}/${type}`,
         {
           cache: 'no-cache'
         }).then((response) => {

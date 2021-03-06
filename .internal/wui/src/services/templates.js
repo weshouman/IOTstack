@@ -3,7 +3,7 @@ import config from '../config';
 const getServiceTemplatesList = () => {
   return new Promise((resolve, reject) => {
     try {
-      return fetch(`${config.apiProtocol}${config.apiUrl}/templates/services/list`).then((response) => {
+      return fetch(`${config.apiProtocol}${config.apiUrl}:${config.apiPort}/templates/services/list`).then((response) => {
         return response.json().then((data) => {
           return resolve(data);
         }).catch((err) => {
@@ -27,7 +27,7 @@ const getServiceTemplatesList = () => {
 const getServiceTemplates = () => {
   return new Promise((resolve, reject) => {
     try {
-      return fetch(`${config.apiProtocol}${config.apiUrl}/templates/services/json`).then((response) => {
+      return fetch(`${config.apiProtocol}${config.apiUrl}:${config.apiPort}/templates/services/json`).then((response) => {
         return response.json().then((data) => {
           return resolve(data);
         }).catch((err) => {
@@ -51,7 +51,7 @@ const getServiceTemplates = () => {
 const getNetworkTemplatesList = () => {
   return new Promise((resolve, reject) => {
     try {
-      return fetch(`${config.apiProtocol}${config.apiUrl}/templates/networks/list`).then((response) => {
+      return fetch(`${config.apiProtocol}${config.apiUrl}:${config.apiPort}/templates/networks/list`).then((response) => {
         return response.json().then((data) => {
           return resolve(data);
         }).catch((err) => {
@@ -76,7 +76,7 @@ const getScriptTemplate = ({ scriptName, options, linkRef }) => {
   return new Promise((resolve, reject) => {
     try {
       return fetch(
-        `${config.apiProtocol}${config.apiUrl}/templates/scripts/${linkRef ? 'download/' : ''}${scriptName}`,
+        `${config.apiProtocol}${config.apiUrl}:${config.apiPort}/templates/scripts/${linkRef ? 'download/' : ''}${scriptName}`,
         {
           method: 'POST',
           cache: 'no-cache',

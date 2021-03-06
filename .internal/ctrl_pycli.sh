@@ -6,14 +6,19 @@ FULL_NAME="$DNAME:$VERSION"
 
 RUN_MODE="production"
 
-if [ "$1" = "stop" ]; then
-  docker stop $(docker images -q --format "{{.Repository}}:{{.Tag}}" | grep "${DNAME}") 2> /dev/null
+if [ "$1" == "stop" ]; then
+  echo "docker stop \$(docker images -q --format \"{{.Repository}}:{{.Tag}} {{.ID}}\" | grep \"$DNAME\" | cut -d ' ' -f2)"
+  docker stop $(docker images -q --format "{{.Repository}}:{{.Tag}} {{.ID}}" | grep "$DNAME" | cut -d ' ' -f2) 2> /dev/null
+  echo "docker stop \$(docker ps -q --format \"{{.Image}} {{.ID}}\" | grep \"$DNAME\" | cut -d ' ' -f2)"
+  docker stop $(docker ps -q --format "{{.Image}} {{.ID}}" | grep "$DNAME" | cut -d ' ' -f2) 2> /dev/null
 else
   if [[ $IOTENV == "development" || "$1" = "development" ]]; then
     RUN_MODE="development"
     echo "[Development: '$FULL_NAME'] Stopping container:"
-    echo "docker stop $(docker images -q --format "{{.Repository}}:{{.Tag}}" | grep "${DNAME}") || docker rmi $FULL_NAME --force"
-    docker stop $(docker images -q --format "{{.Repository}}:{{.Tag}}" | grep "${DNAME}") 2> /dev/null || docker rmi $FULL_NAME --force 2> /dev/null
+    echo "docker stop $(docker images -q --format "{{.Repository}}:{{.Tag}}" | grep "$DNAME") || docker rmi $FULL_NAME --force"
+    docker stop $(docker images -q --format "{{.Repository}}:{{.Tag}}" | grep "$DNAME") 2> /dev/null || docker rmi $FULL_NAME --force 2> /dev/null
+    echo "docker stop $(docker ps -q --format "{{.Image}} {{.ID}}" | grep "$DNAME" | cut -d ' ' -f2) || docker rmi $FULL_NAME --force 2> /dev/null"
+    docker stop $(docker ps -q --format "{{.Image}} {{.ID}}" | grep "$DNAME" | cut -d ' ' -f2) 2> /dev/null || docker rmi $FULL_NAME --force 2> /dev/null
     echo ""
     echo "Rebuilding container:"
     echo "docker build --no-cache -t $FULL_NAME -f ./.internal/pycli.Dockerfile ."
@@ -40,13 +45,12 @@ else
       -e IOTENV="$RUN_MODE" \
       -e HOSTUSER="$HOSTUSER" \
       -e IOTSTACKPWD="$IOTSTACKPWD" \
-      -e API_ADDR="${IOTSTACK_PYCLI_CON_API:-'http://host.docker.internal:32128'}" \
-      -e WUI_ADDR="${IOTSTACK_PYCLI_CON_WUI:-'http://host.docker.internal:32777'}" \
+      -e API_ADDR="$PYCLI_CON_API" \
+      -e WUI_ADDR="$PYCLI_CON_WUI" \
       -e HOSTSSH_ADDR="$HOSTSSH_ADDR" \
       -e HOSTSSH_PORT="$HOSTSSH_PORT" \
       --restart no \
        -it $FULL_NAME
-
     # docker run -d \
     #   --mount type=bind,source="$IOTSTACKPWD"/.internal/saved_builds,target=/usr/iotstack_api/builds \
     #   --mount type=bind,source="$IOTSTACKPWD"/.internal/.ssh,target=/root/.ssh,readonly \

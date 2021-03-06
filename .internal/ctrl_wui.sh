@@ -6,15 +6,21 @@ FULL_NAME="$DNAME:$VERSION"
 
 RUN_MODE="production"
 
-if [ "$1" = "stop" ]; then
-  docker stop $(docker images -q --format "{{.Repository}}:{{.Tag}}" | grep "${DNAME}") 2> /dev/null
+if [ "$1" == "stop" ]; then
+  echo "docker stop \$(docker images -q --format \"{{.Repository}}:{{.Tag}} {{.ID}}\" | grep \"$DNAME\" | cut -d ' ' -f2)"
+  docker stop $(docker images -q --format "{{.Repository}}:{{.Tag}} {{.ID}}" | grep "$DNAME" | cut -d ' ' -f2) 2> /dev/null
+  echo "docker stop \$(docker ps -q --format \"{{.Image}} {{.ID}}\" | grep \"$DNAME\" | cut -d ' ' -f2)"
+  docker stop $(docker ps -q --format "{{.Image}} {{.ID}}" | grep "$DNAME" | cut -d ' ' -f2) 2> /dev/null
+  echo "docker stop \$(docker ps -q --format \"{{.ID}} {{.Ports}}\" | grep \"$WUI_PORT\" | cut -d ' ' -f1)"
   docker stop $(docker ps -q --format "{{.ID}} {{.Ports}}" | grep "$WUI_PORT" | cut -d ' ' -f1) 2> /dev/null
 else
   if [[ $IOTENV == "development" || "$1" == "development" ]]; then
     RUN_MODE="development"
     echo "[Development: '$FULL_NAME'] Stopping container:"
-    echo "docker stop \$(docker images -q --format "{{.Repository}}:{{.Tag}}" | grep "${DNAME}") || docker rmi $FULL_NAME --force"
-    docker stop $(docker images -q --format "{{.Repository}}:{{.Tag}}" | grep "${DNAME}") 2> /dev/null || docker rmi $FULL_NAME --force 2> /dev/null
+    echo "docker stop \$(docker images -q --format \"{{.Repository}}:{{.Tag}} {{.ID}}\" | grep \"$DNAME\" | cut -d ' ' -f2)"
+    docker stop $(docker images -q --format "{{.Repository}}:{{.Tag}} {{.ID}}" | grep "$DNAME" | cut -d ' ' -f2) 2> /dev/null || docker rmi $FULL_NAME --force 2> /dev/null
+    echo "docker stop \$(docker ps -q --format \"{{.Image}} {{.ID}}\" | grep \"$DNAME\" | cut -d ' ' -f2)  || docker rmi $FULL_NAME --force 2> /dev/null"
+    docker stop $(docker ps -q --format "{{.Image}} {{.ID}}" | grep "$DNAME" | cut -d ' ' -f2) 2> /dev/null || docker rmi $FULL_NAME --force 2> /dev/null
     echo "docker stop \$(docker ps -q --format "{{.ID}} {{.Ports}}" | grep $WUI_PORT | cut -d ' ' -f1) 2> /dev/null"
     docker stop $(docker ps -q --format "{{.ID}} {{.Ports}}" | grep "$WUI_PORT" | cut -d ' ' -f1) 2> /dev/null
     echo ""
