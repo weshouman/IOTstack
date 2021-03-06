@@ -59,7 +59,7 @@ if doRemoteCheck:
     print('Error attempting to execute commands on the host. You may need to regenerate SSH keys by running:')
     print('  ./menu.sh --run-env-setup')
     print('')
-    print('Or configure SSH to use correct ports.')
+    print('Check that SSH is running on your host or configure SSH to use correct ports.')
     print('')
     print('Error reported:')
     print(sys.exc_info())

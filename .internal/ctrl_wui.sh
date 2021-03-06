@@ -24,7 +24,9 @@ else
     docker build --no-cache -t $FULL_NAME -f ./.internal/wui/wui.dev.Dockerfile .
   else
     if [[ "$(docker images -q $FULL_NAME 2> /dev/null)" == "" ]]; then
+      echo "React WUI production build not found."
       echo "Building '$FULL_NAME'"
+      echo "This may take 5 to 10 minutes. CLI Menu will open once build is completed."
       docker pull node:alpine # Docker occasionally fails to pull image when building when it is not cached.
       docker build --quiet -t $FULL_NAME -f ./.internal/wui.Dockerfile .
     else

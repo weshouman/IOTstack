@@ -164,7 +164,8 @@ function do_group_setup() {
 }
 
 function do_env_setup() {
-	sudo -E apt-get install git wget unzip jq -y
+	sudo -E apt update
+	sudo -E apt install git wget unzip jq netcat -y
 	if [ ! $? -eq 0 ]; then
 		echo "" >&2
 		echo "Dependency install failed. Aborting installation" >&2

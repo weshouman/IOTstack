@@ -36,6 +36,7 @@ else
     docker run \
       --mount type=bind,source="$IOTSTACKPWD"/.internal/saved_builds,target=/usr/iotstack_api/builds,readonly \
       --mount type=bind,source="$IOTSTACKPWD"/.internal/.ssh,target=/root/.ssh,readonly \
+      --net=host \
       -e IOTENV="$RUN_MODE" \
       -e HOSTUSER="$HOSTUSER" \
       -e IOTSTACKPWD="$IOTSTACKPWD" \

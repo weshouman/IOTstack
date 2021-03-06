@@ -62,6 +62,7 @@ else
         --mount type=bind,source="$IOTSTACKPWD"/.internal/templates,target=/usr/iotstack_api/templates,readonly \
         --mount type=bind,source="$IOTSTACKPWD"/.internal/saved_builds,target=/usr/iotstack_api/builds \
         --mount type=bind,source="$IOTSTACKPWD"/.internal/.ssh,target=/root/.ssh,readonly \
+        --net=host \
         -e IOTENV="$RUN_MODE" \
         -e API_PORT="$API_PORT" \
         -e API_INTERFACE="$API_INTERFACE" \

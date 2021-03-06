@@ -160,7 +160,7 @@ else
 
 	if [[ "$PREBUILT_IMAGES" == "false" || "$FORCE_REBUILD" == "true" ]]; then
 		echo " Rebuild requied. All running menu containers will be restarted."
-		echo "You either recently installed or upgraded IOTstack. The menu docker images need to be rebuilt in order for the menu to run correctly. This will take about a minute and is completely automatic."
+		echo "You either recently installed or upgraded IOTstack. The menu docker images need to be rebuilt in order for the menu to run correctly. This will take about 10 minutes and is completely automatic."
 		bash ./.internal/docker_menu.sh stop > /dev/null &
 
 		sleep 1
@@ -180,17 +180,35 @@ else
 		SLEEP_COUNTER=0
 		API_REBUILD_DONE="not completed"
 		PYCLI_REBUILD_DONE="not completed"
+		WUI_REBUILD_DONE="not completed"
 
-		until [[ $SLEEP_COUNTER -gt 300 || ("$API_REBUILD_DONE" == "completed" && "$PYCLI_REBUILD_DONE" == "completed") ]];	do
-			if [[ ! "$(docker images -q iostack_api:$VERSION)" == "" ]]; then
+		until [[ $SLEEP_COUNTER -gt 601 || ("$API_REBUILD_DONE" == "completed" && "$PYCLI_REBUILD_DONE" == "completed" && "$WUI_REBUILD_DONE" == "completed") ]]; do
+			if [[ ! "$(docker images -q iostack_api:$VERSION)" == "" && ! $API_REBUILD_DONE == "completed" ]]; then
 				API_REBUILD_DONE="completed"
+				echo ""
+				echo "iostack_api:$VERSION build complete"
 			fi
 
-			if [[ ! "$(docker images -q iostack_pycli:$VERSION)" == "" ]]; then
+			if [[ ! "$(docker images -q iostack_pycli:$VERSION)" == "" && ! $PYCLI_REBUILD_DONE == "completed" ]]; then
 				PYCLI_REBUILD_DONE="completed"
+				echo ""
+				echo "iostack_pycli:$VERSION build complete"
 			fi
 
-			printf .
+			if [[ ! "$(docker images -q iostack_wui:$VERSION)" == "" && ! $WUI_REBUILD_DONE == "completed" ]]; then
+				WUI_REBUILD_DONE="completed"
+				echo ""
+				echo "iostack_wui:$VERSION build complete"
+			fi
+
+			if [ "$(( $SLEEP_COUNTER % 60 ))" -eq 0 ]; then
+				echo ""
+				if [[ $SLEEP_COUNTER -gt 1 ]]; then
+					echo "$SLEEP_COUNTER seconds passed. Still building..."
+				fi
+			else
+				printf .
+			fi
 			sleep 1
 
 			((SLEEP_COUNTER++))
@@ -199,11 +217,12 @@ else
 		echo ""
 	fi
 
-	if [[ $SLEEP_COUNTER -gt 300 ]]; then
+	if [[ $SLEEP_COUNTER -gt 600 ]]; then
 		echo ""
 		echo "Something seems to have gone wrong when rebuilding the menu docker images."
 		echo "API Rebuild: $API_REBUILD_DONE"
 		echo "PyCLI Rebuild: $PYCLI_REBUILD_DONE"
+		echo "WUI Rebuild: $WUI_REBUILD_DONE"
 		echo ""
 	fi
 fi
