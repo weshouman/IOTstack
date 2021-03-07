@@ -135,6 +135,46 @@ function install_docker() {
   fi
 }
 
+function check_container_ssh() {
+  KEYS_EXIST="false"
+  if [[ -f "$CONTAINER_KEYS_FILE" && -f "$CONTAINER_KEYS_FILE.pub" ]]; then
+    KEYS_EXIST="true"
+  fi
+
+  echo $KEYS_EXIST
+}
+
+function check_host_ssh_keys() {
+  KEY_EXISTS="false"
+  grep -f "$CONTAINER_KEYS_FILE.pub" $AUTH_KEYS_FILE
+  GRES=$?
+  if [[ $GRES -eq 0 ]]; then
+    KEY_EXISTS="true"
+  fi
+
+  echo $KEY_EXISTS
+}
+
+function check_ssh_state() {
+  printf "Checking Container keys...  " >&2
+  if [[ "$(check_container_ssh)" == "false" ]]; then
+    echo " --- Something went wrong with SSH key installation --- " >&2
+    echo "SSH keys for containers do not exist. the menu containers will not be able to execute commands on your host." >&2
+    echo "To regenerate these keys, run:" >&2
+    echo "  bash ./menu.sh --run-env-setup" >&2
+  else
+    echo "Keys file found." >&2
+      printf "Checking Host Authorised keys...  " >&2
+      if [[ "$(check_host_ssh_keys)" == "false" ]]; then
+        echo "SSH key for menu containers not found in authorized_keys file" >&2
+        echo "To regenerate and install keys, run:" >&2
+        echo "  bash ./menu.sh --run-env-setup" >&2
+      else
+        echo "Key found in authorized_keys file." >&2
+      fi
+  fi
+}
+
 function do_group_setup() {
   echo "Setting up groups..."
   GROUPCHANGE="false"
@@ -165,6 +205,7 @@ function do_group_setup() {
 
 function do_env_setup() {
   sudo -E apt update
+  echo "Installing dependencies: git, wget, unzip, jq, netcat" >&2
   sudo -E apt install git wget unzip jq netcat -y
   if [ ! $? -eq 0 ]; then
     echo "" >&2
@@ -212,9 +253,11 @@ do_env_setup
 do_iotstack_setup
 generate_container_ssh
 install_ssh_keys
+check_ssh_state
 install_docker
 do_group_setup
 
+touch .installed
 echo "IOTstack setup completed"
 if [[ "$REBOOT_REQ" == "true" ]]; then
   if [[ "$NOASKCONFIRM" == "true" ]]; then
@@ -231,7 +274,6 @@ if [[ "$REBOOT_REQ" == "true" ]]; then
   fi
 fi
 
-touch .installed
 
 echo ""
 echo "Start IOTstack by running:"
