@@ -85,6 +85,8 @@ do
 					echo "You will need to restart your system before the changes take effect."
 					sudo -E usermod -G "docker" -a $USER
 				fi
+
+				echo "Setup completed"
 			;;
 		--encoding) ENCODING_TYPE=$2
 			;;

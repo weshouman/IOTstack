@@ -194,7 +194,7 @@ function do_env_setup() {
 }
 
 function generate_container_ssh() {
-	cat /dev/null | ssh-keygen -q -N "" -f $CONTAINER_KEYS_FILE
+	cat /dev/null | ssh-keygen -q -N "" -f $CONTAINER_KEYS_FILE > /dev/null
 }
 
 function install_ssh_keys() {
@@ -204,9 +204,12 @@ function install_ssh_keys() {
 		if grep -Fxq "$NEW_KEY" $AUTH_KEYS_FILE ; then
 			echo "Key already exists in '$AUTH_KEYS_FILE' Skipping..." >&2
 		else
-			echo "$NEW_KEY" >> $AUTH_KEYS_FILE >&2
+			echo "$NEW_KEY" >> $AUTH_KEYS_FILE
+			echo "$NEW_KEY >> $AUTH_KEYS_FILE" >&2
 			echo "Key added." >&2
 		fi
+	else
+		echo "Something went wrong. Couldn't access container keys file '$CONTAINER_KEYS_FILE'" >&2
 	fi
 }
 
