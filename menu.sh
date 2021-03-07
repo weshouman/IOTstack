@@ -105,6 +105,13 @@ if [[ "$*" == *"--no-check"* ]]; then
 else
 	echo "Please enter sudo pasword if prompted"
 
+	if [[ ! -f .installed ]]; then
+		echo "IOTstack has not yet been installed. Please reboot your system after installation is completed. "
+		echo "  ./install.sh"
+		bash ./install.sh
+		exit 0
+	fi
+
 	project_checks
 
 	echo ""

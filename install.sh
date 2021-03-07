@@ -231,6 +231,8 @@ if [[ "$REBOOT_REQ" == "true" ]]; then
 	fi
 fi
 
+touch .installed
+
 echo ""
 echo "Start IOTstack by running:"
 echo "  ./menu.sh"
