@@ -7,12 +7,12 @@ sudo touch /etc/modprobe.d/blacklist-rtl8xxxu.conf
 
 sudo apt-get update
 sudo apt-get install -y libtool \
-	libusb-1.0.0-dev \
-	librtlsdr-dev \
-	rtl-sdr \
-	doxygen \
-	cmake \
-	automake
+  libusb-1.0.0-dev \
+  librtlsdr-dev \
+  rtl-sdr \
+  doxygen \
+  cmake \
+  automake
 
 git clone https://github.com/merbanan/rtl_433.git ~/rtl_433
 cd ~/rtl_433/

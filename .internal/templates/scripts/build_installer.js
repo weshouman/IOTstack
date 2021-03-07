@@ -93,9 +93,9 @@ BAD_OPTION_TRIGGER="false"
 # Process input args
 while test $# -gt 0
 do
-	case "$1" in
+  case "$1" in
     --from-net) FROM_NET="true"
-			;;
+      ;;
     --no-check) PREREQ_CHECK="false"
       ;;
     --overwrite) OVERWRITE_EXISTING_ASK="false"
@@ -104,10 +104,10 @@ do
       ;;
     --no-warnings) DISPLAY_WARNINGS="false"
       ;;
-		--*) echo "bad option $1" && BAD_OPTION_TRIGGER="true"
-			;;
-	esac
-	shift
+    --*) echo "bad option $1" && BAD_OPTION_TRIGGER="true"
+      ;;
+  esac
+  shift
 done
 
 if [[ $BAD_OPTION_TRIGGER == "true" ]]; then

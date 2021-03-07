@@ -7,11 +7,11 @@ u=$(whoami)
 
 #Check if the config directory already exists:
 if [ ! -d ./volumes/blynk_server/data/config ]; then
-	#Create the config directory
+  #Create the config directory
     sudo mkdir -p ./volumes/blynk_server/data/config
 
     #Create the properties files:
-	#cd ~/IOTstack/volumes/blynk_server/data/config
+  #cd ~/IOTstack/volumes/blynk_server/data/config
     sudo touch ./volumes/blynk_server/data/config/server.properties
     sudo touch ./volumes/blynk_server/data/config/mail.properties
     
@@ -75,7 +75,7 @@ if [ ! -d ./volumes/blynk_server/data/config ]; then
     echo "Sample properties files created in ~/IOTstack/volumes/blynk_server/data/config"
     echo "Make sure you edit the files with your details, and restart the container to take effect."
 
-	
+  
 
 fi
 

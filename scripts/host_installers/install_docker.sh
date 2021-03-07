@@ -10,7 +10,7 @@ if [ "$EUID" -ne 0 ]
   exit
 fi
 function command_exists() {
-	command -v "$@" > /dev/null 2>&1
+  command -v "$@" > /dev/null 2>&1
 }
 
 if [ "$1" == "install" ]; then
@@ -43,9 +43,9 @@ fi
 if [ "$1" == "upgrade" ]; then
   sudo apt upgrade docker docker-compose
   
-	if [ $? -eq 0 ]; then
-		if (whiptail --title "Restart Required" --yesno "It is recommended that you restart your device now. Select yes to do so now" 20 78); then
-			reboot
-		fi
-	fi
+  if [ $? -eq 0 ]; then
+    if (whiptail --title "Restart Required" --yesno "It is recommended that you restart your device now. Select yes to do so now" 20 78); then
+      reboot
+    fi
+  fi
 fi
