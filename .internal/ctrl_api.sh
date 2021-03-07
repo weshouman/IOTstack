@@ -56,6 +56,7 @@ else
         --add-host=host.docker.internal:host-gateway \
         -e IOTENV="$RUN_MODE" \
         -e API_PORT="$API_PORT" \
+        -e WUI_PORT=$WUI_PORT \
         -e API_INTERFACE="$API_INTERFACE" \
         -e HOSTUSER="$HOSTUSER" \
         -e IOTSTACKPWD="$IOTSTACKPWD" \

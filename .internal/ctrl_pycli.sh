@@ -40,7 +40,7 @@ else
 
     docker run \
       --mount type=bind,source="$IOTSTACKPWD"/.internal/saved_builds,target=/usr/iotstack_api/builds,readonly \
-      --mount type=bind,source="$IOTSTACKPWD"/.internal/.ssh,target=/root/.ssh,readonly \
+      --mount type=bind,source="$IOTSTACKPWD"/.internal/.ssh/id_rsa.pub,target=/root/.ssh/id_rsa.pub,readonly \
       --net=host \
       --add-host=host.docker.internal:host-gateway \
       -e IOTENV="$RUN_MODE" \

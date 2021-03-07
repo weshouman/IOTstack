@@ -2,6 +2,7 @@ let appVersion = require('../package.json').version;
 
 let listenInterface = process.env?.API_INTERFACE ?? '0.0.0.0';
 let listenPort = process.env?.API_PORT ?? '32128';
+let wuiPort = process.env?.WUI_PORT ?? '32777';
 let additionalCorsList = [];
 
 const processCliArgs = (args) => {
@@ -72,11 +73,11 @@ const processEnvVars = (envs) => {
   try {
     additionalCorsList = [
       ...additionalCorsList,
-      ...cors?.split(/[\s,]+/).map((c) => `${c}:${listenPort}`) ?? []
+      ...cors?.split(/[\s,]+/).map((c) => c && c.indexOf(':') < 0 ? `${c}:${wuiPort}` : (c || null)).filter((e) => e !== null) ?? []
     ];
     additionalCorsList = [
       ...additionalCorsList,
-      ...CORS?.split(/[\s,]+/).map((c) => `${c}:${listenPort}`) ?? []
+      ...CORS?.split(/[\s,]+/).map((c) => c && c.indexOf(':') < 0 ? `${c}:${wuiPort}` : (c || null)).filter((e) => e !== null) ?? []
     ];
   } catch (err) {
     console.error('processEnvVars: Error on cors:');

@@ -115,6 +115,15 @@ else
 		echo "Keys found."
 	fi
 
+	printf "Checking Container keys...  "
+	if [[ "$(check_host_ssh_keys)" == "false" ]]; then
+		echo "SSH key for menu containers not found in authorized_keys file"
+		echo "To regenerate and install keys, run:"
+		echo "  bash ./menu.sh --run-env-setup"
+	else
+		echo "Key found in authorized_keys file."
+	fi
+
 	echo ""
 	printf "Checking Docker state...  "
 	DOCKER_CHECK_RESULT="$(docker_check)"
