@@ -221,7 +221,9 @@ function check_container_ssh() {
 
 function check_host_ssh_keys() {
 	KEY_EXISTS="false"
-	if [[ cat "$CONTAINER_KEYS_FILE.pub" | grep -f $AUTH_KEYS_FILE ]]; then
+	grep -f "$CONTAINER_KEYS_FILE.pub" $AUTH_KEYS_FILE
+	GRES=$?
+	if [[ $GRES -eq 0 ]]; then
 		KEY_EXISTS="true"
 	fi
 
