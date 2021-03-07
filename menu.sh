@@ -142,7 +142,7 @@ else
 	fi
 
 	echo ""
-	printf "Checking User group...  "
+	printf "Checking User groups ['bluetooth', 'docker']:  "
 	if [[ "$(group_check)" == "fail" ]]; then
 		echo "User not in correct groups. Run:"
 		echo "  bash ./menu.sh --run-env-setup"

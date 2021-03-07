@@ -50,7 +50,7 @@ else
       docker run \
         --mount type=bind,source="$IOTSTACKPWD"/.internal/templates,target=/usr/iotstack_api/templates,readonly \
         --mount type=bind,source="$IOTSTACKPWD"/.internal/saved_builds,target=/usr/iotstack_api/builds \
-        --mount type=bind,source="$IOTSTACKPWD"/.internal/.ssh,target=/root/.ssh,readonly \
+        --mount type=bind,source="$IOTSTACKPWD"/.internal/.ssh/id_rsa,target=/root/.ssh/id_rsa,readonly \
         --mount type=bind,source="$IOTSTACKPWD"/.internal/api,target=/usr/iotstack_api \
         --net=host \
         --add-host=host.docker.internal:host-gateway \
@@ -70,7 +70,7 @@ else
       docker run -d \
         --mount type=bind,source="$IOTSTACKPWD"/.internal/templates,target=/usr/iotstack_api/templates,readonly \
         --mount type=bind,source="$IOTSTACKPWD"/.internal/saved_builds,target=/usr/iotstack_api/builds \
-        --mount type=bind,source="$IOTSTACKPWD"/.internal/.ssh,target=/root/.ssh,readonly \
+        --mount type=bind,source="$IOTSTACKPWD"/.internal/.ssh/id_rsa,target=/root/.ssh/id_rsa,readonly \
         --net=host \
         --add-host=host.docker.internal:host-gateway \
         -e IOTENV="$RUN_MODE" \
@@ -87,7 +87,7 @@ else
       # docker run -p $API_PORT:$API_PORT \
       #   --mount type=bind,source="$IOTSTACKPWD"/.internal/templates,target=/usr/iotstack_api/templates,readonly \
       #   --mount type=bind,source="$IOTSTACKPWD"/.internal/saved_builds,target=/usr/iotstack_api/builds,readonly \
-      #   --mount type=bind,source="$IOTSTACKPWD"/.internal/.ssh,target=/root/.ssh,readonly \
+      #   --mount type=bind,source="$IOTSTACKPWD"/.internal/.ssh/id_rsa,target=/root/.ssh/id_rsa,readonly \
       #   -e API_PORT="$API_PORT" \
       #   -e API_INTERFACE="$API_INTERFACE" \
       #   -e cors="yourLanIpHere:$WUI_PORT" \
@@ -102,7 +102,7 @@ else
       # docker run -p $API_PORT:$API_PORT \
       #   --mount type=bind,source="$IOTSTACKPWD"/.internal/templates,target=/usr/iotstack_api/templates,readonly \
       #   --mount type=bind,source="$IOTSTACKPWD"/.internal/saved_builds,target=/usr/iotstack_api/builds,readonly \
-      #   --mount type=bind,source="$IOTSTACKPWD"/.internal/.ssh,target=/root/.ssh,readonly \
+      #   --mount type=bind,source="$IOTSTACKPWD"/.internal/.ssh/id_rsa,target=/root/.ssh/id_rsa,readonly \
       #   -e API_PORT="$API_PORT" \
       #   -e API_INTERFACE="$API_INTERFACE" \
       #   -e HOSTUSER="$HOSTUSER" \

@@ -205,7 +205,7 @@ function install_ssh_keys() {
 			echo "Key already exists in '$AUTH_KEYS_FILE' Skipping..." >&2
 		else
 			echo "$NEW_KEY" >> $AUTH_KEYS_FILE
-			echo "$NEW_KEY >> $AUTH_KEYS_FILE" >&2
+			echo "'$NEW_KEY' >> $AUTH_KEYS_FILE" >&2
 			echo "Key added." >&2
 		fi
 	else
