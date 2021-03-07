@@ -72,11 +72,11 @@ const processEnvVars = (envs) => {
   try {
     additionalCorsList = [
       ...additionalCorsList,
-      ...cors?.split(/[\s,]+/) ?? []
+      ...cors?.split(/[\s,]+/).map((c) => `${c}:${listenPort}`) ?? []
     ];
     additionalCorsList = [
       ...additionalCorsList,
-      ...CORS?.split(/[\s,]+/) ?? []
+      ...CORS?.split(/[\s,]+/).map((c) => `${c}:${listenPort}`) ?? []
     ];
   } catch (err) {
     console.error('processEnvVars: Error on cors:');

@@ -53,6 +53,7 @@ else
         --mount type=bind,source="$IOTSTACKPWD"/.internal/.ssh,target=/root/.ssh,readonly \
         --mount type=bind,source="$IOTSTACKPWD"/.internal/api,target=/usr/iotstack_api \
         --net=host \
+        --add-host=host.docker.internal:host-gateway \
         -e IOTENV="$RUN_MODE" \
         -e API_PORT="$API_PORT" \
         -e API_INTERFACE="$API_INTERFACE" \
@@ -70,6 +71,7 @@ else
         --mount type=bind,source="$IOTSTACKPWD"/.internal/saved_builds,target=/usr/iotstack_api/builds \
         --mount type=bind,source="$IOTSTACKPWD"/.internal/.ssh,target=/root/.ssh,readonly \
         --net=host \
+        --add-host=host.docker.internal:host-gateway \
         -e IOTENV="$RUN_MODE" \
         -e API_PORT="$API_PORT" \
         -e API_INTERFACE="$API_INTERFACE" \

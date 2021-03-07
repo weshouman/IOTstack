@@ -42,6 +42,7 @@ else
       --mount type=bind,source="$IOTSTACKPWD"/.internal/saved_builds,target=/usr/iotstack_api/builds,readonly \
       --mount type=bind,source="$IOTSTACKPWD"/.internal/.ssh,target=/root/.ssh,readonly \
       --net=host \
+      --add-host=host.docker.internal:host-gateway \
       -e IOTENV="$RUN_MODE" \
       -e HOSTUSER="$HOSTUSER" \
       -e IOTSTACKPWD="$IOTSTACKPWD" \
@@ -71,8 +72,13 @@ else
     # docker run \
     #   --mount type=bind,source="$IOTSTACKPWD"/.internal/saved_builds,target=/usr/iotstack_api/builds,readonly \
     #   --mount type=bind,source="$IOTSTACKPWD"/.internal/.ssh,target=/root/.ssh,readonly \
+    #   -e IOTENV="$RUN_MODE" \
     #   -e HOSTUSER="$HOSTUSER" \
     #   -e IOTSTACKPWD="$IOTSTACKPWD" \
+    #   -e API_ADDR="$PYCLI_CON_API" \
+    #   -e WUI_ADDR="$PYCLI_CON_WUI" \
+    #   -e HOSTSSH_ADDR="$HOSTSSH_ADDR" \
+    #   -e HOSTSSH_PORT="$HOSTSSH_PORT" \
     #   --restart no \
     #   -it $FULL_NAME /bin/bash
   else
