@@ -7,7 +7,7 @@ hostAddress = os.getenv('HOSTSSH_ADDR')
 hostPort = os.getenv('HOSTSSH_PORT')
 
 def getCommandString(command, iotstackPwd=iotstackPwd, hostUser=hostUser, hostAddress=hostAddress):
-  return "ssh -t -o StrictHostKeychecking=no {hostUser}@{hostAddress} -p {hostPort} 'cd {iotstackPwd} && {command}' 2> /dev/null".format(
+  return "ssh -t -o StrictHostKeychecking=no -o ConnectTimeout=5 {hostUser}@{hostAddress} -p {hostPort} 'cd {iotstackPwd} && {command}' 2> /dev/null".format(
     hostUser=hostUser,
     iotstackPwd=iotstackPwd,
     hostAddress=hostAddress,

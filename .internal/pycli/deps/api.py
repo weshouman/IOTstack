@@ -1,10 +1,10 @@
 import requests
 import time
 
-def checkApiHealth(host):
+def checkApiHealth(host, protocol="http://"):
   try:
-    url = '{host}/health/no-log'.format(host=host)
-    apiRequest = requests.get(url)
+    url = '{protocol}{host}/health/no-log'.format(host=host, protocol=protocol)
+    apiRequest = requests.get(url, timeout = 2)
 
     res = {}
     res['apiRequest'] = apiRequest
@@ -24,10 +24,10 @@ def checkApiHealth(host):
 
   return res
 
-def deleteBuild(host, build):
+def deleteBuild(host, build, protocol="http://"):
   try:
-    url = '{host}/build/delete/{build}'.format(host=host, build=build)
-    apiRequest = requests.post(url)
+    url = '{protocol}{host}/build/delete/{build}'.format(host=host, build=build, protocol=protocol)
+    apiRequest = requests.post(url, timeout = 2)
 
     res = {}
     res['apiRequest'] = apiRequest
@@ -47,9 +47,9 @@ def deleteBuild(host, build):
 
   return res
 
-def getTemplateBuildBootstrap(host, build, noFluff = True):
+def getTemplateBuildBootstrap(host, build, noFluff = True, protocol="http://"):
   try:
-    url = '{host}/templates/scripts/bootstrap'.format(host=host)
+    url = '{protocol}{host}/templates/scripts/bootstrap'.format(host=host, protocol=protocol)
     requestData = {}
     requestData['options'] = {}
     requestData['options']['build'] = build
@@ -57,7 +57,7 @@ def getTemplateBuildBootstrap(host, build, noFluff = True):
     if noFluff:
       requestData['options']['nofluff'] = True
 
-    apiRequest = requests.post(url = url, json = requestData)
+    apiRequest = requests.post(url = url, json = requestData, timeout = 2)
 
     res = {}
     res['apiRequest'] = apiRequest
@@ -78,7 +78,7 @@ def getTemplateBuildBootstrap(host, build, noFluff = True):
 
   return res
 
-def getPreviousBuildList(host, index = None, limit = None):
+def getPreviousBuildList(host, index = None, limit = None, protocol="http://"):
   try:
     requestParams = ''
     if not index == None:
@@ -87,9 +87,9 @@ def getPreviousBuildList(host, index = None, limit = None):
     if not limit == None:
       requestParams = requestParams + '/limit/{limit}'.format(limit=limit)
 
-    url = '{host}/build/list{requestParams}'.format(host=host, requestParams=requestParams)
+    url = '{protocol}{host}/build/list{requestParams}'.format(host=host, requestParams=requestParams, protocol=protocol)
 
-    apiRequest = requests.get(url)
+    apiRequest = requests.get(url, timeout = 2)
 
     res = {}
     res['apiRequest'] = apiRequest
@@ -109,9 +109,9 @@ def getPreviousBuildList(host, index = None, limit = None):
 
   return res
 
-def checkWuiState(host):
+def checkWuiState(host, protocol="http://"):
   try:
-    apiRequest = requests.get('{host}/'.format(host=host))
+    apiRequest = requests.get('{protocol}{host}/'.format(host=host, protocol=protocol), timeout = 2)
 
     res = {}
     res['apiRequest'] = apiRequest

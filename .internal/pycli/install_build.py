@@ -48,13 +48,8 @@ def main():
 
   def getBuildList():
     global apiPreviousBuildList
-    apiPreviousBuildList = getPreviousBuildList('http://localhost:32128')
+    apiPreviousBuildList = getPreviousBuildList(os.getenv('API_ADDR'))
     return apiPreviousBuildList
-
-  def getWuiState():
-    global wuiState
-    wuiState = checkWuiState('http://localhost:327777')
-    return wuiState
 
   def buildListToMenuItems():
     if 'buildsList' in apiPreviousBuildList['json']:
@@ -206,7 +201,7 @@ def main():
     print(term.clear())
     print('Downloading bootstrap script for build {build}...'.format(build=build))
     time.sleep(1)
-    scriptToExec = getTemplateBuildBootstrap('http://localhost:32128', build)
+    scriptToExec = getTemplateBuildBootstrap(os.getenv('API_ADDR'), build)
     print('Install Build. Executing:')
     print(scriptToExec['text'])
     print('')
