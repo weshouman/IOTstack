@@ -7,6 +7,7 @@ REQ_DOCKER_VERSION=18.2.0
 AUTH_KEYS_FILE=~/.ssh/authorized_keys
 CONTAINER_KEYS_FILE=./.internal/.ssh/id_rsa
 REBOOT_REQ="false"
+HAS_ERROR="false"
 
 sys_arch=$(uname -m)
 
@@ -158,20 +159,20 @@ function check_host_ssh_keys() {
 function check_ssh_state() {
   printf "Checking Container keys...  " >&2
   if [[ "$(check_container_ssh)" == "false" ]]; then
+    HAS_ERROR="true"
     echo " --- Something went wrong with SSH key installation --- " >&2
     echo "SSH keys for containers do not exist. the menu containers will not be able to execute commands on your host." >&2
     echo "To regenerate these keys, run:" >&2
     echo "  bash ./menu.sh --run-env-setup" >&2
-    read -n 1 -s -r -p "Press any key to continue"
   else
     echo "Keys file found." >&2
       printf "Checking Host Authorised keys...  " >&2
       if [[ "$(check_host_ssh_keys)" == "false" ]]; then
+        HAS_ERROR="true"
         echo " --- Something went wrong with SSH key installation --- " >&2
         echo "SSH key for menu containers not found in authorized_keys file" >&2
         echo "To regenerate and install keys, run:" >&2
         echo "  bash ./menu.sh --run-env-setup" >&2
-      read -n 1 -s -r -p "Press any key to continue"
       else
         echo "Key found in authorized_keys file." >&2
       fi
@@ -211,6 +212,7 @@ function do_env_setup() {
   echo "Installing dependencies: git, wget, unzip, jq, netcat" >&2
   sudo -E apt install git wget unzip jq netcat -y
   if [ ! $? -eq 0 ]; then
+    HAS_ERROR="true"
     echo "" >&2
     echo "Dependency install failed. Aborting installation" >&2
     exit 1
@@ -236,8 +238,14 @@ function do_iotstack_setup() {
     if [ $IOTCDRS -eq 0 ]; then
       echo "IOTstack directory found" >&2
     else
+      HAS_ERROR="true"
       echo "Could not find IOTstack directory" >&2
       exit 5
+    fi
+
+    if [ -n "$IOTSTACK_INSTALL_BRANCH" ]; then
+      echo "Attempting to switch to install branch: '$IOTSTACK_INSTALL_BRANCH'" >&2
+      git checkout $IOTSTACK_INSTALL_BRANCH
     fi
   fi
 }
@@ -270,7 +278,16 @@ install_docker
 do_group_setup
 
 touch .installed
-echo "IOTstack setup completed"
+if [[ "$HAS_ERROR" == "true"]]; then
+  echo ""
+  echo "--------"
+  echo ""
+  echo "An error occured installing IOTstack. Please review the output above."
+  read -n 1 -s -r -p "Press any key to continue"
+else
+  echo "IOTstack setup completed"
+fi
+
 if [[ "$REBOOT_REQ" == "true" ]]; then
   if [[ "$NOASKCONFIRM" == "true" ]]; then
     echo "Rebooting..."
@@ -285,7 +302,6 @@ if [[ "$REBOOT_REQ" == "true" ]]; then
     fi
   fi
 fi
-
 
 echo ""
 echo "Start IOTstack by running:"
