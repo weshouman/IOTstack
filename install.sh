@@ -162,13 +162,16 @@ function check_ssh_state() {
     echo "SSH keys for containers do not exist. the menu containers will not be able to execute commands on your host." >&2
     echo "To regenerate these keys, run:" >&2
     echo "  bash ./menu.sh --run-env-setup" >&2
+    read -n 1 -s -r -p "Press any key to continue"
   else
     echo "Keys file found." >&2
       printf "Checking Host Authorised keys...  " >&2
       if [[ "$(check_host_ssh_keys)" == "false" ]]; then
+        echo " --- Something went wrong with SSH key installation --- " >&2
         echo "SSH key for menu containers not found in authorized_keys file" >&2
         echo "To regenerate and install keys, run:" >&2
         echo "  bash ./menu.sh --run-env-setup" >&2
+      read -n 1 -s -r -p "Press any key to continue"
       else
         echo "Key found in authorized_keys file." >&2
       fi
@@ -220,10 +223,18 @@ function do_iotstack_setup() {
   else
     echo "IOTstack will be cloned into $(pwd)/IOTstack" >&2
     git clone https://github.com/SensorsIot/IOTstack.git
-    cd IOTstack
 
     if [ $? -eq 0 ]; then
       echo "IOTstack cloned" >&2
+    else
+      echo "Error cloning IOTstack" >&2
+    fi
+
+    cd IOTstack
+    IOTCDRS=$?
+    echo "Current Dir: $(pwd)" >&2
+    if [ $IOTCDRS -eq 0 ]; then
+      echo "IOTstack directory found" >&2
     else
       echo "Could not find IOTstack directory" >&2
       exit 5
@@ -242,7 +253,8 @@ function install_ssh_keys() {
     if grep -Fxq "$NEW_KEY" $AUTH_KEYS_FILE ; then
       echo "Key already exists in '$AUTH_KEYS_FILE' Skipping..." >&2
     else
-      echo "$NEW_KEY" >> $AUTH_KEYS_FILE >&2
+      echo "$NEW_KEY" >> $AUTH_KEYS_FILE
+      echo "cat $CONTAINER_KEYS_FILE.pub >> $AUTH_KEYS_FILE" >&2
       echo "Key added." >&2
     fi
   fi
