@@ -209,8 +209,8 @@ function do_group_setup() {
 
 function do_env_setup() {
   sudo -E apt update
-  echo "Installing dependencies: git, wget, unzip, jq, netcat" >&2
-  sudo -E apt install git wget unzip jq netcat -y
+  echo "Installing dependencies: git, wget, unzip, jq, netcat, screen" >&2
+  sudo -E apt install git wget unzip jq netcat screen -y
   if [ ! $? -eq 0 ]; then
     HAS_ERROR="true"
     echo "" >&2

@@ -35,11 +35,11 @@ export default function RouteWrapper() {
             <Route path="/help">
               <Help />
             </Route>
-            <Route path='/not-found' component={NotFound} />
-            <Redirect from='*' to='/not-found' />
             <Route path="/">
               <Build />
             </Route>
+            <Route path='/not-found' component={NotFound} />
+            <Redirect from='*' to='/not-found' />
           </Switch>
         </Box>
       </Fragment>
