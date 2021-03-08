@@ -278,7 +278,8 @@ install_docker
 do_group_setup
 
 touch .installed
-if [[ "$HAS_ERROR" == "true"]]; then
+
+if [[ "$HAS_ERROR" == "true" ]]; then
   echo ""
   echo "--------"
   echo ""
