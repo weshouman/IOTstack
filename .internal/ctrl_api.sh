@@ -17,12 +17,14 @@ else
   if [[ $IOTENV == "development" || "$1" == "development" ]]; then
     RUN_MODE="development"
     echo "[Development: '$FULL_NAME'] Stopping container:"
-    echo "docker stop \$(docker images -q --format \"{{.Repository}}:{{.Tag}} {{.ID}}\" | grep \"$DNAME\" | cut -d ' ' -f2) 2> /dev/null) || docker rmi $FULL_NAME --force"
-    docker stop $(docker images -q --format "{{.Repository}}:{{.Tag}} {{.ID}}" | grep "$DNAME" | cut -d ' ' -f2) 2> /dev/null || docker rmi $FULL_NAME --force 2> /dev/null
-    echo "docker stop \$(docker ps -q --format \"{{.Image}} {{.ID}}\" | grep \"$DNAME\" | cut -d ' ' -f2) || docker rmi $FULL_NAME --force 2> /dev/null"
-    docker stop $(docker ps -q --format "{{.Image}} {{.ID}}" | grep "$DNAME" | cut -d ' ' -f2) 2> /dev/null || docker rmi $FULL_NAME --force 2> /dev/null
-    echo "docker stop \$(docker ps -q --format \"{{.ID}} {{.Ports}}\" | grep $API_PORT | cut -d ' ' -f1) 2> /dev/null"
-    docker stop $(docker ps -q --format "{{.ID}} {{.Ports}}" | grep "$API_PORT" | cut -d ' ' -f1) 2> /dev/null
+    echo "docker stop \$(docker images -q --format \"{{.Repository}}:{{.Tag}} {{.ID}}\" | grep \"$DNAME\" | cut -d ' ' -f2)"
+    docker stop $(docker images -q --format "{{.Repository}}:{{.Tag}} {{.ID}}" | grep "$DNAME" | cut -d ' ' -f2)
+    echo "docker stop \$(docker ps -q --format \"{{.Image}} {{.ID}}\" | grep \"$DNAME\" | cut -d ' ' -f2)"
+    docker stop $(docker ps -q --format "{{.Image}} {{.ID}}" | grep "$DNAME" | cut -d ' ' -f2)
+    echo "docker stop \$(docker ps -q --format \"{{.ID}} {{.Ports}}\" | grep $API_PORT | cut -d ' ' -f1)"
+    docker stop $(docker ps -q --format "{{.ID}} {{.Ports}}" | grep "$API_PORT" | cut -d ' ' -f1)
+    echo "docker rmi \$FULL_NAME --force"
+    docker rmi $FULL_NAME --force
     echo ""
     echo "Rebuilding container:"
     echo "docker build --no-cache -t $FULL_NAME -f ./.internal/api.Dockerfile ."
@@ -48,11 +50,11 @@ else
     if [[ $IOTENV == "development" || "$1" == "development"  ]]; then
       echo "Starting in development watch mode the IOTstack API Server on port: $API_PORT"
       docker run \
+        -p $API_PORT:$API_PORT \
         --mount type=bind,source="$IOTSTACKPWD"/.internal/templates,target=/usr/iotstack_api/templates,readonly \
         --mount type=bind,source="$IOTSTACKPWD"/.internal/saved_builds,target=/usr/iotstack_api/builds \
         --mount type=bind,source="$IOTSTACKPWD"/.internal/.ssh/id_rsa,target=/root/.ssh/id_rsa,readonly \
         --mount type=bind,source="$IOTSTACKPWD"/.internal/api,target=/usr/iotstack_api \
-        --net=host \
         --add-host=host.docker.internal:host-gateway \
         -e IOTENV="$RUN_MODE" \
         -e API_PORT="$API_PORT" \
@@ -65,6 +67,9 @@ else
         -e HOSTSSH_PORT="$HOSTSSH_PORT" \
         --restart unless-stopped \
         $FULL_NAME
+        
+        # --net=host \
+        # -p $API_PORT:$API_PORT \
     else
       echo "Starting IOTstack API Server on port: $API_PORT"
       docker run -d \

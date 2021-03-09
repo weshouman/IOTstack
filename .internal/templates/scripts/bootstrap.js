@@ -28,6 +28,7 @@ const BootstrapScript = ({
       } else {
       result.data = `
 # Ensure you are in IOTstack's main directory.
+# You can use this instead of the CLI menu to install your build
 # Download, extract and execute commands:
 $ curl http://${req.get('host')}/build/get/${options?.build}/zip \\
 --output iotstack_build_${options?.build}.zip \\

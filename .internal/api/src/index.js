@@ -5,6 +5,10 @@ let listenPort = process.env?.API_PORT ?? '32128';
 let wuiPort = process.env?.WUI_PORT ?? '32777';
 let additionalCorsList = [];
 
+process.on('SIGINT', () => {
+  process.exit();
+});
+
 const processCliArgs = (args) => {
   for (let i = 0; i < args.length; i++) {
     switch (args[i]) {

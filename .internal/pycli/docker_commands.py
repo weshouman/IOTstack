@@ -152,7 +152,7 @@ def main():
     ["Monitor Logs", monitorLogs],
     ["Stop ALL running docker containers", stopAllStack],
     ["Update all containers (may take a long time)", updateAllContainers],
-    ["Delete all stopped containers and docker volumes (prune volumes)", deleteAndPruneVolumes],
+    ["Delete all stopped containers and prune volumes", deleteAndPruneVolumes],
     ["Delete all images not associated with container", deleteAndPruneImages],
     ["Back", goBack]
   ]
@@ -169,7 +169,7 @@ def main():
 
   def renderHotZone(term, menu, selection, hotzoneLocation):
     print(term.move(hotzoneLocation[0], hotzoneLocation[1]))
-    lineLengthAtTextStart = 71
+    lineLengthAtTextStart = 53
 
     for (index, menuItem) in enumerate(menu):
       toPrint = ""
@@ -200,7 +200,7 @@ def main():
       print("")
       print(term.center(commonTopBorder(renderMode)))
       print(term.center(commonEmptyLine(renderMode)))
-      print(term.center("{bv}      Select Docker Command to run                                              {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
+      print(term.center("{bv}      Select Docker Command to run                            {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
       print(term.center(commonEmptyLine(renderMode)))
       print(term.center(commonEmptyLine(renderMode)))
       print(term.center(commonEmptyLine(renderMode)))
@@ -213,15 +213,15 @@ def main():
       if not hideHelpText:
         if term.height < 30:
           print(term.center(commonEmptyLine(renderMode)))
-          print(term.center("{bv}      Not enough vertical room to render controls help text                     {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
+          print(term.center("{bv}      Not enough vertical room to render controls help text   {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
           print(term.center(commonEmptyLine(renderMode)))
         else: 
           print(term.center(commonEmptyLine(renderMode)))
-          print(term.center("{bv}      Controls:                                                                 {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
-          print(term.center("{bv}      [Up] and [Down] to move selection cursor                                  {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
-          print(term.center("{bv}      [H] Show/hide this text                                                   {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
-          print(term.center("{bv}      [Enter] to run command                                                    {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
-          print(term.center("{bv}      [Escape] to go back to main menu                                          {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
+          print(term.center("{bv}      Controls:                                               {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
+          print(term.center("{bv}      [Up] and [Down] to move selection cursor                {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
+          print(term.center("{bv}      [H] Show/hide this text                                 {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
+          print(term.center("{bv}      [Enter] to run command                                  {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
+          print(term.center("{bv}      [Escape] to go back to main menu                        {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
           print(term.center(commonEmptyLine(renderMode)))
       print(term.center(commonEmptyLine(renderMode)))
       print(term.center(commonBottomBorder(renderMode)))

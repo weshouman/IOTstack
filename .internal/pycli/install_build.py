@@ -97,34 +97,67 @@ def main():
 
     menuItemsActiveRow = term.get_location()[0]
     if renderType == 2 or renderType == 1: # Rerender entire hotzone
-      for (index, menuItem) in enumerate(menu): # Menu loop
-        if index >= paginationStartIndex and index < paginationStartIndex + paginationSize:
-          lineText = generateLineText(menuItem[0], paddingBefore=paddingBefore)
+      if len(menu) < 1:
+        emptyWarningText = "You have no builds."
+        paddedLineText = generateLineText(emptyWarningText, textLength=len(emptyWarningText), paddingBefore=paddingBefore - 2)
+        toPrint = paddedLineText
 
-          # Menu highlight logic
-          if index == selection:
-            activeMenuLocation = term.get_location()[0]
-            formattedLineText = '-> {t.blue_on_green}{title}{t.normal} <-'.format(t=term, title=menuItem[0])
-            paddedLineText = generateLineText(formattedLineText, textLength=len(menuItem[0]) + selectedTextLength, paddingBefore=paddingBefore - selectedTextLength)
-            toPrint = paddedLineText
-          else:
-            toPrint = '{title}{t.normal}'.format(t=term, title=lineText)
+        rightPad = ''
+        for i in range(30):
+          rightPad += " "
+        toPrint = toPrint + rightPad
 
-          leftPad = ''
-          rightPad = ''
+        toPrint = "{bv}  {toPrint}  {bv}".format(bv=specialChars[renderMode]["borderVertical"], toPrint=toPrint) # Generate border
+        toPrint = term.center(toPrint) # Center Text (All lines should have the same amount of printable characters)
+        print(toPrint)
 
-          for i in range(8):
-            leftPad += " "
+        emptyWarningText = "A build can be created with the WUI or this menu."
+        paddedLineText = generateLineText(emptyWarningText, textLength=len(emptyWarningText), paddingBefore=paddingBefore - 2)
+        toPrint = paddedLineText
+        toPrint = "{bv}  {toPrint}         {bv}".format(bv=specialChars[renderMode]["borderVertical"], toPrint=toPrint) # Generate border
+        toPrint = term.center(toPrint) # Center Text (All lines should have the same amount of printable characters)
+        print(toPrint)
 
-          for i in range(21):
-            rightPad += " "
+        emptyWarningText = "Press [Escape] to go back."
+        paddedLineText = generateLineText(emptyWarningText, textLength=len(emptyWarningText), paddingBefore=paddingBefore - 2)
+        toPrint = paddedLineText
+        rightPad = ''
+        for i in range(29):
+          rightPad += " "
+        toPrint = toPrint + rightPad
+        toPrint = "{bv}  {toPrint}   {bv}".format(bv=specialChars[renderMode]["borderVertical"], toPrint=toPrint) # Generate border
+        toPrint = term.center(toPrint) # Center Text (All lines should have the same amount of printable characters)
+        print(toPrint)
 
-          toPrint = leftPad + toPrint + rightPad
+      else:
+        for (index, menuItem) in enumerate(menu): # Menu loop
+          if index >= paginationStartIndex and index < paginationStartIndex + paginationSize:
+            lineText = generateLineText(menuItem[0], paddingBefore=paddingBefore)
 
-          toPrint = "{bv} {toPrint}  {bv}".format(bv=specialChars[renderMode]["borderVertical"], toPrint=toPrint) # Generate border
-          toPrint = term.center(toPrint) # Center Text (All lines should have the same amount of printable characters)
+            # Menu highlight logic
+            if index == selection:
+              activeMenuLocation = term.get_location()[0]
+              formattedLineText = '-> {t.blue_on_green}{title}{t.normal} <-'.format(t=term, title=menuItem[0])
+              paddedLineText = generateLineText(formattedLineText, textLength=len(menuItem[0]) + selectedTextLength, paddingBefore=paddingBefore - selectedTextLength)
+              toPrint = paddedLineText
+            else:
+              toPrint = '{title}{t.normal}'.format(t=term, title=lineText)
 
-          print(toPrint)
+            leftPad = ''
+            rightPad = ''
+
+            for i in range(8):
+              leftPad += " "
+
+            for i in range(21):
+              rightPad += " "
+
+            toPrint = leftPad + toPrint + rightPad
+
+            toPrint = "{bv} {toPrint}  {bv}".format(bv=specialChars[renderMode]["borderVertical"], toPrint=toPrint) # Generate border
+            toPrint = term.center(toPrint) # Center Text (All lines should have the same amount of printable characters)
+
+            print(toPrint)
 
     if paginationStartIndex + paginationSize < len(menu):
       print(term.center("{b}     {dal}       {daf}{daf}{daf}                                       {dal}      {b}".format(
@@ -272,7 +305,8 @@ def main():
             print(key)
             time.sleep(0.5)
 
-          selection = selection % len(menu)
+          if len(menu) > 0:
+            selection = selection % len(menu)
 
           mainRender(menu, selection, needsRender)
 
