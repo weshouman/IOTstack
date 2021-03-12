@@ -21,10 +21,11 @@ const BuildController = ({ server, settings, version, logger }) => {
     logger.debug('BuildController:init()');
   };
 
-  retr.buildStack = async ({ host, buildOptions }) => {
+  retr.buildStack = async ({ host, buildOptions, composeFileVersion }) => {
     return new Promise(async (resolve, reject) => {
       try {
         outputStack = {
+          version: composeFileVersion || '3.6',
           services: {},
           networks: {}
         };
