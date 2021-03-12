@@ -43,7 +43,7 @@ fi
     return `
 mkdir -p ./volumes/mosquitto/data
 mkdir -p ./volumes/mosquitto/pwfile
-mkdir -p ./volumes/mosquitto/data
+mkdir -p ./volumes/mosquitto/log
 `;
   };
 
