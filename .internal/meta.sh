@@ -15,7 +15,7 @@ export HOSTSSH_ADDR="${IOTSTACK_HOSTSSH_ADDR:-"host.docker.internal"}"
 # SSH port
 export HOSTSSH_PORT="${IOTSTACK_HOSTSSH_PORT:-22}"
 
-# For the host to know how to connect to API
+# For the host to know how to connect to itself (or a remote host)
 export HOST_CON_IP="${IOTSTACK_HOST_CON_IP:-"localhost"}"
 
 # API Port
@@ -29,6 +29,9 @@ export API_INTERFACE="${IOTSTACK_API_INTERFACE:-0.0.0.0}"
 
 # Host and port for the docker CLI to know where the API is running
 export PYCLI_CON_API="${IOTSTACK_PYCLI_CON_API:-"$HOSTSSH_ADDR:$API_PORT"}"
+
+# Host and port for the docker CLI to know where the API is running when executing commands via SSH
+export PYCLI_HOST_CON_API="${IOTSTACK_HOST_CON_IP:-"$HOST_CON_IP:$API_PORT"}"
 
 # Host and port for the docker CLI to know where the WUI is running
 export PYCLI_CON_WUI="${IOTSTACK_PYCLI_CON_WUI:-"$HOST_CON_IP:$WUI_PORT"}"
