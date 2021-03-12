@@ -53,6 +53,13 @@ const getConfigComponents = (configOptions) => {
               return null;
             }
   
+          case "nodered_npmSelection":
+            if (Array.isArray(configOptions[configName]?.defaultOn) && Array.isArray(configOptions[configName]?.defaultOff)) {
+              return ServiceUiControls.NodeRedNpm
+            } else {
+              return null;
+            }
+  
         default:
           if (configOptions[configName]) { // Check if set
             return () => (<Fragment><div>Unknown Option {configName}</div></Fragment>);

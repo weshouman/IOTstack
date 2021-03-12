@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "0.0.1",
   "application": "IOTstack",
   "service": "nodered",
   "comment": "Addons available for NodeRed",
@@ -13,6 +13,20 @@
         "node-red-node-rbe",
         "node-red-configurable-ping",
         "node-red-dashboard"
+      ],
+      "essentials": [
+        "node-red-node-pi-gpiod",
+        "node-red-contrib-influxdb",
+        "node-red-contrib-boolean-logic",
+        "node-red-node-rbe",
+        "node-red-configurable-ping",
+        "node-red-dashboard",
+        "node-red-node-sqlite",
+        "node-red-contrib-file-function",
+        "node-red-contrib-themes/midnight-red",
+        "node-red-contrib-home-assistant-websocket",
+        "node-red-node-openweathermap",
+        "node-red-contrib-discord"
       ],
       "defaultOff": [
         "node-red-node-openweathermap",

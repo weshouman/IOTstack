@@ -7,7 +7,7 @@ import Box from '@material-ui/core/Box';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 
-const deconzDeviceList = [
+const deconzDeviceList = [ // TODO: look into moving this to the API.
   {
     key: '/dev/ttyUSB0',
     value: '/dev/ttyUSB0'
@@ -61,7 +61,6 @@ const DeconzDevices = (props) => {
       ...getTemporaryBuildOptions()?.services?.[serviceName] ?? {},
       selectedDevice: selectedDevice
     });
-    console.log(1111, selectedDevice)
   }, [
     selectedDevice
   ]);

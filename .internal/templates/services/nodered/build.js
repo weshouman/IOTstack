@@ -104,7 +104,7 @@ fi
         }
 
         let addonsSelected = false;
-        const addonsList = buildOptions?.services?.nodered?.addons ?? [];
+        const addonsList = buildOptions?.serviceConfigurations?.services?.nodered?.addonsList ?? [];
         if (addonsList.length > 0) {
           addonsSelected = true;
         }
@@ -149,7 +149,7 @@ fi
     return new Promise((resolve, reject) => {
       try {
         console.info(`ServiceBuilder:build() - '${serviceName}' started`);
-        const addonsList = buildOptions?.services?.nodered?.addons ?? false;
+        const addonsList = buildOptions?.serviceConfigurations?.services?.nodered?.addons ?? false;
         const noderedDockerfileTemplate = path.join(__dirname, settings.paths.buildFiles, 'Dockerfile.template');
         const noderedDockerfileCommandTemplate = require(path.join(__dirname, settings.paths.buildFiles, 'addons.json'));
         const tempDockerfileName = `${fileTimePrefix}_Dockerfile.template`;

@@ -26,7 +26,7 @@ const NetworkConfig = (props) => {
   } = props;
 
   // const tempBuildOptions = getTemporaryBuildOptions();
-  const [networkMode, setNetworkMode] = useState({});
+  const [networkMode, setNetworkMode] = useState(getBuildOptions()?.services?.[serviceName]?.networkMode ?? 'unchanged');
 
   const [modifiedNetworkList, setModifiedNetworkList] = useState({});
   useEffect(() => {
@@ -39,6 +39,7 @@ const NetworkConfig = (props) => {
     });
 
     const toNetworkMode = getBuildOptions()?.services?.[serviceName]?.networkMode ?? 'unchanged';
+    console.log(1111, toNetworkMode);
     setNetworkMode(toNetworkMode);
   }, []);
 

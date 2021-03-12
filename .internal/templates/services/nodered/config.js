@@ -1,9 +1,17 @@
-const nodered = () => {
+const path = require('path');
+
+const nodered = ({
+  settings,
+  version,
+  logger
+}) => {
   const retr = {};
 
   const serviceName = 'nodered';
 
   retr.getConfigOptions = () => {
+    const noderedModules = require(path.join(__dirname, settings.paths.buildFiles, 'addons.json'));
+
     return {
       serviceName, // Required
       labeledPorts: {
@@ -12,7 +20,7 @@ const nodered = () => {
       volumes: true,
       networks: true,
       devices: true,
-      nodered_npmSelection: true,
+      nodered_npmSelection: noderedModules?.data?.addons ?? [],
       logging: true
     }
   };

@@ -21,7 +21,15 @@ const ConfigsController = ({ server, settings, version, logger }) => {
         const servicesBuildPath = path.join(localTemplatesPath, localServicesRelativePath);
         serviceBuildScript = path.join(servicesBuildPath, serviceName, configLogicFile);
 
-        const configLogic = require(serviceBuildScript)();
+        const configLogic = require(serviceBuildScript)({
+          settings,
+          version,
+          logger,
+          servicesBuildPath,
+          serviceBuildScript,
+          serviceTemplatesList,
+          serviceName
+        });
 
         return resolve(configLogic.getConfigOptions());
       } catch (err) {
@@ -53,7 +61,15 @@ const ConfigsController = ({ server, settings, version, logger }) => {
           const servicesBuildPath = path.join(localTemplatesPath, localServicesRelativePath);
           const serviceBuildScript = path.join(servicesBuildPath, serviceName, configLogicFile);
 
-          const configLogic = require(serviceBuildScript)();
+          const configLogic = require(serviceBuildScript)({
+          settings,
+          version,
+          logger,
+          servicesBuildPath,
+          serviceBuildScript,
+          serviceTemplatesList,
+          serviceName
+        });
           servicesMetadata[serviceName] = configLogic.getConfigOptions();
         });
 
@@ -82,7 +98,14 @@ const ConfigsController = ({ server, settings, version, logger }) => {
         const servicesBuildPath = path.join(localTemplatesPath, localServicesRelativePath);
         serviceBuildScript = path.join(servicesBuildPath, serviceName, configLogicFile);
 
-        const configLogic = require(serviceBuildScript)();
+        const configLogic = require(serviceBuildScript)({
+          settings,
+          version,
+          logger,
+          servicesBuildPath,
+          serviceBuildScript,
+          serviceName
+        });
 
         return resolve(configLogic.getHelp());
       } catch (err) {
@@ -112,7 +135,14 @@ const ConfigsController = ({ server, settings, version, logger }) => {
         const servicesBuildPath = path.join(localTemplatesPath, localServicesRelativePath);
         serviceBuildScript = path.join(servicesBuildPath, serviceName, configLogicFile);
 
-        const configLogic = require(serviceBuildScript)();
+        const configLogic = require(serviceBuildScript)({
+          settings,
+          version,
+          logger,
+          servicesBuildPath,
+          serviceBuildScript,
+          serviceName
+        });
 
         if (scriptName) {
           return resolve(configLogic.getCommands().commands[scriptName]);
@@ -147,7 +177,14 @@ const ConfigsController = ({ server, settings, version, logger }) => {
         const servicesBuildPath = path.join(localTemplatesPath, localServicesRelativePath);
         serviceBuildScript = path.join(servicesBuildPath, serviceName, configLogicFile);
 
-        const configLogic = require(serviceBuildScript)();
+        const configLogic = require(serviceBuildScript)({
+          settings,
+          version,
+          logger,
+          servicesBuildPath,
+          serviceBuildScript,
+          serviceName
+        });
 
         return resolve(configLogic.getMeta());
       } catch (err) {
@@ -179,7 +216,15 @@ const ConfigsController = ({ server, settings, version, logger }) => {
           const servicesBuildPath = path.join(localTemplatesPath, localServicesRelativePath);
           const serviceBuildScript = path.join(servicesBuildPath, serviceName, configLogicFile);
 
-          const configLogic = require(serviceBuildScript)();
+          const configLogic = require(serviceBuildScript)({
+          settings,
+          version,
+          logger,
+          servicesBuildPath,
+          serviceBuildScript,
+          serviceTemplatesList,
+          serviceName
+        });
           servicesMetadata[serviceName] = configLogic.getMeta();
         });
 
