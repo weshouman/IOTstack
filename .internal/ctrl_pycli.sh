@@ -47,6 +47,7 @@ else
       -e HOSTUSER="$HOSTUSER" \
       -e IOTSTACKPWD="$IOTSTACKPWD" \
       -e API_ADDR="$PYCLI_CON_API" \
+      -e HOST_API_ADDR="$HOST_CON_IP" \
       -e WUI_ADDR="$PYCLI_CON_WUI" \
       -e HOSTSSH_ADDR="$HOSTSSH_ADDR" \
       -e HOSTSSH_PORT="$HOSTSSH_PORT" \

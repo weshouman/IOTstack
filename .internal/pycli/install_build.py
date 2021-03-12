@@ -234,7 +234,7 @@ def main():
     print(term.clear())
     print('Downloading bootstrap script for build {build}...'.format(build=build))
     time.sleep(1)
-    scriptToExec = getTemplateBuildBootstrap(os.getenv('API_ADDR'), build)
+    scriptToExec = getTemplateBuildBootstrap(os.getenv('HOST_API_ADDR'), build)
     print('Install Build. Executing:')
     print(scriptToExec['text'])
     print('')
