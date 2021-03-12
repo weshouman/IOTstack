@@ -235,6 +235,12 @@ def main():
     print('Downloading bootstrap script for build {build}...'.format(build=build))
     time.sleep(1)
     scriptToExec = getTemplateBuildBootstrap(os.getenv('HOST_API_ADDR'), build)
+    if scriptToExec['text'] == None:
+      print('Something went wrong getting the script from the API.')
+      print(scriptToExec)
+      input("Press Enter to continue to menu...")
+      mainRender(menu, selection, 1)
+      return True
     print('Install Build. Executing:')
     print(scriptToExec['text'])
     print('')

@@ -33,7 +33,7 @@ export PYCLI_CON_API="${IOTSTACK_PYCLI_CON_API:-"$HOSTSSH_ADDR:$API_PORT"}"
 # Host and port for the docker CLI to know where the WUI is running
 export PYCLI_CON_WUI="${IOTSTACK_PYCLI_CON_WUI:-"$HOST_CON_IP:$WUI_PORT"}"
 
-# If this is set, containers will run in developer mode.
+# If this is set, menu containers will run in developer mode.
 # export IOTENV="development"
 
 # If this is set, before install.sh is initially run, the installer will switch to the branch specified here immediately after cloning.
