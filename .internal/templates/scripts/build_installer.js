@@ -152,6 +152,9 @@ if [[ -f ./compose-override.yml ]]; then
   echo "Merging 'compose-override.yml' with 'docker-compose-base.yml':"
   echo "docker container run -it -v $(pwd)/compose-override.yml:/usr/iotstack_pycli/compose-override.yml:ro -v $(pwd)/docker-compose-base.yml:/usr/iotstack_pycli/docker-compose-base.yml:ro -v $(pwd)/docker-compose.yml:/usr/iotstack_pycli/docker-compose.yml -e \\"PYCLI_OVERRIDE_YML=compose-override.yml\\" -e \\"PYCLI_BASE_YML=docker-compose-base.yml\\" -e \\"PYCLI_OUTPUT_YML=docker-compose.yml\\" iostack_pycli:$VERSION /usr/local/bin/python3 /usr/iotstack_pycli/compose_override_entry.py"
   docker container run -it -v $(pwd)/compose-override.yml:/usr/iotstack_pycli/compose-override.yml:ro -v $(pwd)/docker-compose-base.yml:/usr/iotstack_pycli/docker-compose-base.yml:ro -v $(pwd)/docker-compose.yml:/usr/iotstack_pycli/docker-compose.yml -e "PYCLI_OVERRIDE_YML=compose-override.yml" -e "PYCLI_BASE_YML=docker-compose-base.yml" -e "PYCLI_OUTPUT_YML=docker-compose.yml" iostack_pycli:$VERSION /usr/local/bin/python3 /usr/iotstack_pycli/compose_override_entry.py
+  echo ""
+  echo "Merge container exited. You can rerun merge in the future with:"
+  echo "  ./menu.sh --remerge-yaml-override --no-check"
 else
   rm docker-compose.yml
   cp docker-compose-base.yml docker-compose.yml

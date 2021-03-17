@@ -109,7 +109,6 @@ const replaceEnvironmentValue = (EnvKVStr, newEnvValue) => {
 };
 
 
-
 module.exports = {
   getExternalPort,
   getInternalPort,

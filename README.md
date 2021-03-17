@@ -23,10 +23,8 @@ curl -fsSL https://raw.githubusercontent.com/SensorsIot/IOTstack/master/install.
 ### Manual
 1. Install git
 ```
+$ git clone https://github.com/SensorsIot/IOTstack.git
 $ cd ~/IOTstack
-$ git remote set-url origin https://github.com/SensorsIot/IOTstack.git
-$ git pull origin master
-$ git checkout master
 $ docker-compose down
 $ ./menu.sh
 $ docker-compose up -d

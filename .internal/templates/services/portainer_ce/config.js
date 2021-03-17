@@ -35,7 +35,8 @@ const portainer_ce = () => {
     return {
       serviceName, // Required
       displayName: 'Portainer-CE',
-      serviceTypeTags: ['wui', 'container manager', 'docker']
+      serviceTypeTags: ['wui', 'container manager', 'docker'],
+      iconUri: '/logos/portainer.png'
     };
   };
 

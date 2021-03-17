@@ -62,7 +62,7 @@ do
   case "$1" in
     --branch) CURRENT_BRANCH=${2:-$(git name-rev --name-only HEAD)}
       ;;
-    --no-check) echo ""
+    --no-check) echo "" && SKIPCHECKS="true"
       ;;
     --stop) echo "Stopping all menu containers" && bash ./.internal/docker_menu.sh stop
       ;;
@@ -101,9 +101,8 @@ done
 # ----------------------------------------------
 # Menu bootstrap entry point
 # ----------------------------------------------
-if [[ "$*" == *"--no-check"* ]]; then
+if [[ "$SKIPCHECKS" == "true" ]]; then
   echo "Skipping preflight checks."
-  SKIPCHECKS="true"
 else
   echo "Please enter sudo pasword if prompted"
 

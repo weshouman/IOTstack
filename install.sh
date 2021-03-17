@@ -226,7 +226,7 @@ function do_iotstack_setup() {
     echo "IOTstack will be cloned into $(pwd)/IOTstack" >&2
     git clone https://github.com/SensorsIot/IOTstack.git
 
-    if [ $? -eq 0 ]; then
+    if [[ $? -eq 0 ]]; then
       echo "IOTstack cloned" >&2
     else
       echo "Error cloning IOTstack" >&2
@@ -235,7 +235,7 @@ function do_iotstack_setup() {
     cd IOTstack
     IOTCDRS=$?
     echo "Current Dir: $(pwd)" >&2
-    if [ $IOTCDRS -eq 0 ]; then
+    if [[ $IOTCDRS -eq 0 ]]; then
       echo "IOTstack directory found" >&2
     else
       HAS_ERROR="true"
@@ -243,7 +243,7 @@ function do_iotstack_setup() {
       exit 5
     fi
 
-    if [ -n "$IOTSTACK_INSTALL_BRANCH" ]; then
+    if [[ -n "$IOTSTACK_INSTALL_BRANCH" ]]; then
       echo "Attempting to switch to install branch: '$IOTSTACK_INSTALL_BRANCH'" >&2
       git checkout $IOTSTACK_INSTALL_BRANCH
     fi

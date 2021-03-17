@@ -7,10 +7,13 @@ const ServiceBuilder = ({
   const serviceName = 'heimdall';
 
   const {
+    setImageTag,
     setModifiedPorts,
     setLoggingState,
     setNetworkMode,
-    setNetworks
+    setNetworks,
+    setEnvironmentVariables,
+    setDevices
   } = require('../../../src/utils/commonCompileLogic');
 
   const {
@@ -22,7 +25,8 @@ const ServiceBuilder = ({
     Order:
       1. compile() - merges build options into the final JSON output.
       2. issues()  - runs checks on the compile()'ed JSON, and can also test for errors.
-      3. build()   - sets up scripts and files.
+      3. assume()  - sets required default values if they are not specified in compile(). Once defaults are set, it reruns compile(). This function is optional
+      4. build()   - sets up scripts and files.
   */
 
   retr.init = () => {
@@ -38,10 +42,13 @@ const ServiceBuilder = ({
         console.info(`ServiceBuilder:compile() - '${serviceName}' started`);
 
         const compileResults = {
+          modifiedImage: setImageTag({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
           modifiedPorts: setModifiedPorts({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
           modifiedLogging: setLoggingState({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
           modifiedNetworkMode: setNetworkMode({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
-          modifiedNetworks: setNetworks({ buildTemplate: outputTemplateJson, buildOptions, serviceName })
+          modifiedNetworks: setNetworks({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
+          modifiedEnvironment: setEnvironmentVariables({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
+          modifiedDevices: setDevices({ buildTemplate: outputTemplateJson, buildOptions, serviceName })
         };
         console.info(`ServiceBuilder:compile() - '${serviceName}' Results:`, compileResults);
 
