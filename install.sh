@@ -315,5 +315,5 @@ if [[ "$REBOOT_REQ" == "true" ]]; then
 fi
 
 echo ""
-echo "Start IOTstack by running:"
+echo "Start IOTstack by running in IOTstack's directory:"
 echo "  ./menu.sh"

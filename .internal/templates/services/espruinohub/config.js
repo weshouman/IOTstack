@@ -6,6 +6,9 @@ const espruinohub = () => {
   retr.getConfigOptions = () => {
     return {
       serviceName, // Required
+      labeledPorts: {
+        "1888:1888": 'http'
+      },
       volumes: false,
       networks: false,
       logging: true
@@ -31,7 +34,7 @@ const espruinohub = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'EspruinoHub (untested)',
+      displayName: 'EspruinoHub',
       serviceTypeTags: ['mqtt', 'ble', 'rpi only']
     };
   };

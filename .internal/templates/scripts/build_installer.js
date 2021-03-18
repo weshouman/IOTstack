@@ -156,7 +156,7 @@ if [[ -f ./compose-override.yml ]]; then
   echo "Merge container exited. You can rerun merge in the future with:"
   echo "  ./menu.sh --remerge-yaml-override --no-check"
 else
-  rm docker-compose.yml
+  [ -f docker-compose.yml ] && rm docker-compose.yml
   cp docker-compose-base.yml docker-compose.yml
 fi
 
