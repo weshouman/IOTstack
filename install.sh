@@ -111,6 +111,7 @@ function user_in_group() {
 }
 
 function install_docker() {
+  echo ""
   DOCKERREBOOT="false"
   if command_exists docker; then
     echo "Docker already installed" >&2
@@ -157,6 +158,8 @@ function check_host_ssh_keys() {
 }
 
 function check_ssh_state() {
+  echo ""
+  echo "check_ssh_state"
   printf "Checking Container keys...  " >&2
   if [[ "$(check_container_ssh)" == "false" ]]; then
     HAS_ERROR="true"
@@ -180,7 +183,8 @@ function check_ssh_state() {
 }
 
 function do_group_setup() {
-  echo "Setting up groups..."
+  echo ""
+  echo "do_group_setup"
   GROUPCHANGE="false"
   if [[ ! "$(user_in_group bluetooth)" == "notgroup" ]] && [[ ! "$(user_in_group bluetooth)" == "true" ]]; then
     echo "User is NOT in 'bluetooth' group. Adding:" >&2
@@ -208,6 +212,8 @@ function do_group_setup() {
 }
 
 function do_env_setup() {
+  echo ""
+  echo "do_env_setup"
   sudo -E apt update
   echo "Installing dependencies: git, wget, unzip, jq, netcat, screen" >&2
   sudo -E apt install git wget unzip jq netcat screen -y
@@ -220,6 +226,8 @@ function do_env_setup() {
 }
 
 function do_iotstack_setup() {
+  echo ""
+  echo "do_iotstack_setup"
   if [ -f "./menu.sh" ]; then
     echo "'./menu.sh' file detected, will not reclone." >&2
   else
@@ -255,6 +263,8 @@ function generate_container_ssh() {
 }
 
 function install_ssh_keys() {
+  echo ""
+  echo "install_ssh_keys"
   touch $AUTH_KEYS_FILE
   if [ -f "$CONTAINER_KEYS_FILE" ]; then
     NEW_KEY="$(cat $CONTAINER_KEYS_FILE.pub)"
