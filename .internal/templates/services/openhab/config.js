@@ -7,7 +7,8 @@ const adminer = () => {
     return {
       serviceName, // Required
       labeledPorts: {
-        "4050:4050": 'http'
+        "4050:4050": 'http',
+        "4051:4051": 'ssl'
       },
       modifyableEnvironment: [
         {

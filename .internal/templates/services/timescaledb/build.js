@@ -10,12 +10,15 @@ const ServiceBuilder = ({
     setModifiedPorts,
     setLoggingState,
     setNetworkMode,
-    setNetworks
+    setNetworks,
+    setEnvironmentVariables,
+    setDevices
   } = require('../../../src/utils/commonCompileLogic');
 
   const {
     checkPortConflicts,
-    checkNetworkConflicts
+    checkNetworkConflicts,
+    checkDependencyServices
   } = require('../../../src/utils/commonBuildChecks');
 
   /*
@@ -57,7 +60,9 @@ fi
           modifiedPorts: setModifiedPorts({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
           modifiedLogging: setLoggingState({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
           modifiedNetworkMode: setNetworkMode({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
-          modifiedNetworks: setNetworks({ buildTemplate: outputTemplateJson, buildOptions, serviceName })
+          modifiedNetworks: setNetworks({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
+          modifiedEnvironment: setEnvironmentVariables({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
+          modifiedDevices: setDevices({ buildTemplate: outputTemplateJson, buildOptions, serviceName })
         };
         console.info(`ServiceBuilder:compile() - '${serviceName}' Results:`, compileResults);
 
@@ -91,9 +96,50 @@ fi
         const portConflicts = checkPortConflicts({ buildTemplate: outputTemplateJson, buildOptions, serviceName });
         issues = [...issues, ...portConflicts];
 
+        const serviceDependencies = checkDependencyServices({ buildTemplate: outputTemplateJson, buildOptions, serviceName });
+        issues = [...issues, ...serviceDependencies];
+
         const networkConflicts = checkNetworkConflicts({ buildTemplate: outputTemplateJson, buildOptions, serviceName });
         if (networkConflicts) {
           issues.push(networkConflicts);
+        }
+
+        const environmentList = outputTemplateJson?.services?.[serviceName]?.environment ?? [];
+        if (Array.isArray(environmentList) && environmentList.length > 0) {
+          let pwKeysFound = false;
+          environmentList.forEach((envKVP) => {
+            const envKey = envKVP.split('=')[0];
+            const envValue = envKVP.split('=')[1];
+            if (envKey && envValue) {
+              if (envKey === 'POSTGRES_PASSWORD') {
+                pwKeysFound = true;
+                if (envValue === 'Unset' || envValue === 'Unset') {
+                  issues.push({
+                    type: 'service',
+                    name: serviceName,
+                    issueType: 'environment',
+                    message: `Ensure database passwords are set in environment variables.`
+                  });
+                }
+              }
+            }
+          });
+
+          if (!pwKeysFound) {
+            issues.push({
+              type: 'service',
+              name: serviceName,
+              issueType: 'environment',
+              message: `No environment variables found. Database may not start unless they are set.`
+            });
+          }
+        } else {
+          issues.push({
+            type: 'service',
+            name: serviceName,
+            issueType: 'environment',
+            message: `No environment variables found. Database may not start unless they are set.`
+          });
         }
 
         console.info(`ServiceBuilder:issues() - '${serviceName}' Issues found: ${issues.length}`);

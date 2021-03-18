@@ -13,7 +13,7 @@ const postgres = () => {
         },
         {
           key: 'POSTGRES_PASSWORD',
-          value: 'PAsssword'
+          value: '{$randomPassword}'
         },
         {
           key: 'POSTGRES_DB',
@@ -45,7 +45,7 @@ const postgres = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'Postgres (untested)',
+      displayName: 'Postgres',
       serviceTypeTags: ['database']
     };
   };

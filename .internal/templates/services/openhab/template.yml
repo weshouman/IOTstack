@@ -8,9 +8,6 @@ openhab:
 #    cap_add:
 #      - NET_ADMIN
 #      - NET_RAW
-  ports: # Changing this won't do anything. Change the port below under environment. Ensure values are synced
-  - "4050:4050"
-  - "4051:4051"
   volumes:
     - "/etc/localtime:/etc/localtime:ro"
     - "/etc/timezone:/etc/timezone:ro"

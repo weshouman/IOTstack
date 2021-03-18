@@ -16,7 +16,8 @@ const ServiceBuilder = ({
 
   const {
     checkPortConflicts,
-    checkNetworkConflicts
+    checkNetworkConflicts,
+    checkDependencyServices
   } = require('../../../src/utils/commonBuildChecks');
 
   /*
@@ -78,6 +79,9 @@ const ServiceBuilder = ({
 
         const portConflicts = checkPortConflicts({ buildTemplate: outputTemplateJson, buildOptions, serviceName });
         issues = [...issues, ...portConflicts];
+
+        const serviceDependencies = checkDependencyServices({ buildTemplate: outputTemplateJson, buildOptions, serviceName });
+        issues = [...issues, ...serviceDependencies];
 
         const networkConflicts = checkNetworkConflicts({ buildTemplate: outputTemplateJson, buildOptions, serviceName });
         if (networkConflicts) {

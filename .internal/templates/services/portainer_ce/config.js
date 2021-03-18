@@ -17,7 +17,7 @@ const portainer_ce = () => {
 
   retr.getHelp = () => {
     return {
-      serviceName, // Required
+      serviceName, // Required1
       website: '', // Website of service
       rawMarkdownRemote: '', // Usually links to github raw help pages.
       rawMarkdownLocal: '', // Relative path to docs locally

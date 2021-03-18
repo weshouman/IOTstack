@@ -48,7 +48,29 @@ const checkNetworkConflicts = ({ buildTemplate, buildOptions, serviceName }) => 
   return false;
 };
 
+const checkDependencyServices = ({ buildTemplate, buildOptions, serviceName, ignoreDependencies }) => {
+  const dependsOnServicesList = buildTemplate?.services?.[serviceName]?.depends_on ?? [];
+  const selectedServices = buildOptions?.selectedServices ?? [];
+  const missingServices = [];
+
+  dependsOnServicesList.forEach((requiredService) => {
+    if (selectedServices.indexOf(requiredService) < 0) {
+      if (ignoreDependencies.indexOf(requiredService) < 0) {
+        missingServices.push({
+          type: 'service',
+          name: serviceName,
+          issueType: 'dependsOn',
+          message: `Service '${requiredService}' is missing from selected services`
+        });
+      }
+    }
+  });
+
+  return missingServices;
+};
+
 module.exports = {
   checkPortConflicts,
-  checkNetworkConflicts
+  checkNetworkConflicts,
+  checkDependencyServices
 };

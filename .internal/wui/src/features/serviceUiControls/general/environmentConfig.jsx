@@ -90,7 +90,7 @@ const VolumesConfig = (props) => {
   return (
     <Fragment>
       <Grid container spacing={3}>
-        {environmentSettings.map((environmentKeyValue) => {
+        {Array.isArray(environmentSettings) && environmentSettings.map((environmentKeyValue) => {
           const environmentKey = getEnvironmentKey(environmentKeyValue);
           const environmentValue = getEnvironmentValue(environmentKeyValue);
 

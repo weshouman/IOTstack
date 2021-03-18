@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 
 const generatePassword = ({ chars, minLength, maxLength } = {}) => {
-  const useChars = chars ?? "0123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnopqrstuvwxyz-_"; // Doesn't have O, I or l
+  const useChars = chars ?? "0123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnopqrstuvwxyz_"; // Doesn't have O, I or l
   const useMinLength = minLength ?? 16;
   const useMaxLength = maxLength ?? 24;
 
@@ -15,7 +15,7 @@ const generatePassword = ({ chars, minLength, maxLength } = {}) => {
 };
 
 const generateFileOrFolderName = ({ chars, minLength, maxLength } = {}) => {
-  const useChars = chars ?? "0123456789abcdefghijkmnopqrstuvwxyz-_";
+  const useChars = chars ?? "0123456789abcdefghijkmnopqrstuvwxyz_";
   const firstChars = useChars.replace(/[^a-z]+/gi, '').split(''); // Only allow letters
 
   // - 1 since first letter is generated outside of map()

@@ -13,7 +13,7 @@ const timescaledb = () => {
         },
         {
           key: 'POSTGRES_PASSWORD',
-          value: 'PASSword'
+          value: '{$randomPassword}'
         },
         {
           key: 'POSTGRES_DB',
@@ -45,7 +45,7 @@ const timescaledb = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'Timescale DB (untested)',
+      displayName: 'Timescale DB',
       serviceTypeTags: ['timeseries', 'database']
     };
   };
