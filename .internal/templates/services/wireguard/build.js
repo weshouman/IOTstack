@@ -31,6 +31,30 @@ const ServiceBuilder = ({
     logger.debug(`ServiceBuilder:init() - '${serviceName}'`);
   };
 
+  const checkServiceFilesCopied = () => {
+    return `
+if [[ ! -f ./services/wireguard/wg0.conf ]]; then
+  echo "Wireguard config file is missing!"
+  sleep 2
+fi
+`;
+  };
+
+  const createVolumesDirectory = () => {
+    return `
+mkdir -p ./services/wireguard/config
+`;
+  };
+
+  const checkVolumesDirectory = () => {
+    return `
+if [[ ! -d ./services/wireguard/config ]]; then
+  echo "Wireguard directory is missing!"
+  sleep 2
+fi
+`;
+  };
+
   retr.compile = ({
     outputTemplateJson,
     buildOptions,
@@ -115,7 +139,35 @@ const ServiceBuilder = ({
     return new Promise((resolve, reject) => {
       try {
         console.info(`ServiceBuilder:build() - '${serviceName}' started`);
-        // Code here
+
+        const wireguardConfFilePath = path.join(__dirname, settings.paths.serviceFiles, 'wg0.conf');
+        zipList.push({
+          fullPath: wireguardConfFilePath,
+          zipName: '/services/wireguard/wg0.conf'
+        });
+        console.debug(`ServiceBuilder:build() - '${serviceName}' Added '${wireguardConfFilePath}' to zip`);
+
+        postbuildScripts.push({
+          serviceName,
+          comment: 'Ensure required service files exist for launch',
+          multilineComment: null,
+          code: checkServiceFilesCopied()
+        });
+
+        prebuildScripts.push({
+          serviceName,
+          comment: 'Create required service directory exists for first launch',
+          multilineComment: null,
+          code: createVolumesDirectory()
+        });
+
+        postbuildScripts.push({
+          serviceName,
+          comment: 'Ensure required service directory exists for launch',
+          multilineComment: null,
+          code: checkVolumesDirectory()
+        });
+
         console.info(`ServiceBuilder:build() - '${serviceName}' completed`);
         return resolve({ type: 'service' });
       } catch (err) {
