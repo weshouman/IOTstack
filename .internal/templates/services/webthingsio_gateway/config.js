@@ -35,8 +35,9 @@ const webthingsio_gateway = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'Web Things (untested)',
-      serviceTypeTags: ['wui', 'iot']
+      displayName: 'Web Things',
+      serviceTypeTags: ['wui', 'iot'],
+      iconUri: '/logos/webthings.png'
     };
   };
 

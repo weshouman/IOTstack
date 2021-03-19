@@ -6,7 +6,9 @@ const portainer_agent = () => {
   retr.getConfigOptions = () => {
     return {
       serviceName, // Required
-      labeledPorts: {},
+      labeledPorts: {
+        "9001:9001": 'api'
+      },
       volumes: false,
       networks: true,
       logging: true
@@ -32,8 +34,9 @@ const portainer_agent = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'Portainer Agent (untested)',
-      serviceTypeTags: ['container manager', 'docker']
+      displayName: 'Portainer Agent',
+      serviceTypeTags: ['container manager', 'docker'],
+      iconUri: '/logos/portainer.png'
     };
   };
 

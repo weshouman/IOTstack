@@ -39,7 +39,6 @@ const NetworkConfig = (props) => {
     });
 
     const toNetworkMode = getBuildOptions()?.services?.[serviceName]?.networkMode ?? 'unchanged';
-    console.log(1111, toNetworkMode);
     setNetworkMode(toNetworkMode);
   }, []);
 

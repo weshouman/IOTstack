@@ -1,11 +1,14 @@
-// import React, { Fragment, useState, useEffect } from 'react';
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import { useDispatch, useSelector } from "react-redux";
 import Modal from '@material-ui/core/Modal';
 // import Box from '@material-ui/core/Box';
 // import Tooltip from '@material-ui/core/Tooltip';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
+import ScriptViewerModal from '../scriptViewerModal';
+
+import { getBuildFileAction } from '../../actions/getBuildFile.action';
 
 const getModalStyle = () => {
   const top = 15;
@@ -29,20 +32,51 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const BuildCompletedModal = ({
-  isOpen,
-  handleClose,
-  buildStack,
-  scriptTemplates,
-  dispatchGetScriptTemplates,
-  dispatchDownloadBuildFile,
-  downloadLinkRef
-}) => {
+const mapDispatchToProps = (dispatch) => {
+  return {
+    dispatchGetBuildFile: ({ build, type, label }) => dispatch(getBuildFileAction({ build, type, label }))
+  };
+};
+
+const mapStateToProps = (selector) => {
+  return {
+    buildFiles: selector(state => state.buildFiles)
+  };
+};
+
+const BuildCompletedModal = (props) => {
+  props = {
+    ...props,
+    ...mapDispatchToProps(useDispatch()),
+    ...mapStateToProps(useSelector)
+  };
+
+  const {
+    isOpen,
+    handleClose,
+    buildStack,
+    scriptTemplates,
+    dispatchGetScriptTemplates,
+    dispatchGetBuildFile,
+    dispatchDownloadBuildFile,
+    downloadLinkRef,
+    buildFiles
+  } = props;
+
+  const [scriptViewerModalOpen, setScriptViewerModalOpen] = useState(false);
+  const [displayScript, setDisplayScript] = useState('Loading...');
   const [showBootstrapScript, setShowBootstrapScript] = useState(false);
-  const [associatedBuildFiles, setAssociatedBuildFiles] = useState(false);
 
   // const { build, files, issues } = buildStack?.payload ?? {};
   const { build } = buildStack?.payload ?? {};
+
+  useEffect(() => {
+    const downloadedScript = buildFiles?.files?.completed?.[build]?.payload;
+    if (downloadedScript) {
+      setDisplayScript(downloadedScript);
+      setScriptViewerModalOpen(true);
+    }
+  }, [buildFiles?.files?.completed?.[build]?.status]);
 
   const bootstrapBody = () => {
     if ((typeof scriptTemplates?.scripts?.completed?.bootstrap?.payload ?? null) === 'string') {
@@ -53,7 +87,6 @@ const BuildCompletedModal = ({
 
   const closeModal = (event) => {
     setShowBootstrapScript(false);
-    setAssociatedBuildFiles(false);
     if (typeof handleClose === 'function') {
       handleClose(event);
     }
@@ -85,16 +118,14 @@ const BuildCompletedModal = ({
           <Button variant="contained" onClick={() => {
             dispatchGetScriptTemplates({ scriptName: 'bootstrap', options: { build } })
             setShowBootstrapScript(!showBootstrapScript);
-            setAssociatedBuildFiles(false);
           }}>Show bootstrap script installer</Button>
         </Grid>
         <Grid item
           display="flex"
         >
           <Button variant="contained" onClick={() => {
-            setShowBootstrapScript(false);
-            setAssociatedBuildFiles(!associatedBuildFiles)
-          }}>Show associated build files</Button>
+            return dispatchGetBuildFile({ build, type: 'yaml', label: build });
+          }}>Show docker-compose.yml file</Button>
         </Grid>
       </Grid>
       <Fragment>
@@ -104,26 +135,31 @@ const BuildCompletedModal = ({
             <pre>{bootstrapBody()}</pre>
           </Fragment>
         )}
-        {associatedBuildFiles
-        && (
-          <Fragment>
-            <pre>associatedBuildFiles</pre>
-          </Fragment>
-        )}
       </Fragment>
       <BuildCompletedModal />
     </div>
   );
   
   return (
-    <Modal
-      open={isOpen}
-      onClose={closeModal}
-      aria-labelledby="simple-modal-title"
-      aria-describedby="simple-modal-description"
-    >
-      {body}
-    </Modal>
+    <Fragment>
+      <ScriptViewerModal
+        isOpen={scriptViewerModalOpen}
+        handleClose={() => setScriptViewerModalOpen(false)}
+        displayScript={displayScript}
+        scriptTitle={`docker-compose.yml for build: '${build}'`}
+        showActionButton={false}
+        actionButtonText={'Load build'}
+        actionButtonFunction={() => {}}
+      />
+      <Modal
+        open={isOpen}
+        onClose={closeModal}
+        aria-labelledby="simple-modal-title"
+        aria-describedby="simple-modal-description"
+      >
+        {body}
+      </Modal>
+    </Fragment>
   );
 };
 

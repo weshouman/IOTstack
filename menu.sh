@@ -62,11 +62,13 @@ do
   case "$1" in
     --branch) CURRENT_BRANCH=${2:-$(git name-rev --name-only HEAD)}
       ;;
-    --no-check) echo ""
+    --no-check) echo "" && SKIPCHECKS="true"
       ;;
     --stop) echo "Stopping all menu containers" && bash ./.internal/docker_menu.sh stop
       ;;
     --rebuild) echo "Force rebuild all menu containers" && FORCE_REBUILD="true"
+      ;;
+    --remerge-yaml-override) echo "Remerging 'compose-override.yml' and 'docker-compose-base.yml'. Menu will exit after merge" && REMERGE_COMPOSE_OVERRIDE="true"
       ;;
     --run-env-setup)
         echo "Setting up environment:"
@@ -99,9 +101,8 @@ done
 # ----------------------------------------------
 # Menu bootstrap entry point
 # ----------------------------------------------
-if [[ "$*" == *"--no-check"* ]]; then
+if [[ "$SKIPCHECKS" == "true" ]]; then
   echo "Skipping preflight checks."
-  SKIPCHECKS="true"
 else
   echo "Please enter sudo pasword if prompted"
 
@@ -247,6 +248,14 @@ else
 fi
 echo " Menu check completed."
 echo ""
+
+if [[ "$REMERGE_COMPOSE_OVERRIDE" == "true" ]]; then
+  echo "Merging 'compose-override.yml' with 'docker-compose-base.yml':"
+  echo "docker container run -it -v $(pwd)/compose-override.yml:/usr/iotstack_pycli/compose-override.yml:ro -v $(pwd)/docker-compose-base.yml:/usr/iotstack_pycli/docker-compose-base.yml:ro -v $(pwd)/docker-compose.yml:/usr/iotstack_pycli/docker-compose.yml -e \"PYCLI_OVERRIDE_YML=compose-override.yml\" -e \"PYCLI_BASE_YML=docker-compose-base.yml\" -e \"PYCLI_OUTPUT_YML=docker-compose.yml\" iostack_pycli:$VERSION /usr/local/bin/python3 /usr/iotstack_pycli/compose_override_entry.py"
+
+  docker container run -it -v $(pwd)/compose-override.yml:/usr/iotstack_pycli/compose-override.yml:ro -v $(pwd)/docker-compose-base.yml:/usr/iotstack_pycli/docker-compose-base.yml:ro -v $(pwd)/docker-compose.yml:/usr/iotstack_pycli/docker-compose.yml -e "PYCLI_OVERRIDE_YML=compose-override.yml" -e "PYCLI_BASE_YML=docker-compose-base.yml" -e "PYCLI_OUTPUT_YML=docker-compose.yml" iostack_pycli:$VERSION /usr/local/bin/python3 /usr/iotstack_pycli/compose_override_entry.py
+  exit
+fi
 
 echo "Spinning up menu containers... "
 

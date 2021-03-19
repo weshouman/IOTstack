@@ -70,6 +70,20 @@ const setCommonInterpolations = ({ stringList, inputString }) => {
   return result;
 };
 
+const setImageTag = ({ buildTemplate, buildOptions, serviceName }) => {
+  const serviceTemplate = buildTemplate?.services?.[serviceName];
+  const serviceConfig = buildOptions?.serviceConfigurations?.services?.[serviceName];
+  const oldImage = serviceTemplate?.image;
+
+  if (typeof(serviceTemplate?.image) === 'string' && (typeof(serviceConfig?.tag) === 'string')) {
+    serviceTemplate.image = byName(serviceTemplate.image, {
+      tag: serviceConfig.tag
+    });
+  }
+
+  return oldImage !== serviceTemplate?.image;
+};
+
 const setModifiedPorts = ({ buildTemplate, buildOptions, serviceName }) => {
   const serviceTemplate = buildTemplate?.services?.[serviceName];
   const serviceConfig = buildOptions?.serviceConfigurations?.services?.[serviceName];
@@ -79,7 +93,8 @@ const setModifiedPorts = ({ buildTemplate, buildOptions, serviceName }) => {
 
   for (let i = 0; i < modifiedPortList.length; i++) {
     (serviceTemplate?.ports ?? []).forEach((port, index) => {
-      if (port === modifiedPortList[i]) {
+      const eiPort = port.split('/')[0];
+      if (eiPort === modifiedPortList[i]) {
         if (serviceTemplate.ports[index] !== serviceConfig.ports[modifiedPortList[i]]) {
           updated = true;
         }
@@ -260,6 +275,7 @@ const setDevices = ({ buildTemplate, buildOptions, serviceName }) => {
 };
 
 module.exports = {
+  setImageTag,
   setModifiedPorts,
   setLoggingState,
   setNetworkMode,

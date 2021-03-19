@@ -2,9 +2,6 @@ webthingsio_gateway:
   image: webthingsio/gateway:latest
   container_name: webthingsio_gateway
   network_mode: host
-  ports:
-    - "4060:8080"
-    - "4443:4443"
   environment:
     - TZ=Etc/UTC
   volumes:

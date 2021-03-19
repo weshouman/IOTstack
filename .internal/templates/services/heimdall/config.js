@@ -37,8 +37,9 @@ const heimdall = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'Heimdall (untested)',
-      serviceTypeTags: ['wui', 'database manager']
+      displayName: 'Heimdall',
+      serviceTypeTags: ['wui', 'database manager'],
+      iconUri: '/logos/heimdall.png'
     };
   };
 

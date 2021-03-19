@@ -15,11 +15,11 @@
         "node-red-dashboard"
       ],
       "essentials": [
+        "node-red-contrib-redis",
         "node-red-node-pi-gpiod",
         "node-red-contrib-influxdb",
         "node-red-contrib-boolean-logic",
         "node-red-node-rbe",
-        "node-red-configurable-ping",
         "node-red-dashboard",
         "node-red-node-sqlite",
         "node-red-contrib-file-function",

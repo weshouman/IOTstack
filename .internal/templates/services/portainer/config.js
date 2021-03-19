@@ -35,7 +35,8 @@ const portainer = () => {
     return {
       serviceName, // Required
       displayName: 'Portainer (untested)',
-      serviceTypeTags: ['container manager', 'wui', 'deprecated', 'dashboard']
+      serviceTypeTags: ['container manager', 'wui', 'deprecated', 'dashboard'],
+      iconUri: '/logos/portainer.png'
     };
   };
 

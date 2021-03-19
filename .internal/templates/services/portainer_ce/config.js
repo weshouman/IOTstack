@@ -17,7 +17,7 @@ const portainer_ce = () => {
 
   retr.getHelp = () => {
     return {
-      serviceName, // Required
+      serviceName, // Required1
       website: '', // Website of service
       rawMarkdownRemote: '', // Usually links to github raw help pages.
       rawMarkdownLocal: '', // Relative path to docs locally
@@ -35,7 +35,8 @@ const portainer_ce = () => {
     return {
       serviceName, // Required
       displayName: 'Portainer-CE',
-      serviceTypeTags: ['wui', 'container manager', 'docker']
+      serviceTypeTags: ['wui', 'container manager', 'docker'],
+      iconUri: '/logos/portainer.png'
     };
   };
 

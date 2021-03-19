@@ -151,6 +151,16 @@ const BuildController = ({ server, settings, version, logger }) => {
           });
         }
 
+        // Use default values for services if not specified
+        for (let i = 0; i < templatesBuildLogic.length; i++) {
+          if (typeof(templatesBuildLogic[i].assume) === 'function') {
+            await templatesBuildLogic[i].assume({
+              outputTemplateJson: outputStack,
+              buildOptions,
+            });
+          }
+        }
+
         await templatesBuildLogic.reduce((prom, buildLogic) => {
           return prom.then(async () => {
             if (typeof buildLogic.build === 'function') {

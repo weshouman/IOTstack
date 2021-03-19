@@ -40,4 +40,4 @@ export PYCLI_CON_WUI="${IOTSTACK_PYCLI_CON_WUI:-"$HOST_CON_IP:$WUI_PORT"}"
 # export IOTENV="development"
 
 # If this is set, before install.sh is initially run, the installer will switch to the branch specified here immediately after cloning.
-# IOTSTACK_INSTALL_BRANCH="experimental"
+# export IOTSTACK_INSTALL_BRANCH="experimental"

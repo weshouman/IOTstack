@@ -20,7 +20,8 @@ const ServiceBuilder = ({
 
   const {
     checkPortConflicts,
-    checkNetworkConflicts
+    checkNetworkConflicts,
+    checkDependencyServices
   } = require('../../../src/utils/commonBuildChecks');
 
 
@@ -28,7 +29,8 @@ const ServiceBuilder = ({
     Order:
       1. compile() - merges build options into the final JSON output.
       2. issues()  - runs checks on the compile()'ed JSON, and can also test for errors.
-      3. build()   - sets up scripts and files.
+      3. assume()  - sets required default values if they are not specified in compile(). Once defaults are set, it reruns compile(). This function is optional
+      4. build()   - sets up scripts and files.
   */
 
   retr.init = () => {
@@ -140,6 +142,9 @@ fi
 
         const portConflicts = checkPortConflicts({ buildTemplate: outputTemplateJson, buildOptions, serviceName });
         issues = [...issues, ...portConflicts];
+
+        const serviceDependencies = checkDependencyServices({ buildTemplate: outputTemplateJson, buildOptions, serviceName });
+        issues = [...issues, ...serviceDependencies];
 
         const networkConflicts = checkNetworkConflicts({ buildTemplate: outputTemplateJson, buildOptions, serviceName });
         if (networkConflicts) {

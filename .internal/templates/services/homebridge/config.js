@@ -7,7 +7,7 @@ const homebridge = () => {
     return {
       serviceName, // Required
       labeledPorts: {
-        "4040:4040": 'http'
+        "8581:8581": 'http'
       },
       volumes: false,
       networks: false,
@@ -34,7 +34,7 @@ const homebridge = () => {
   retr.getMeta = () => {
     return {
       serviceName, // Required
-      displayName: 'Home Bridge (untested)',
+      displayName: 'Home Bridge',
       serviceTypeTags: ['wui', 'iot']
     };
   };
