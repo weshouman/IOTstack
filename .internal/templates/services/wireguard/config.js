@@ -20,7 +20,7 @@ const wireguard = () => {
         },
         {
           key: 'SERVERPORT',
-          value: '{$wireguardPort}'
+          value: '{$wireguardInternalPort}'
         },
         {
           key: 'PEERS',

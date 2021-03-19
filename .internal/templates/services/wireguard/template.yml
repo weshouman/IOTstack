@@ -8,8 +8,8 @@ wireguard:
     - PUID=1000
     - PGID=1000
     - TZ=Etc/UTC
-    - SERVERURL=<enter yours>.duckdns.org
-    - SERVERPORT=51820
+    - SERVERURL=Unset
+    - SERVERPORT=Unset
     - PEERS=1
     - PEERDNS=auto
     - INTERNAL_SUBNET=100.64.0.0/24

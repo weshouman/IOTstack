@@ -1,3 +1,5 @@
+const path = require('path');
+
 const ServiceBuilder = ({
   settings,
   version,
@@ -6,15 +8,20 @@ const ServiceBuilder = ({
   const retr = {};
   const serviceName = 'wireguard';
 
+  const { byName } = require('../../../src/utils/interpolate');
+
   const {
     setModifiedPorts,
     setLoggingState,
     setNetworkMode,
-    setNetworks
+    setNetworks,
+    setEnvironmentVariables,
+    setDevices
   } = require('../../../src/utils/commonCompileLogic');
 
   const {
     checkPortConflicts,
+    getSetPortsByConfigName,
     checkNetworkConflicts,
     checkDependencyServices
   } = require('../../../src/utils/commonBuildChecks');
@@ -67,8 +74,30 @@ fi
           modifiedPorts: setModifiedPorts({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
           modifiedLogging: setLoggingState({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
           modifiedNetworkMode: setNetworkMode({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
-          modifiedNetworks: setNetworks({ buildTemplate: outputTemplateJson, buildOptions, serviceName })
+          modifiedNetworks: setNetworks({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
+          modifiedEnvironment: setEnvironmentVariables({ buildTemplate: outputTemplateJson, buildOptions, serviceName }),
+          modifiedDevices: setDevices({ buildTemplate: outputTemplateJson, buildOptions, serviceName })
         };
+
+        // Set env var port
+        const serviceEnvironmentList = outputTemplateJson?.services?.[serviceName]?.environment ?? [];
+        if (Array.isArray(serviceEnvironmentList) && serviceEnvironmentList.length > 0) {
+          const { getConfigOptions } = require('./config')({});
+          const envPorts = {
+            wireguardInternalPort: getSetPortsByConfigName({ buildTemplate: outputTemplateJson, buildOptions, serviceName, configOptions: getConfigOptions(), portName: 'vpn' })?.internalPort,
+            wireguardExternalPort: getSetPortsByConfigName({ buildTemplate: outputTemplateJson, buildOptions, serviceName, configOptions: getConfigOptions(), portName: 'vpn' })?.externalPort
+          };
+
+          serviceEnvironmentList.forEach((envKVP, index) => {
+            outputTemplateJson.services[serviceName].environment[index] = byName(
+              outputTemplateJson.services[serviceName].environment[index],
+              {
+                ...envPorts
+              }
+            );
+          });
+        }
+
         console.info(`ServiceBuilder:compile() - '${serviceName}' Results:`, compileResults);
 
         console.info(`ServiceBuilder:compile() - '${serviceName}' completed`);

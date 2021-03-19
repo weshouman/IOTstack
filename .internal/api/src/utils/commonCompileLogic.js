@@ -93,7 +93,8 @@ const setModifiedPorts = ({ buildTemplate, buildOptions, serviceName }) => {
 
   for (let i = 0; i < modifiedPortList.length; i++) {
     (serviceTemplate?.ports ?? []).forEach((port, index) => {
-      if (port === modifiedPortList[i]) {
+      const eiPort = port.split('/')[0];
+      if (eiPort === modifiedPortList[i]) {
         if (serviceTemplate.ports[index] !== serviceConfig.ports[modifiedPortList[i]]) {
           updated = true;
         }

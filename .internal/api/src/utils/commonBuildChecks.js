@@ -32,6 +32,16 @@ const checkPortConflicts = ({ buildTemplate, buildOptions, serviceName }) => {
   return portConflicts;
 };
 
+const getSetPortsByConfigName = ({ buildTemplate, buildOptions, serviceName, configOptions, portName }) => {
+  const serviceConfig = buildOptions?.serviceConfigurations?.services?.[serviceName];
+  const namedPort = Object.keys(configOptions?.labeledPorts ?? {}).find((ele) => { return configOptions.labeledPorts[ele] === portName; });
+  const setPortValue = serviceConfig?.ports?.[namedPort] ?? '';
+  const internalPort = setPortValue.split(':')[1];
+  const externalPort = setPortValue.split(':')[0];
+
+  return { internalPort, externalPort };
+};
+
 const checkNetworkConflicts = ({ buildTemplate, buildOptions, serviceName }) => {
   const currentServiceNetworkMode = buildTemplate?.services?.[serviceName]?.network_mode ?? null;
   const currentServiceNetworks = buildTemplate?.services?.[serviceName]?.networks ?? [];
@@ -55,7 +65,7 @@ const checkDependencyServices = ({ buildTemplate, buildOptions, serviceName, ign
 
   dependsOnServicesList.forEach((requiredService) => {
     if (selectedServices.indexOf(requiredService) < 0) {
-      if (ignoreDependencies.indexOf(requiredService) < 0) {
+      if ((ignoreDependencies ?? []).indexOf(requiredService) < 0) {
         missingServices.push({
           type: 'service',
           name: serviceName,
@@ -71,6 +81,7 @@ const checkDependencyServices = ({ buildTemplate, buildOptions, serviceName, ign
 
 module.exports = {
   checkPortConflicts,
+  getSetPortsByConfigName,
   checkNetworkConflicts,
   checkDependencyServices
 };
