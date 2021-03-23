@@ -91,6 +91,11 @@ const setModifiedPorts = ({ buildTemplate, buildOptions, serviceName }) => {
   const modifiedPortList = Object.keys(serviceConfig?.ports ?? {});
   let updated = false;
 
+  if (serviceTemplate.network_mode === 'host') {
+    delete buildTemplate?.services?.[serviceName]?.['ports'];
+    return true;
+  }
+
   for (let i = 0; i < modifiedPortList.length; i++) {
     (serviceTemplate?.ports ?? []).forEach((port, index) => {
       const eiPort = port.split('/')[0];
@@ -142,6 +147,10 @@ const setNetworkMode = ({ buildTemplate, buildOptions, serviceName }) => {
 
     if (serviceConfig.networkMode === 'none') {
       delete serviceTemplate['network_mode'];
+    }
+
+    if (serviceTemplate.network_mode === 'host') {
+    delete buildTemplate?.services?.[serviceName]?.['ports'];
     }
   }
 

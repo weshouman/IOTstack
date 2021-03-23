@@ -126,3 +126,120 @@ def checkWuiState(host, protocol="http://"):
     res['json'] = None
 
   return res
+
+def getBuildServicesList(host, protocol="http://"):
+  try:
+    url = '{protocol}{host}/templates/services/list'.format(host=host, protocol=protocol)
+
+    apiRequest = requests.get(url, timeout = 2)
+
+    res = {}
+    res['apiRequest'] = apiRequest
+    res['status'] = apiRequest.status_code
+    res['text'] = apiRequest.text
+    try:
+      res['json'] = apiRequest.json()
+    except:
+      res['json'] = None
+  except:
+    res = {}
+    res['url'] = url
+    res['apiRequest'] = None
+    res['status'] = -1
+    res['text'] = None
+    res['json'] = None
+
+  return res
+
+def getBuildServicesJsonList(host, protocol="http://"):
+  try:
+    url = '{protocol}{host}/templates/services/json'.format(host=host, protocol=protocol)
+
+    apiRequest = requests.get(url, timeout = 2)
+
+    res = {}
+    res['apiRequest'] = apiRequest
+    res['status'] = apiRequest.status_code
+    res['text'] = apiRequest.text
+    try:
+      res['json'] = apiRequest.json()
+    except:
+      res['json'] = None
+  except:
+    res = {}
+    res['url'] = url
+    res['apiRequest'] = None
+    res['status'] = -1
+    res['text'] = None
+    res['json'] = None
+
+  return res
+
+def getBuildServicesYamlList(host, protocol="http://"):
+  try:
+    url = '{protocol}{host}/templates/services/yaml'.format(host=host, protocol=protocol)
+
+    apiRequest = requests.get(url, timeout = 2)
+
+    res = {}
+    res['apiRequest'] = apiRequest
+    res['status'] = apiRequest.status_code
+    res['text'] = apiRequest.text
+    res['json'] = None
+  except:
+    res = {}
+    res['url'] = url
+    res['apiRequest'] = None
+    res['status'] = -1
+    res['text'] = None
+    res['json'] = None
+
+  return res
+
+def getBuildServicesMetaData(host, protocol="http://"):
+  try:
+    url = '{protocol}{host}/config/meta'.format(host=host, protocol=protocol)
+
+    apiRequest = requests.get(url, timeout = 2)
+
+    res = {}
+    res['apiRequest'] = apiRequest
+    res['status'] = apiRequest.status_code
+    res['text'] = apiRequest.text
+    try:
+      res['json'] = apiRequest.json()
+    except:
+      res['json'] = None
+  except:
+    res = {}
+    res['url'] = url
+    res['apiRequest'] = None
+    res['status'] = -1
+    res['text'] = None
+    res['json'] = None
+
+  return res
+
+def getBuildServicesOptionsData(host, protocol="http://"):
+  try:
+    url = '{protocol}{host}/config/options'.format(host=host, protocol=protocol)
+
+    apiRequest = requests.get(url, timeout = 2)
+
+    res = {}
+    res['apiRequest'] = apiRequest
+    res['status'] = apiRequest.status_code
+    res['text'] = apiRequest.text
+    try:
+      res['json'] = apiRequest.json()
+    except:
+      res['json'] = None
+  except:
+    res = {}
+    res['url'] = url
+    res['apiRequest'] = None
+    res['status'] = -1
+    res['text'] = None
+    res['json'] = None
+
+  return res
