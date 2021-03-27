@@ -16,6 +16,7 @@ def checkApiHealth(host, protocol="http://"):
       res['json'] = None
   except:
     res = {}
+    res['funcName'] = 'checkApiHealth'
     res['url'] = url
     res['apiRequest'] = None
     res['status'] = -1
@@ -39,6 +40,7 @@ def deleteBuild(host, build, protocol="http://"):
       res['json'] = None
   except:
     res = {}
+    res['funcName'] = 'deleteBuild'
     res['url'] = url
     res['apiRequest'] = None
     res['status'] = -1
@@ -69,6 +71,7 @@ def getTemplateBuildBootstrap(host, build, noFluff = True, protocol="http://"):
       res['json'] = None
   except:
     res = {}
+    res['funcName'] = 'getTemplateBuildBootstrap'
     res['url'] = url
     res['body'] = requestData
     res['apiRequest'] = None
@@ -101,6 +104,7 @@ def getPreviousBuildList(host, index = None, limit = None, protocol="http://"):
       res['json'] = None
   except:
     res = {}
+    res['funcName'] = 'getPreviousBuildList'
     res['url'] = url
     res['apiRequest'] = None
     res['status'] = -1
@@ -120,6 +124,7 @@ def checkWuiState(host, protocol="http://"):
     res['json'] = None
   except:
     res = {}
+    res['funcName'] = 'checkWuiState'
     res['apiRequest'] = None
     res['status'] = -1
     res['text'] = None
@@ -143,6 +148,7 @@ def getBuildServicesList(host, protocol="http://"):
       res['json'] = None
   except:
     res = {}
+    res['funcName'] = 'getBuildServicesList'
     res['url'] = url
     res['apiRequest'] = None
     res['status'] = -1
@@ -167,6 +173,7 @@ def getBuildServicesJsonList(host, protocol="http://"):
       res['json'] = None
   except:
     res = {}
+    res['funcName'] = 'getBuildServicesJsonList'
     res['url'] = url
     res['apiRequest'] = None
     res['status'] = -1
@@ -188,6 +195,7 @@ def getBuildServicesYamlList(host, protocol="http://"):
     res['json'] = None
   except:
     res = {}
+    res['funcName'] = 'getBuildServicesYamlList'
     res['url'] = url
     res['apiRequest'] = None
     res['status'] = -1
@@ -212,6 +220,7 @@ def getBuildServicesMetaData(host, protocol="http://"):
       res['json'] = None
   except:
     res = {}
+    res['funcName'] = 'getBuildServicesMetaData'
     res['url'] = url
     res['apiRequest'] = None
     res['status'] = -1
@@ -236,6 +245,66 @@ def getBuildServicesOptionsData(host, protocol="http://"):
       res['json'] = None
   except:
     res = {}
+    res['funcName'] = 'getBuildServicesOptionsData'
+    res['url'] = url
+    res['apiRequest'] = None
+    res['status'] = -1
+    res['text'] = None
+    res['json'] = None
+
+  return res
+
+def saveBuild(host, selectedServices, serviceConfigurations = {}, protocol="http://"):
+  try:
+    requestData = {}
+    requestData['buildOptions']['selectedServices'] = selectedServices
+    requestData['buildOptions']['serviceConfigurations'] = serviceConfigurations
+
+    apiRequest = requests.post(url = url, json = requestData, timeout = 2)
+    url = '{protocol}{host}/build/save'.format(host=host, protocol=protocol)
+
+    apiRequest = requests.get(url, timeout = 2)
+
+    res = {}
+    res['apiRequest'] = apiRequest
+    res['status'] = apiRequest.status_code
+    res['text'] = apiRequest.text
+    try:
+      res['json'] = apiRequest.json()
+    except:
+      res['json'] = None
+  except:
+    res = {}
+    res['funcName'] = 'saveBuild'
+    res['url'] = url
+    res['apiRequest'] = None
+    res['status'] = -1
+    res['text'] = None
+    res['json'] = None
+
+  return res
+
+def checkBuild(host, selectedServices, serviceConfigurations = {}, protocol="http://"):
+  try:
+    requestData = {}
+    requestData['buildOptions'] = {}
+    requestData['buildOptions']['selectedServices'] = selectedServices
+    requestData['buildOptions']['serviceConfigurations'] = serviceConfigurations
+    url = '{protocol}{host}/build/dryrun'.format(host=host, protocol=protocol)
+
+    apiRequest = requests.post(url = url, json = requestData, timeout = 2)
+
+    res = {}
+    res['apiRequest'] = apiRequest
+    res['status'] = apiRequest.status_code
+    res['text'] = apiRequest.text
+    try:
+      res['json'] = apiRequest.json()
+    except:
+      res['json'] = None
+  except:
+    res = {}
+    res['funcName'] = 'checkBuild'
     res['url'] = url
     res['apiRequest'] = None
     res['status'] = -1

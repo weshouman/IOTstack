@@ -10,9 +10,10 @@ def main():
   import ruamel.yaml
   import math
   import sys
+  import traceback
   import subprocess
   from deps.chars import specialChars, commonTopBorder, commonBottomBorder, commonEmptyLine, padText
-  from deps.api import getBuildServicesList, getBuildServicesJsonList, getBuildServicesMetaData, getBuildServicesOptionsData
+  from deps.api import getBuildServicesList, getBuildServicesJsonList, getBuildServicesMetaData, getBuildServicesOptionsData, saveBuild, checkBuild
   from blessed import Terminal
   global signal
   global renderMode
@@ -22,13 +23,29 @@ def main():
   global hideHelpText
   global activeMenuLocation
   global lastSelection
+  global apiServicesList
+  global apiServicesJson
+  global apiServicesMetadata
+  global apiServicesOptions
+  global apiCheckBuild
+  global apiBuildOutput
+  global selectedServices
+  global serviceConfigurations
+  global hasIssuesChecked
 
   # Runtime vars
   menu = []
+  selectedServices = []
+  serviceConfigurations = {
+    "services": {}
+  }
+  hasIssuesChecked = False
   apiServicesList = None
   apiServicesJson = None
   apiServicesMetadata = None
   apiServicesOptions = None
+  apiCheckBuild = None
+  apiBuildOutput = None
   term = Terminal()
   hotzoneLocation = [7, 0] # Top text
   paginationToggle = [10, term.height - 22] # Top text + controls text
@@ -42,8 +59,21 @@ def main():
   except:
     hideHelpText = False
 
-  def buildServices(): # TODO: Move this into a dependency so that it can be executed with just a list of services.
+  def checkForIssues():
     try:
+      global apiCheckBuild
+      apiCheckBuild = checkBuild(os.getenv('API_ADDR'), selectedServices, serviceConfigurations)
+      return True
+    except Exception as err: 
+      print("Issue checking build:")
+      print(err)
+      input("Press Enter to continue...")
+      return False
+
+  def buildServices():
+    try:
+      global apiBuildOutput
+      apiBuildOutput = saveBuild(os.getenv('API_ADDR'), selectedServices, serviceConfigurations)
       return True
     except Exception as err: 
       print("Issue running build:")
@@ -114,12 +144,14 @@ def main():
           # #####
 
           # Options and issues
-          if "options" in menuItem[2] and not menuItem[2]["options"] == None:
-            toPrint = toPrint + '{t.blue_on_black} {raf}{raf}{t.normal}'.format(t=term, raf=specialChars[renderMode]["rightArrowFull"])
-            toPrint = toPrint + ' {t.white_on_black} Options {t.normal}'.format(t=term)
-          else:
-            for i in range(optionsLength):
-              toPrint += " "
+          # if "options" in menuItem[2] and not menuItem[2]["options"] == None:
+          #   toPrint = toPrint + '{t.blue_on_black} {raf}{raf}{t.normal}'.format(t=term, raf=specialChars[renderMode]["rightArrowFull"])
+          #   toPrint = toPrint + ' {t.white_on_black} Options {t.normal}'.format(t=term)
+          # else:
+          #   for i in range(optionsLength):
+          #     toPrint += " "
+          for i in range(optionsLength): # Skip rendering for now.
+            toPrint += " "
 
           for i in range(optionsIssuesSpace):
             toPrint += " "
@@ -130,7 +162,7 @@ def main():
           else:
             if menuItem[2]["checked"]:
               if not menuItem[2]["issues"] == None and len(menuItem[2]["issues"]) == 0:
-                toPrint = toPrint + '     {t.green_on_blue} Pass {t.normal} '.format(t=term)
+                toPrint = toPrint + '   {t.green_on_blue} Pass {t.normal} '.format(t=term)
               else:
                 for i in range(issuesLength):
                   toPrint += " "
@@ -164,14 +196,9 @@ def main():
       lineText = generateLineText(menu[lastSelection][0], paddingBefore=paddingBefore)
       toPrint = '{title}{t.normal}'.format(t=term, title=lineText)
       print('{t.move_y(lastSelection)}{title}'.format(t=term, title=toPrint))
-      # print(toPrint)
       print(renderOffsetCurrentSelection, lastSelection, renderOffsetLastSelection)
       lastSelection = selection
       
-          # menuItemsActiveRow
-          # activeMenuLocation
-
-
     if paginationStartIndex + paginationSize < len(menu):
       print(term.center("{b}   {daf}      {daf}{daf}{daf}                      {dal}                          {b}".format(
         b=specialChars[renderMode]["borderVertical"],
@@ -210,7 +237,11 @@ def main():
         print(term.center(commonEmptyLine(renderMode)))
         print(term.center(commonEmptyLine(renderMode)))
 
-      renderHotZone(term, renderType, menu, selection, paddingBefore, allIssues)
+      if len(menu) > 0:
+        renderHotZone(term, renderType, menu, selection, paddingBefore, allIssues)
+      else:
+        print(term.center("{bv}    No menu items were loaded. Press [ESC] to go back         {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
+        print(term.center(commonEmptyLine(renderMode)))
 
       if (renderType == 1):
         print(term.center(commonEmptyLine(renderMode)))
@@ -224,62 +255,76 @@ def main():
           else:
             print(term.center(commonEmptyLine(renderMode)))
             print(term.center("{bv}    Controls:                                                 {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
-            print(term.center("{bv}    [Space] to select or deselect image                       {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
+            print(term.center("{bv}    [Space] to select or deselect service                     {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
             print(term.center("{bv}    [Up] and [Down] to move selection cursor                  {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
             print(term.center("{bv}    [Right] for options for containers that support them      {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
             print(term.center("{bv}    [Tab] Expand or collapse build menu size                  {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
             print(term.center("{bv}    [H] Show/hide this text                                   {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
+            print(term.center("{bv}    [R] Refresh list                                          {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
             # print(term.center("{bv}    [F] Filter options                                        {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
-            print(term.center("{bv}    [Enter] to begin build                                    {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
+            if hasIssuesChecked:
+              print(term.center("{bv}    [Enter] to build                                          {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
+            else:
+              print(term.center("{bv}    [Enter] to check build                                    {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
             print(term.center("{bv}    [Escape] to cancel build                                  {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
             print(term.center(commonEmptyLine(renderMode)))
             print(term.center(commonEmptyLine(renderMode)))
         print(term.center(commonEmptyLine(renderMode)))
         print(term.center(commonBottomBorder(renderMode)))
 
-        if len(allIssues) > 0:
-          print(term.center(""))
-          print(term.center(""))
-          print(term.center(""))
-          print(term.center(("{btl}{bh}{bh}{bh}{bh}{bh}{bh} Build Issues "
-            "{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}"
-            "{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}"
-            "{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}"
-            "{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}"
-            "{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}"
-            "{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}"
-            "{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}"
-            "{bh}{bh}{bh}{bh}{bh}{bh}{bh}{btr}").format(
-            btl=specialChars[renderMode]["borderTopLeft"],
-            btr=specialChars[renderMode]["borderTopRight"],
-            bh=specialChars[renderMode]["borderHorizontal"]
-          )))
-          print(term.center(commonEmptyLine(renderMode, size = 139)))
-          for serviceIssues in allIssues:
-            for index, issue in enumerate(serviceIssues["issues"]):
-              spacesAndBracketsLen = 5
-              issueAndTypeLen = len(issue) + len(serviceIssues["serviceName"]) + spacesAndBracketsLen
-              serviceNameAndConflictType = '{t.red_on_black}{issueService}{t.normal} ({t.yellow_on_black}{issueType}{t.normal}) '.format(t=term, issueService=serviceIssues["serviceName"], issueType=issue)
-              formattedServiceNameAndConflictType = generateLineText(str(serviceNameAndConflictType), textLength=issueAndTypeLen, paddingBefore=0, lineLength=32)
-              issueDescription = generateLineText(str(serviceIssues["issues"][issue]), textLength=len(str(serviceIssues["issues"][issue])), paddingBefore=0, lineLength=103)
-              print(term.center("{bv} {nm} - {desc} {bv}".format(nm=formattedServiceNameAndConflictType, desc=issueDescription, bv=specialChars[renderMode]["borderVertical"]) ))
-          print(term.center(commonEmptyLine(renderMode, size = 139)))
-          print(term.center(commonBottomBorder(renderMode, size = 139)))
+        if not apiCheckBuild == None and 'json' in apiCheckBuild and 'issueList' in apiCheckBuild['json']:
+          if 'services' in apiCheckBuild['json']['issueList']:
+            if len(apiCheckBuild['json']['issueList']['services']) > 0:
+              print(term.center(""))
+              print(term.center(""))
+              print(term.center(""))
+              print(term.center(("{btl}{bh}{bh}{bh}{bh}{bh}{bh} Build Issues "
+                "{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}"
+                "{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}"
+                "{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}"
+                "{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}"
+                "{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}"
+                "{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}"
+                "{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}"
+                "{bh}{bh}{bh}{bh}{bh}{bh}{bh}{btr}").format(
+                btl=specialChars[renderMode]["borderTopLeft"],
+                btr=specialChars[renderMode]["borderTopRight"],
+                bh=specialChars[renderMode]["borderHorizontal"]
+              )))
+              print(term.center(commonEmptyLine(renderMode, size = 139)))
+              issuesList = apiCheckBuild['json']['issueList']
+              for service in issuesList['services']:
+                spacesAndBracketsLen = 5
+                issueAndTypeLen = len(service['message']) + len(service['name']) + spacesAndBracketsLen
+                serviceNameAndConflictType = '{t.red_on_black}{service}{t.normal} ({t.yellow_on_black}{message}{t.normal}) '.format(t=term, service=service['name'], message=service['issueType'])
+                formattedServiceNameAndConflictType = generateLineText(str(serviceNameAndConflictType), textLength=issueAndTypeLen, paddingBefore=0, lineLength=32)
+                issueDescription = generateLineText(str(service['message']), textLength=len(str(service['message'])), paddingBefore=0, lineLength=103)
+                print(term.center("{bv} {nm} - {desc} {bv}".format(nm=formattedServiceNameAndConflictType, desc=issueDescription, bv=specialChars[renderMode]["borderVertical"]) ))
+              print(term.center(commonEmptyLine(renderMode, size = 139)))
+              print(term.center(commonBottomBorder(renderMode, size = 139)))
 
     except Exception as err: 
       print("There was an error rendering the menu:")
       print(err)
+      print('Error reported:')
+      print(sys.exc_info())
+      traceback.print_exc()
       print("Press [Esc] to go back")
       return
 
     return
 
-  def setCheckedMenuItems():
-    global checkedMenuItems
-    checkedMenuItems.clear()
-    for (index, menuItem) in enumerate(menu):
-      if menuItem[1]["checked"]:
-        checkedMenuItems.append(menuItem[0])
+  def checkMenuItem(selection):
+    global selectedServices
+    global hasIssuesChecked
+    hasIssuesChecked = False
+
+    if menu[selection][2]["checked"] == True:
+      menu[selection][2]["checked"] = False
+      while menu[selection][1] in selectedServices: selectedServices.remove(menu[selection][1])
+    else:
+      menu[selection][2]["checked"] = True
+      selectedServices.append(menu[selection][1])
 
   def onResize(sig, action):
     global paginationToggle
@@ -287,44 +332,61 @@ def main():
     mainRender(menu, selection, 1)
 
   def populateMenu():
+    global hasIssuesChecked
+    hasIssuesChecked = False
     menu.clear()
     hasError = []
-    for service in apiServicesList['json']:
-      try:
-        menu.append([service, service, { "checked": False, "options": None, "tags": [] }])
-        menu[-1][0] = apiServicesMetadata['json'][service]['displayName']
-        menu[-1][2]["tags"] = apiServicesMetadata['json'][service]['serviceTypeTags']
+    if not apiServicesList == None and 'json' in apiServicesList:
+      for service in apiServicesList['json']:
+        try:
+          itemChecked = False
+          if service in selectedServices:
+            itemChecked = True
 
-        if service in apiServicesOptions['json']:
-          menu[-1][2]["options"] = apiServicesOptions['json'][service]
-      except Exception as err:
-        hasError.append(service, err)
+          menu.append([service, service, { "checked": itemChecked, "options": None, "tags": [], "issues": [] }])
+          menu[-1][0] = apiServicesMetadata['json'][service]['displayName']
+          menu[-1][2]["tags"] = apiServicesMetadata['json'][service]['serviceTypeTags']
+
+          if service in apiServicesOptions['json']:
+            menu[-1][2]["options"] = apiServicesOptions['json'][service]
+        except Exception as err:
+          hasError.append([service, err])
+    else:
+      print("Menu could not be loaded. API call did not return JSON:")
+      print(apiServicesList)
+      input("Press [Enter] to continue")
 
     if len(hasError) > 0:
       print("There were errors loading the menu:")
-      for errorItem in hasError['json']:
+      for errorItem in hasError:
         print(errorItem)
-        print(err)
-      print("Press [Esc] to go back")
+      input("Press [Enter] to continue")
       return False
     return True
+
+  def loadMenu():
+    global apiServicesList
+    global apiServicesJson
+    global apiServicesMetadata
+    global apiServicesOptions
+    print('Loading Build Services...')
+    apiServicesList = getBuildServicesList(os.getenv('API_ADDR'))
+    print('Loading Service Templates...')
+    apiServicesJson = getBuildServicesJsonList(os.getenv('API_ADDR'))
+    print('Loading Service Metadatas...')
+    apiServicesMetadata = getBuildServicesMetaData(os.getenv('API_ADDR'))
+    print('Loading Service Options...')
+    apiServicesOptions = getBuildServicesOptionsData(os.getenv('API_ADDR'))
+    print('Loading Done')
+    populateMenu()
 
   if __name__ == 'builtins':
     global results
     global signal
     needsRender = 1
     signal.signal(signal.SIGWINCH, onResize)
+    loadMenu()
     with term.fullscreen():
-      print('Loading Build Services...')
-      apiServicesList = getBuildServicesList(os.getenv('API_ADDR'))
-      print('Loading Service Templates...')
-      apiServicesJson = getBuildServicesJsonList(os.getenv('API_ADDR'))
-      print('Loading Service Metadatas...')
-      apiServicesMetadata = getBuildServicesMetaData(os.getenv('API_ADDR'))
-      print('Loading Service Options...')
-      apiServicesOptions = getBuildServicesOptionsData(os.getenv('API_ADDR'))
-      print('Loading Done')
-      populateMenu()
       selection = 0
       mainRender(menu, selection, 1)
       selectionInProgress = True
@@ -345,34 +407,39 @@ def main():
             if key.name == 'KEY_UP':
               selection -= 1
               needsRender = 2
-            if key.name == 'KEY_RIGHT':
-              executeServiceOptions()
+            # if key.name == 'KEY_RIGHT': # TODO: Implement options
+            #   executeServiceOptions()
             if key.name == 'KEY_ENTER':
-              setCheckedMenuItems()
-              checkForIssues()
-              selectionInProgress = False
-              results["buildState"] = buildServices()
-              return results["buildState"]
+              if hasIssuesChecked == False:
+                checkForIssues()
+                # input(apiCheckBuild)
+                hasIssuesChecked = True
+                needsRender = 1
+              else:
+                selectionInProgress = False
+                buildServices()
+                input(apiBuildOutput) # TODO: Remove this
             if key.name == 'KEY_ESCAPE':
               results["buildState"] = False
               return results["buildState"]
           elif key:
             if key == ' ': # Space pressed
               checkMenuItem(selection) # Update checked list
-              setCheckedMenuItems() # Update UI memory
-              checkForIssues()
               needsRender = 1
             elif key == 'h': # H pressed
               if hideHelpText:
                 hideHelpText = False
-              else:
-                hideHelpText = True
-              needsRender = 1
+            elif key == 'r': # R pressed
+              loadMenu()
+            else:
+              hideHelpText = True
+            needsRender = 1
           else:
             print(key)
             time.sleep(0.5)
 
-          selection = selection % len(menu)
+          if len(menu) > 0:
+            selection = selection % len(menu)
 
           mainRender(menu, selection, needsRender)
 

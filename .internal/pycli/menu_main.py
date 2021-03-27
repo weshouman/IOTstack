@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# export API_ADDR=localhost:32128 && cd .internal/pycli && nodemon --no-stdin --exec python3 entry.py
+# export API_ADDR=localhost:32128 && cd .internal/pycli || nodemon --no-stdin --exec python3 entry.py
 
 from blessed import Terminal
 import sys
