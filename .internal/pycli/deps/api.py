@@ -256,14 +256,12 @@ def getBuildServicesOptionsData(host, protocol="http://"):
 
 def saveBuild(host, selectedServices, serviceConfigurations = {}, protocol="http://"):
   try:
+    url = '{protocol}{host}/build/save'.format(host=host, protocol=protocol)
     requestData = {}
     requestData['buildOptions']['selectedServices'] = selectedServices
     requestData['buildOptions']['serviceConfigurations'] = serviceConfigurations
 
     apiRequest = requests.post(url = url, json = requestData, timeout = 2)
-    url = '{protocol}{host}/build/save'.format(host=host, protocol=protocol)
-
-    apiRequest = requests.get(url, timeout = 2)
 
     res = {}
     res['apiRequest'] = apiRequest

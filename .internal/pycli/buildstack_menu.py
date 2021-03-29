@@ -59,6 +59,26 @@ def main():
   except:
     hideHelpText = False
 
+  def hasReportedIssue(serviceName):
+    if not apiCheckBuild == None and 'json' in apiCheckBuild and 'issueList' in apiCheckBuild['json']:
+      if len(apiCheckBuild['json']['issueList']['services']) > 0:
+        issuesList = apiCheckBuild['json']['issueList']['services']
+        for issue in issuesList:
+          if issue['name'] == serviceName:
+            return True
+      return False
+    return None
+
+  def updateMenuIssues(menu):
+    for (index, menuItem) in enumerate(menu):
+      if menuItem[1] in selectedServices:
+        if hasReportedIssue(menuItem[1]):
+          menuItem[2]['issues'] = True
+        else:
+          menuItem[2]['issues'] = False
+      else:
+        menuItem[2]['issues'] = None
+
   def checkForIssues():
     try:
       global apiCheckBuild
@@ -78,6 +98,8 @@ def main():
     except Exception as err: 
       print("Issue running build:")
       print(err)
+      print(sys.exc_info())
+      traceback.print_exc()
       input("Press Enter to continue...")
       return False
 
@@ -104,8 +126,8 @@ def main():
     optionsLength = len(" >>  Options ")
     optionsIssuesSpace = len("  ")
     selectedTextLength = len("-> ")
-    spaceAfterissues = len(" ")
-    issuesLength = len(" !! Issue ")
+    spaceAfterissues = len("")
+    issuesLength = len(" !!   Issue")
 
     print(term.move(hotzoneLocation[0], hotzoneLocation[1]))
 
@@ -121,9 +143,6 @@ def main():
     menuItemsActiveRow = term.get_location()[0]
     if renderType == 2 or renderType == 1: # Rerender entire hotzone
       for (index, menuItem) in enumerate(menu): # Menu loop
-        if "issues" in menuItem[2] and menuItem[2]["issues"]:
-          allIssues.append({ "serviceName": menuItem[0], "issues": menuItem[1]["issues"] })
-
         if index >= paginationStartIndex and index < paginationStartIndex + paginationSize:
 
           # Menu highlight logic
@@ -156,16 +175,14 @@ def main():
           for i in range(optionsIssuesSpace):
             toPrint += " "
 
-          if "issues" in menuItem[2] and menuItem[2]["issues"]:
+          if "issues" in menuItem[2] and menuItem[2]["issues"] == True:
             toPrint = toPrint + '{t.red_on_orange} !! {t.normal}'.format(t=term)
-            toPrint = toPrint + ' {t.orange_on_black} Issue {t.normal}'.format(t=term)
+            toPrint = toPrint + ' {t.orange_on_black}Issue {t.normal}'.format(t=term)
+          elif "issues" in menuItem[2] and menuItem[2]["issues"] == False:
+            toPrint = toPrint + '    {t.green_on_blue} Pass {t.normal} '.format(t=term)
           else:
             if menuItem[2]["checked"]:
-              if not menuItem[2]["issues"] == None and len(menuItem[2]["issues"]) == 0:
-                toPrint = toPrint + '   {t.green_on_blue} Pass {t.normal} '.format(t=term)
-              else:
-                for i in range(issuesLength):
-                  toPrint += " "
+              toPrint = toPrint + ' {t.red_on_black} Unknown {t.normal} '.format(t=term)
             else:
               for i in range(issuesLength):
                 toPrint += " "
@@ -275,10 +292,11 @@ def main():
         if not apiCheckBuild == None and 'json' in apiCheckBuild and 'issueList' in apiCheckBuild['json']:
           if 'services' in apiCheckBuild['json']['issueList']:
             if len(apiCheckBuild['json']['issueList']['services']) > 0:
+              issuesList = apiCheckBuild['json']['issueList']
               print(term.center(""))
               print(term.center(""))
               print(term.center(""))
-              print(term.center(("{btl}{bh}{bh}{bh}{bh}{bh}{bh} Build Issues "
+              print(term.center(("{btl}{bh}{bh}{bh}{bh}{bh} Build Issues ({bil}) {bh}"
                 "{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}"
                 "{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}"
                 "{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}"
@@ -286,19 +304,19 @@ def main():
                 "{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}"
                 "{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}"
                 "{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}{bh}"
-                "{bh}{bh}{bh}{bh}{bh}{bh}{bh}{btr}").format(
+                "{bh}{bh}{btr}").format(
                 btl=specialChars[renderMode]["borderTopLeft"],
                 btr=specialChars[renderMode]["borderTopRight"],
-                bh=specialChars[renderMode]["borderHorizontal"]
+                bh=specialChars[renderMode]["borderHorizontal"],
+                bil=str(len(issuesList) - 1).zfill(2)
               )))
               print(term.center(commonEmptyLine(renderMode, size = 139)))
-              issuesList = apiCheckBuild['json']['issueList']
               for service in issuesList['services']:
                 spacesAndBracketsLen = 5
                 issueAndTypeLen = len(service['message']) + len(service['name']) + spacesAndBracketsLen
                 serviceNameAndConflictType = '{t.red_on_black}{service}{t.normal} ({t.yellow_on_black}{message}{t.normal}) '.format(t=term, service=service['name'], message=service['issueType'])
                 formattedServiceNameAndConflictType = generateLineText(str(serviceNameAndConflictType), textLength=issueAndTypeLen, paddingBefore=0, lineLength=32)
-                issueDescription = generateLineText(str(service['message']), textLength=len(str(service['message'])), paddingBefore=0, lineLength=103)
+                issueDescription = generateLineText(str(service['message']), textLength=len(str(service['message'])), paddingBefore=0, lineLength=112)
                 print(term.center("{bv} {nm} - {desc} {bv}".format(nm=formattedServiceNameAndConflictType, desc=issueDescription, bv=specialChars[renderMode]["borderVertical"]) ))
               print(term.center(commonEmptyLine(renderMode, size = 139)))
               print(term.center(commonBottomBorder(renderMode, size = 139)))
@@ -342,8 +360,7 @@ def main():
           itemChecked = False
           if service in selectedServices:
             itemChecked = True
-
-          menu.append([service, service, { "checked": itemChecked, "options": None, "tags": [], "issues": [] }])
+          menu.append([service, service, { "checked": itemChecked, "options": None, "tags": [], "issues": hasReportedIssue(service) }])
           menu[-1][0] = apiServicesMetadata['json'][service]['displayName']
           menu[-1][2]["tags"] = apiServicesMetadata['json'][service]['serviceTypeTags']
 
@@ -412,6 +429,7 @@ def main():
             if key.name == 'KEY_ENTER':
               if hasIssuesChecked == False:
                 checkForIssues()
+                updateMenuIssues(menu)
                 # input(apiCheckBuild)
                 hasIssuesChecked = True
                 needsRender = 1

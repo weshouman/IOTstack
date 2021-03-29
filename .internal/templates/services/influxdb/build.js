@@ -11,7 +11,9 @@ const ServiceBuilder = ({
     setModifiedPorts,
     setLoggingState,
     setNetworkMode,
-    setNetworks
+    setNetworks,
+    setDevices,
+    setEnvironmentVariables
   } = require('../../../src/utils/commonCompileLogic');
 
   const {
