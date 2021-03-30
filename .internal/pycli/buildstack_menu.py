@@ -48,7 +48,7 @@ def main():
   apiBuildOutput = None
   term = Terminal()
   hotzoneLocation = [7, 0] # Top text
-  paginationToggle = [10, term.height - 22] # Top text + controls text
+  paginationToggle = [10, term.height - 25] # Top text + controls text
   paginationStartIndex = 0
   paginationSize = paginationToggle[0]
   activeMenuLocation = 0
@@ -72,10 +72,7 @@ def main():
   def updateMenuIssues(menu):
     for (index, menuItem) in enumerate(menu):
       if menuItem[1] in selectedServices:
-        if hasReportedIssue(menuItem[1]):
-          menuItem[2]['issues'] = True
-        else:
-          menuItem[2]['issues'] = False
+        menuItem[2]['issues'] = hasReportedIssue(menuItem[1])
       else:
         menuItem[2]['issues'] = None
 
@@ -92,9 +89,13 @@ def main():
 
   def buildServices():
     try:
-      global apiBuildOutput
-      apiBuildOutput = saveBuild(os.getenv('API_ADDR'), selectedServices, serviceConfigurations)
-      return True
+      if len(selectedServices) > 0 and len(menu) > 0:
+        global apiBuildOutput
+        apiBuildOutput = saveBuild(os.getenv('API_ADDR'), selectedServices, serviceConfigurations)
+        return True
+      else:
+        print("No items selected")
+        return False
     except Exception as err: 
       print("Issue running build:")
       print(err)
@@ -121,7 +122,7 @@ def main():
     
     return result
 
-  def renderHotZone(term, renderType, menu, selection, paddingBefore, allIssues):
+  def renderHotZone(term, renderType, menu, selection, paddingBefore):
     global paginationSize
     optionsLength = len(" >>  Options ")
     optionsIssuesSpace = len("  ")
@@ -230,8 +231,6 @@ def main():
     global paginationSize
     paddingBefore = 4
 
-    allIssues = []
-
     if selection >= paginationStartIndex + paginationSize:
       paginationStartIndex = selection - (paginationSize - 1) + 1
       renderType = 1
@@ -255,37 +254,42 @@ def main():
         print(term.center(commonEmptyLine(renderMode)))
 
       if len(menu) > 0:
-        renderHotZone(term, renderType, menu, selection, paddingBefore, allIssues)
+        renderHotZone(term, renderType, menu, selection, paddingBefore)
       else:
         print(term.center("{bv}    No menu items were loaded. Press [ESC] to go back         {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
         print(term.center(commonEmptyLine(renderMode)))
 
       if (renderType == 1):
         print(term.center(commonEmptyLine(renderMode)))
+        allIssuesLength = 0
+        try:
+          allIssuesLength = len(apiCheckBuild['json']['issueList']['services'])
+        except:
+          pass
+        hideTextSize = 1
         if not hideHelpText:
-          room = term.height - (28 + len(allIssues) + paginationSize)
-          if room < 0:
-            allIssues.append({ "serviceName": "BuildStack Menu", "issues": { "screenSize": 'Not enough scren height to render correctly (t-height = ' + str(term.height) + ' v-lines = ' + str(room) + ')' } })
-            print(term.center(commonEmptyLine(renderMode)))
-            print(term.center("{bv} Not enough vertical room to render controls help text (H:{th}, V:{rm}) {bv}".format(bv=specialChars[renderMode]["borderVertical"], th=padText(str(term.height), 3), rm=padText(str(room), 3))))
-            print(term.center(commonEmptyLine(renderMode)))
+          hideTextSize = 11
+        room = term.height - (22 + hideTextSize + allIssuesLength + min(paginationSize, len(menu)))
+        if room < 0:
+          print(term.center(commonEmptyLine(renderMode)))
+          print(term.center("{bv} Not enough room to render controls help text (H:{th}, V:{rm})  {bv}".format(bv=specialChars[renderMode]["borderVertical"], th=(str(term.height).zfill(3)), rm=(str(room).zfill(3)))))
+          print(term.center(commonEmptyLine(renderMode)))
+        if not hideHelpText:
+          print(term.center(commonEmptyLine(renderMode)))
+          print(term.center("{bv}    Controls:                                                 {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
+          print(term.center("{bv}    [Space] to select or deselect service                     {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
+          print(term.center("{bv}    [Up] and [Down] to move selection cursor                  {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
+          print(term.center("{bv}    [Right] for options for containers that support them      {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
+          print(term.center("{bv}    [Tab] Expand or collapse build menu size                  {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
+          print(term.center("{bv}    [H] Show/hide this text                                   {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
+          print(term.center("{bv}    [R] Refresh list                                          {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
+          # print(term.center("{bv}    [F] Filter options                                        {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
+          if hasIssuesChecked:
+            print(term.center("{bv}    [Enter] to create build                                   {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
           else:
-            print(term.center(commonEmptyLine(renderMode)))
-            print(term.center("{bv}    Controls:                                                 {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
-            print(term.center("{bv}    [Space] to select or deselect service                     {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
-            print(term.center("{bv}    [Up] and [Down] to move selection cursor                  {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
-            print(term.center("{bv}    [Right] for options for containers that support them      {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
-            print(term.center("{bv}    [Tab] Expand or collapse build menu size                  {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
-            print(term.center("{bv}    [H] Show/hide this text                                   {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
-            print(term.center("{bv}    [R] Refresh list                                          {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
-            # print(term.center("{bv}    [F] Filter options                                        {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
-            if hasIssuesChecked:
-              print(term.center("{bv}    [Enter] to build                                          {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
-            else:
-              print(term.center("{bv}    [Enter] to check build                                    {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
-            print(term.center("{bv}    [Escape] to cancel build                                  {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
-            print(term.center(commonEmptyLine(renderMode)))
-            print(term.center(commonEmptyLine(renderMode)))
+            print(term.center("{bv}    [Enter] to check build                                    {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
+          print(term.center("{bv}    [Escape] to cancel build                                  {bv}".format(bv=specialChars[renderMode]["borderVertical"])))
+          print(term.center(commonEmptyLine(renderMode)))
         print(term.center(commonEmptyLine(renderMode)))
         print(term.center(commonBottomBorder(renderMode)))
 
@@ -308,15 +312,23 @@ def main():
                 btl=specialChars[renderMode]["borderTopLeft"],
                 btr=specialChars[renderMode]["borderTopRight"],
                 bh=specialChars[renderMode]["borderHorizontal"],
-                bil=str(len(issuesList) - 1).zfill(2)
+                bil=str(len(issuesList['services'])).zfill(2)
               )))
               print(term.center(commonEmptyLine(renderMode, size = 139)))
+              # print(term.center("{bv}    {t.red_on_orange}!{t.normal} Menu can still be built with issues detected. IOTstack will attempt to use the best configuration to get your services running.      {bv}".format(t=term, bv=specialChars[renderMode]["borderVertical"])))
+              print(term.center("{bv}    {t.red_on_orange}!{t.normal} Services can still be built with issues detected. IOTstack will attempt to use the best configuration to get your services running.  {bv}".format(t=term, bv=specialChars[renderMode]["borderVertical"])))
+              print(term.center(commonEmptyLine(renderMode, size = 139)))
               for service in issuesList['services']:
-                spacesAndBracketsLen = 5
-                issueAndTypeLen = len(service['message']) + len(service['name']) + spacesAndBracketsLen
-                serviceNameAndConflictType = '{t.red_on_black}{service}{t.normal} ({t.yellow_on_black}{message}{t.normal}) '.format(t=term, service=service['name'], message=service['issueType'])
-                formattedServiceNameAndConflictType = generateLineText(str(serviceNameAndConflictType), textLength=issueAndTypeLen, paddingBefore=0, lineLength=32)
-                issueDescription = generateLineText(str(service['message']), textLength=len(str(service['message'])), paddingBefore=0, lineLength=112)
+                issueMessageMaxLength = len("No pallette addons selected for NodeRed. Select addons in options to remove this warning. Default modules")
+                issueMessage = str(service['message'])
+                if len(issueMessage) > issueMessageMaxLength:
+                  issueMessage = issueMessage[0:issueMessageMaxLength - 3] + '...'
+
+                spacesAndBracketsLen = len(" ()  ")
+                issueAndTypeLen = len(service['name']) + len(service['issueType']) + spacesAndBracketsLen
+                serviceNameAndConflictType = '{t.red_on_black}{service}{t.normal} ({t.yellow_on_black}{issueType}{t.normal}) '.format(t=term, service=service['name'], issueType=service['issueType'])
+                formattedServiceNameAndConflictType = generateLineText(str(serviceNameAndConflictType), textLength=issueAndTypeLen, paddingBefore=0, lineLength=30)
+                issueDescription = generateLineText(str(issueMessage), textLength=len(str(issueMessage)), paddingBefore=0, lineLength=105)
                 print(term.center("{bv} {nm} - {desc} {bv}".format(nm=formattedServiceNameAndConflictType, desc=issueDescription, bv=specialChars[renderMode]["borderVertical"]) ))
               print(term.center(commonEmptyLine(renderMode, size = 139)))
               print(term.center(commonBottomBorder(renderMode, size = 139)))
@@ -358,9 +370,12 @@ def main():
       for service in apiServicesList['json']:
         try:
           itemChecked = False
+          hasIssue = None
           if service in selectedServices:
             itemChecked = True
-          menu.append([service, service, { "checked": itemChecked, "options": None, "tags": [], "issues": hasReportedIssue(service) }])
+            hasIssue = hasReportedIssue(service)
+
+          menu.append([service, service, { "checked": itemChecked, "options": None, "tags": [], "issues": hasIssue }])
           menu[-1][0] = apiServicesMetadata['json'][service]['displayName']
           menu[-1][2]["tags"] = apiServicesMetadata['json'][service]['serviceTypeTags']
 
@@ -434,9 +449,10 @@ def main():
                 hasIssuesChecked = True
                 needsRender = 1
               else:
-                selectionInProgress = False
-                buildServices()
-                input(apiBuildOutput) # TODO: Remove this
+                
+                if buildServices():
+                  selectionInProgress = False
+                # input(apiBuildOutput) # TODO: Remove this
             if key.name == 'KEY_ESCAPE':
               results["buildState"] = False
               return results["buildState"]
@@ -445,8 +461,7 @@ def main():
               checkMenuItem(selection) # Update checked list
               needsRender = 1
             elif key == 'h': # H pressed
-              if hideHelpText:
-                hideHelpText = False
+              hideHelpText = ~hideHelpText
             elif key == 'r': # R pressed
               loadMenu()
             else:
