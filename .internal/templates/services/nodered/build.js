@@ -154,7 +154,7 @@ fi
     return new Promise((resolve, reject) => {
       try {
         console.info(`ServiceBuilder:build() - '${serviceName}' started`);
-        const addonsList = buildOptions?.serviceConfigurations?.services?.nodered?.addons ?? false;
+        const addonsList = buildOptions?.serviceConfigurations?.services?.nodered?.addonsList ?? false;
         const noderedDockerfileTemplate = path.join(__dirname, settings.paths.buildFiles, 'Dockerfile.template');
         const noderedDockerfileCommandTemplate = require(path.join(__dirname, settings.paths.buildFiles, 'addons.json'));
         const tempDockerfileName = `${fileTimePrefix}_Dockerfile.template`;
@@ -169,6 +169,7 @@ fi
         if (Array.isArray(addonsList)) {
           if (addonsList.length > 0) {
             addonsList.forEach((addon) => {
+              console.log(1111, addon)
               if (noderedDockerfileCommandTemplate.data.unsafeAddons.includes(addon)) {
                 addonDockerUnsafeCommandOutput += `${addon} `;
                 unsafeAddonsCount++;
@@ -200,7 +201,7 @@ fi
         if (npmAddonsCount < 1) {
           addonDockerCommandOutput = '';
         }
-        
+
         const outputDockerFile = byName(templateData, {
           'npmInstallModulesList': addonDockerCommandOutput,
           'npmInstallUnsafeModulesList': addonDockerUnsafeCommandOutput
@@ -229,6 +230,8 @@ fi
           code: checkVolumesDirectory()
         });
 
+        console.info(`ServiceBuilder:build() - '${serviceName}' Addons: ${Array.isArray(addonsList) ? 'custom list' : 'default list'}`);
+        console.info(`ServiceBuilder:build() - '${serviceName}' Safe Addons: ${npmAddonsCount}, Unsafe addons: ${unsafeAddonsCount}`);
         console.info(`ServiceBuilder:build() - '${serviceName}' completed`);
         return resolve({ type: 'service' });
       } catch (err) {
