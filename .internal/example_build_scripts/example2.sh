@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Before running, ensure install.sh has run successfully, and the menu containers (specifically the API container) have been built and are running.
+# They can be started by running ./menu.sh
+
 echo "This will generate a build and echo out the command that's required to install it."
 echo "Checkout the 'IOTstack.postman_collection.json' file for all API calls."
 echo ""

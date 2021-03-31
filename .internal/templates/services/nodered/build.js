@@ -161,25 +161,49 @@ fi
 
         const templateData = fs.readFileSync(noderedDockerfileTemplate, { encoding: 'utf8', flag: 'r' });
         let addonDockerCommandOutput = noderedDockerfileCommandTemplate.data.dockerFileInstallCommand;
+        let addonDockerUnsafeCommandOutput = noderedDockerfileCommandTemplate.data.dockerFileInstallUnsafeCommand;
+
+        let unsafeAddonsCount = 0;
+        let npmAddonsCount = 0;
 
         if (Array.isArray(addonsList)) {
           if (addonsList.length > 0) {
             addonsList.forEach((addon) => {
-              addonDockerCommandOutput += `${addon} `;
+              if (noderedDockerfileCommandTemplate.data.unsafeAddons.includes(addon)) {
+                addonDockerUnsafeCommandOutput += `${addon} `;
+                unsafeAddonsCount++;
+              } else {
+                addonDockerCommandOutput += `${addon} `;
+                npmAddonsCount++;
+              }
             });
-          } else {
-            addonDockerCommandOutput = '';
           }
+
         } else {
           // Use default addons
           const defaultAddons = require("./buildFiles/addons.json");
           (defaultAddons?.data?.addons?.defaultOn ?? []).forEach((addon) => {
-            addonDockerCommandOutput += `${addon} `;
+            if (noderedDockerfileCommandTemplate.data.unsafeAddons.includes(addon)) {
+              addonDockerUnsafeCommandOutput += `${addon} `;
+              unsafeAddonsCount++;
+            } else {
+              addonDockerCommandOutput += `${addon} `;
+              npmAddonsCount++;
+            }
           });
         }
   
+        if (unsafeAddonsCount < 1) {
+          addonDockerUnsafeCommandOutput = '';
+        }
+
+        if (npmAddonsCount < 1) {
+          addonDockerCommandOutput = '';
+        }
+        
         const outputDockerFile = byName(templateData, {
-          'npmInstallModulesList': addonDockerCommandOutput
+          'npmInstallModulesList': addonDockerCommandOutput,
+          'npmInstallUnsafeModulesList': addonDockerUnsafeCommandOutput
         });
 
         const tempBuildFile = path.join(tmpPath, tempDockerfileName);

@@ -5,6 +5,10 @@
   "comment": "Addons available for NodeRed",
   "data": {
     "dockerFileInstallCommand": "RUN cd /usr/src/node-red && npm install --save ",
+    "dockerFileInstallUnsafeCommand": "RUN cd /usr/src/node-red && npm install --save --unsafe-perm ",
+    "unsafeAddons": [
+      "node-red-node-sqlite"
+    ],
     "addons": {
       "defaultOn": [
         "node-red-node-pi-gpiod",
