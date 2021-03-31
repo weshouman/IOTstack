@@ -294,6 +294,7 @@ if [[ "$HAS_ERROR" == "true" ]]; then
   echo "--------"
   echo ""
   echo "An error occured installing IOTstack. Please review the output above."
+  echo "If you have just installed the OS, try giving the RPi 30 minutes to complete setup and try installing IOTstack again."
   read -n 1 -s -r -p "Press any key to continue"
 else
   echo "IOTstack setup completed"

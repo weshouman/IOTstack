@@ -4,7 +4,13 @@ const {
 
 const checkPortConflicts = ({ buildTemplate, buildOptions, serviceName }) => {
   const portConflicts = [];
+
   const currentServiceExternalPorts = buildTemplate?.services?.[serviceName]?.ports?.map((port) => {
+    return getExternalPort(port);
+  }) ?? [];
+
+  // This is for services that have network mode set to host (and ports can't be specified in the docker-compose file)
+  const currentConfiguredServiceExternalPorts = Object.values(buildOptions?.serviceConfigurations?.services?.[serviceName]?.ports ?? [])?.map((port) => {
     return getExternalPort(port);
   }) ?? [];
 
@@ -18,7 +24,7 @@ const checkPortConflicts = ({ buildTemplate, buildOptions, serviceName }) => {
     }) ?? [];
 
     checkingServiceExternalPorts.forEach((port) => {
-      if (currentServiceExternalPorts.includes(port)) {
+      if ([...currentConfiguredServiceExternalPorts, ...currentServiceExternalPorts].includes(port)) {
         portConflicts.push({
           type: 'service',
           name: serviceName,
