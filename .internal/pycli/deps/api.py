@@ -258,6 +258,7 @@ def saveBuild(host, selectedServices, serviceConfigurations = {}, protocol="http
   try:
     url = '{protocol}{host}/build/save'.format(host=host, protocol=protocol)
     requestData = {}
+    requestData['buildOptions'] = {}
     requestData['buildOptions']['selectedServices'] = selectedServices
     requestData['buildOptions']['serviceConfigurations'] = serviceConfigurations
 

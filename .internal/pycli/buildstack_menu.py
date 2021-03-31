@@ -89,7 +89,7 @@ def main():
 
   def buildServices():
     try:
-      if len(selectedServices) > 0 and len(menu) > 0:
+      if len(selectedServices) > 0:
         global apiBuildOutput
         apiBuildOutput = saveBuild(os.getenv('API_ADDR'), selectedServices, serviceConfigurations)
         return True
@@ -449,9 +449,11 @@ def main():
                 hasIssuesChecked = True
                 needsRender = 1
               else:
-                
-                if buildServices():
+                buildResult = buildServices()
+                results["buildState"] = buildResult
+                if not buildResult == None:
                   selectionInProgress = False
+                  return results["buildState"]
                 # input(apiBuildOutput) # TODO: Remove this
             if key.name == 'KEY_ESCAPE':
               results["buildState"] = False
