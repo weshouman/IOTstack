@@ -51,12 +51,11 @@ nr_dfile=./services/nodered/Dockerfile
 sqliteflag=0
 
 touch $nr_dfile
-echo "FROM nodered/node-red:latest" >$nr_dfile
+echo "FROM nodered/node-red:latest-12" >$nr_dfile
 
 echo "USER root" >>$nr_dfile
-echo "RUN apk update" >>$nr_dfile
-echo "RUN apk upgrade" >>$nr_dfile
-echo "RUN apk add --no-cache eudev-dev" >>$nr_dfile
+echo "RUN apk update && apk add --no-cache eudev-dev" >>$nr_dfile
+echo "USER node-red" >>$nr_dfile
 
 #node red install script inspired from https://tech.scargill.net/the-script/
 echo "RUN for addonnodes in \\" >>$nr_dfile
