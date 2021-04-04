@@ -278,12 +278,32 @@ function install_ssh_keys() {
   fi
 }
 
+function ssh_management() {
+  if [[ "$SSH_KEY_INSTALL" == "true" ]]; then
+    generate_container_ssh
+    install_ssh_keys
+    check_ssh_state
+  elif [[ "$SSH_KEY_INSTALL" == "false" ]]; then
+    echo "Skipping container SSH key install" >&2
+  else
+    echo "IOTstack runs its menu and API inside docker containers. In order for these containers to be able to execute commands on your host, SSH keys are required to be generated and installed." >&2
+    echo "These keys never leave your host and are only consumed by the menu containers. You can set these up yourself later, either manually or by running ./menu.sh --run-env-setup" >&2
+    echo "See the documentation in the github for more information." >&2
+    read -p "Generate and Install the SSH keys? [y/n]\n" -n 1 -r >&2
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+      generate_container_ssh
+      install_ssh_keys
+      check_ssh_state
+    else
+      echo "Skipping container SSH key install" >&2
+    fi
+  fi
+}
+
 # Entry point
 do_env_setup
 do_iotstack_setup
-generate_container_ssh
-install_ssh_keys
-check_ssh_state
+ssh_management
 install_docker
 do_group_setup
 
