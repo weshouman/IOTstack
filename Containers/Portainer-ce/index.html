@@ -1,0 +1,1375 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Docker stack for getting started on IOT on the Raspberry PI">
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-7.1.1">
+    
+    
+      
+        <title>Portainer CE - IOTstack</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.9299cb39.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ef6f36e2.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
+      
+    
+    
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+  
+    
+    <script>function __prefix(e){return new URL("../..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#portainer-ce" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="IOTstack" class="md-header__button md-logo" aria-label="IOTstack" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            IOTstack
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Portainer CE
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="IOTstack" class="md-nav__button md-logo" aria-label="IOTstack" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    IOTstack
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        IOTStack Wiki
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Accessing-your-Device-from-the-internet/" class="md-nav__link">
+        Accessing your device from the internet
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Backup-and-Restore/" class="md-nav__link">
+        Backing up and restoring IOTstack
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BuildStack-RandomPassword/" class="md-nav__link">
+        Build Stack Random Services Password
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BuildStack-Services/" class="md-nav__link">
+        Build Stack Services system
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Contributing-Services/" class="md-nav__link">
+        Contributing a service to IOTstack
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Custom/" class="md-nav__link">
+        Custom services and overriding default settings for IOTstack
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Default-Configs/" class="md-nav__link">
+        Build Stack Default Passwords for Services
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Docker-commands/" class="md-nav__link">
+        Docker commands
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Getting-Started/" class="md-nav__link">
+        Getting Started
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Home/" class="md-nav__link">
+        Wiki
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../How-the-script-works/" class="md-nav__link">
+        How the script works
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Menu-System/" class="md-nav__link">
+        Menu system
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Misc/" class="md-nav__link">
+        Miscellaneous
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Native-RTL_433/" class="md-nav__link">
+        Native RTL_433
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Networking/" class="md-nav__link">
+        Networking
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../New-Menu-Release-Notes/" class="md-nav__link">
+        New IOTstack Menu
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../PostBuild-Script/" class="md-nav__link">
+        Postbuild BASH Script
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../RPIEasy_native/" class="md-nav__link">
+        RPIEasy
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Understanding-Containers/" class="md-nav__link">
+        What is Docker?
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Updating-the-Project/" class="md-nav__link">
+        Updating the project
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gcgarner-migration/" class="md-nav__link">
+        Migrating from gcgarner to SensorsIot
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_23" type="checkbox" id="__nav_23" checked>
+      
+      <label class="md-nav__link" for="__nav_23">
+        Containers
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Containers" data-md-level="1">
+        <label class="md-nav__title" for="__nav_23">
+          <span class="md-nav__icon md-icon"></span>
+          Containers
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Adminer/" class="md-nav__link">
+        Adminer
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Blynk_server/" class="md-nav__link">
+        Blynk server
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DashMachine/" class="md-nav__link">
+        DashMachine
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../EspruinoHub/" class="md-nav__link">
+        Espruinohub
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Grafana/" class="md-nav__link">
+        Grafana
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Heimdall/" class="md-nav__link">
+        Heimdall
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Home-Assistant/" class="md-nav__link">
+        Home assistant
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Homer/" class="md-nav__link">
+        Homer
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../InfluxDB/" class="md-nav__link">
+        InfluxDB
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MariaDB/" class="md-nav__link">
+        MariaDB
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Mosquitto/" class="md-nav__link">
+        Mosquitto
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MotionEye/" class="md-nav__link">
+        MotionEye
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../NextCloud/" class="md-nav__link">
+        Next Cloud
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Node-RED/" class="md-nav__link">
+        Node-RED
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Pi-hole/" class="md-nav__link">
+        Pi-hole
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Plex/" class="md-nav__link">
+        Plex
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Portainer-agent/" class="md-nav__link">
+        Portainer agent
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Portainer CE
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Portainer CE
+      </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    References
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#definition" class="md-nav__link">
+    Definition
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#about-portainer-ce" class="md-nav__link">
+    About Portainer CE
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#portainer-ce-coexistence-with-portainer" class="md-nav__link">
+    Portainer CE coexistence with Portainer
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installing-portainer-ce" class="md-nav__link">
+    Installing Portainer CE
+  </a>
+  
+    <nav class="md-nav" aria-label="Installing Portainer CE">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#migration-note" class="md-nav__link">
+     Migration note 
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#port-number-9002" class="md-nav__link">
+    Port Number = 9002
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#first-run-of-portainer-ce" class="md-nav__link">
+    First run of Portainer CE
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ceasing-use-of-portainer" class="md-nav__link">
+    Ceasing use of Portainer
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setting-the-public-ip-address-for-your-end-point" class="md-nav__link">
+    Setting the Public IP address for your end-point
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#if-you-forget-your-password" class="md-nav__link">
+    If you forget your password
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Portainer/" class="md-nav__link">
+        Portainer
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../PostgreSQL/" class="md-nav__link">
+        PostgreSQL
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Python/" class="md-nav__link">
+        Python
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RTL_433-docker/" class="md-nav__link">
+        RTL_433 Docker
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TasmoAdmin/" class="md-nav__link">
+        TasmoAdmin
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../WireGuard/" class="md-nav__link">
+        WireGuard
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Zigbee2MQTT/" class="md-nav__link">
+        Zigbee2MQTT
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Zigbee2mqttassistant/" class="md-nav__link">
+        Zigbee2Mqtt Assistant
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deconz/" class="md-nav__link">
+        deCONZ
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../diyHue/" class="md-nav__link">
+        DIY hue
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../openHAB/" class="md-nav__link">
+        Openhab
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../x2go/" class="md-nav__link">
+        x2go
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    References
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#definition" class="md-nav__link">
+    Definition
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#about-portainer-ce" class="md-nav__link">
+    About Portainer CE
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#portainer-ce-coexistence-with-portainer" class="md-nav__link">
+    Portainer CE coexistence with Portainer
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installing-portainer-ce" class="md-nav__link">
+    Installing Portainer CE
+  </a>
+  
+    <nav class="md-nav" aria-label="Installing Portainer CE">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#migration-note" class="md-nav__link">
+     Migration note 
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#port-number-9002" class="md-nav__link">
+    Port Number = 9002
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#first-run-of-portainer-ce" class="md-nav__link">
+    First run of Portainer CE
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ceasing-use-of-portainer" class="md-nav__link">
+    Ceasing use of Portainer
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setting-the-public-ip-address-for-your-end-point" class="md-nav__link">
+    Setting the Public IP address for your end-point
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#if-you-forget-your-password" class="md-nav__link">
+    If you forget your password
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                
+                <h1 id="portainer-ce">Portainer CE</h1>
+<h2 id="references">References</h2>
+<ul>
+<li><a href="https://hub.docker.com/r/portainer/portainer-ce/">Docker</a></li>
+<li><a href="https://www.portainer.io/portainer-ce/">Website</a></li>
+</ul>
+<h2 id="definition">Definition</h2>
+<ul>
+<li>
+<p>"#yourip" means any of the following:</p>
+<ul>
+<li>the IP address of your Raspberry Pi (eg <code>192.168.1.10</code>)</li>
+<li>the multicast domain name of your Raspberry Pi (eg <code>iot-hub.local</code>)</li>
+<li>the domain name of your Raspberry Pi (eg <code>iot-hub.mydomain.com</code>) </li>
+</ul>
+</li>
+</ul>
+<h2 id="about-portainer-ce">About <em>Portainer CE</em></h2>
+<p><em>Portainer CE</em> (Community Edition) is an application for managing Docker. It is a successor to <em>Portainer</em>. According to <a href="https://www.portainer.io/2020/08/portainer-ce-2-0-what-to-expect/">the <em>Portainer CE</em> documentation</a></p>
+<blockquote>
+<p>Portainer 1.24.x will continue as a separate code branch, released as portainer/portainer:latest, and will receive ongoing security updates until at least 1st Sept 2021. No new features will be added beyond what was available in 1.24.1.</p>
+</blockquote>
+<p>From that it should be clear that <em>Portainer</em> is deprecated and that <em>Portainer CE</em> is the way forward.</p>
+<h2 id="portainer-ce-coexistence-with-portainer"><em>Portainer CE</em> coexistence with <em>Portainer</em></h2>
+<p>IOTstack has been set up so that <em>Portainer CE</em> and <em>Portainer</em> can coexist. This is intended as a short-term migration aid rather than a long-term proposition.</p>
+<p>If you are a first-time user of IOTstack, you should choose <em>Portainer CE</em> and forget about <em>Portainer</em>.</p>
+<h2 id="installing-portainer-ce">Installing <em>Portainer CE</em></h2>
+<p>Run the menu:</p>
+<pre><code>$ cd ~/IOTstack
+$ ./menu.sh
+</code></pre>
+<p>Choose "Build Stack", select "Portainer-ce", press [TAB] then "\&lt;Ok>" and follow through to the end of the menu process, typically choosing "Do not overwrite" for any existing services. When the menu finishes:</p>
+<pre><code>$ docker-compose up -d
+</code></pre>
+<p>Ignore any message like this:</p>
+<blockquote>
+<p>WARNING: Found orphan containers (portainer) for this project …</p>
+</blockquote>
+<h3 id="migration-note"><a name="MigrationNote"> Migration note </a></h3>
+<p><em>Portainer CE</em> and <em>Portainer</em> use different locations for their persistent data:</p>
+<table>
+<thead>
+<tr>
+<th>Edition</th>
+<th>Persistent Data Directory</th>
+<th align="center">Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Portainer</td>
+<td>~/IOTstack/volumes/portainer</td>
+<td align="center">[A]</td>
+</tr>
+<tr>
+<td>Portainer CE</td>
+<td>~/IOTstack/volumes/portainer-ce</td>
+<td align="center">[B]</td>
+</tr>
+</tbody>
+</table>
+<p>If you have been running <em>Portainer</em> but have <strong>never</strong> run <em>Portainer CE</em> then:</p>
+<ul>
+<li>[A] will exist, but</li>
+<li>[B] will not exist.</li>
+</ul>
+<p>Whenever "Portainer-ce" is enabled in <code>menu.sh</code>, a check is made for the <strong>presence</strong> of [A] combined with the <strong>absence</strong> [B]. If and only if that situation exists, [B] is initialised as a copy of [A].</p>
+<p>This one-time copy is intended to preserve your <em>Portainer</em> settings and admin user password for use in <em>Portainer CE</em>. Thereafter, any settings you change in <em>Portainer CE</em> will not be reflected in <em>Portainer</em>, nor vice versa.</p>
+<h2 id="port-number-9002">Port Number = 9002</h2>
+<p>Both <em>Portainer CE</em> and <em>Portainer</em> are usually configured to listen to port 9000 but, in the IOTstack implementation:</p>
+<ul>
+<li><em>Portainer CE</em> uses port 9002; and</li>
+<li><em>Portainer</em> uses port 9000.</li>
+</ul>
+<blockquote>
+<p>You can always change the port numbers in your <code>docker-compose.yml</code>.  </p>
+</blockquote>
+<h2 id="first-run-of-portainer-ce">First run of <em>Portainer CE</em></h2>
+<p>In your web browser navigate to <code>#yourip:9002/</code>.</p>
+<ul>
+<li>
+<p>If you are migrating from <em>Portainer</em>:</p>
+<ul>
+<li>review the <a href="#MigrationNote">Migration note</a> which explains why your <em>Portainer</em> credentials will likely apply to <em>Portainer CE</em>, and then</li>
+<li>supply your <em>Portainer</em> credentials.</li>
+</ul>
+</li>
+<li>
+<p><a name="NewAccount"> If you are <strong>not</strong> migrating from <em>Portainer</em>: </a></p>
+<ul>
+<li>the first screen will suggest a username of "admin" and ask for a password. Supply those credentials and click "Create User".</li>
+<li>the second screen will ask you to select a connection method. For IOTstack, "Docker (Manage the local Docker environment)" is usually appropriate so click that and then click "Connect".</li>
+</ul>
+</li>
+</ul>
+<p>From there, you can click on the "Local" group and take a look around. One of the things <em>Portainer CE</em> can help you do is find unused containers but beware of reading too much into this because, sometimes, an "unused" container is actually the base for another container (eg Node-Red).</p>
+<p>There are 'Quick actions' to view logs and other stats. This can all be done from terminal commands but <em>Portainer CE</em> makes it easier. </p>
+<h2 id="ceasing-use-of-portainer">Ceasing use of Portainer</h2>
+<p>As soon as you are happy that <em>Portainer CE</em> meets your needs, you can dispense with <em>Portainer</em>. IOTstack only has limited support for getting rid of unwanted services so you should do the following.</p>
+<ol>
+<li>
+<p>Stop Portainer from running and remove its image:</p>
+<p><code>$ cd ~/IOTstack
+$ docker-compose stop portainer
+$ docker-compose rm -f portainer
+$ docker rmi portainer/portainer</code></p>
+</li>
+<li>
+<p>Either:</p>
+<ul>
+<li>run <code>menu.sh</code></li>
+<li>choose "Build Stack"</li>
+<li>de-select "portainer", and</li>
+<li>follow through to the end choosing "Do not overwrite" for existing services,</li>
+</ul>
+<p>or:</p>
+<ul>
+<li>
+<p>edit <code>docker-compose.yml</code> and remove these lines:</p>
+<p><code>portainer:
+    container_name: portainer
+    image: portainer/portainer
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./volumes/portainer/data:/data</code></p>
+</li>
+<li>
+<p>edit <code>services/selection.txt</code> and remove this line:</p>
+<p><code>portainer</code></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Tidy-up:</p>
+<p><code>$ cd ~/IOTstack
+$ rm -rf ./services/portainer
+$ sudo rm -rf ./volumes/portainer</code></p>
+</li>
+</ol>
+<h2 id="setting-the-public-ip-address-for-your-end-point">Setting the Public IP address for your end-point</h2>
+<p>If you click on a "Published Port" in the "Containers" list, your browser may return an error saying something like "can't connect to server" associated with an IP address of "0.0.0.0".</p>
+<p>To fix that problem, proceed as shown below:</p>
+<p><img alt="Set Public IP address" src="../images/portainer-ce-set-public-ip.png" /></p>
+<ol>
+<li>Click "Endpoints" in the left hand panel.</li>
+<li>Click the name "local" in the list of Endpoints.</li>
+<li>Click in the "Public IP" field. Enter one of the following:<ul>
+<li>The multicast DNS (MDNS) name of your Raspberry Pi (eg <code>iot-hub.local</code>)</li>
+<li>The fully-qualified domain name (FQDN) of your Raspberry Pi (eg <code>iot-hub.mydomain.com</code>)</li>
+<li>The IP address of your Raspberry Pi (eg <code>192.168.1.10</code>)</li>
+</ul>
+</li>
+<li>Click "Update endpoint".</li>
+</ol>
+<blockquote>
+<p>To remove the Public IP address, repeat the above steps but clear the "Public IP" field in step 3.</p>
+</blockquote>
+<p>The reason why you have to tell <em>Portainer CE</em> which Public IP address to use is because an instance of <em>Portainer CE</em> does not necessarily have to be running on the <strong>same</strong> Raspberry Pi as the Docker containers it is managing.</p>
+<p>Keep in mind that clicking on a "Published Port" does not guarantee that your browser can open a connection. For example:</p>
+<ul>
+<li>Port 1883 for Mosquitto expects MQTT packets. It will not respond to HTTP, so any attempt will fail.</li>
+<li>Port 8089 for PiHole will respond to HTTP but PiHole may reject or mis-handle your attempt.</li>
+<li>Port 1880 for NodeRed will respond normally.</li>
+</ul>
+<blockquote>
+<p>All things considered, you will get more consistent behaviour if you simply bookmark the URLs you want to use for your IOTstack services.</p>
+</blockquote>
+<h2 id="if-you-forget-your-password">If you forget your password</h2>
+<p>If you forget the password you created for <em>Portainer CE</em>, you can recover by doing the following:</p>
+<pre><code>$ cd ~/IOTstack
+$ docker-compose stop portainer-ce
+$ sudo rm -r ./volumes/portainer-ce
+$ docker-compose start portainer-ce
+</code></pre>
+<p>Then use your browser to navigate to <code>#yourip:9002/</code> and follow the steps in <a href="#NewAccount">if you are <strong>not</strong> migrating from <em>Portainer</em></a>.</p>
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+        <a href="../Portainer-agent/" class="md-footer__link md-footer__link--prev" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Portainer agent
+            </div>
+          </div>
+        </a>
+      
+      
+        <a href="../Portainer/" class="md-footer__link md-footer__link--next" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Portainer
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+        
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["tabs"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}, "search": "../../assets/javascripts/workers/search.fe42c31b.min.js", "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.7353b375.min.js"></script>
+      
+    
+  </body>
+</html>
